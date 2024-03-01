@@ -47,11 +47,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet()]
         public IActionResult PortalStub()
         {
-            // this works!
-            return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { encodedAccountId = "encodedAccountId" });
+            if (!bool.TryParse(_config["StubAuth"], out bool stubAuth) && stubAuth)
+            {
+                return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { encodedAccountId = "encodedAccountId" });
+            }
 
-            // this would not work which is correct as the account is not for the stubbed user but then fails to go to a 403 page
-            //return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { encodedAccountId = "AAABBC" });
+            return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { encodedAccountId = "BB4KGX" });
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

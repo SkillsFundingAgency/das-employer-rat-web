@@ -22,7 +22,18 @@
       "applicationUrl": "https://localhost:7701;http://localhost:7700",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "APPSETTING_ResourceEnvironmentName": "LOCAL"
+        "APPSETTING_ResourceEnvironmentName": "LOCAL",
+        "StubAuth": "true"
+      }
+    },
+    "SFA.DAS.EmployerRequestApprenticeTraining.Web.GovUk.Auth": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:5003",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "APPSETTING_ResourceEnvironmentName": "LOCAL",
+        "StubAuth": "false"
       }
     }
   }

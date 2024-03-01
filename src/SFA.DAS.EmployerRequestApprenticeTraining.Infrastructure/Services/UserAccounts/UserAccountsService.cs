@@ -18,7 +18,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.User
         {
             try
             {
-                return await _outerApi.GetUserAccounts(userId, WebUtility.UrlEncode(email));
+                return await _outerApi.GetUserAccounts(userId, email);
             }
             catch (ApiException)
             {
