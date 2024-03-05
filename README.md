@@ -44,7 +44,6 @@ In the web project, if not exist already, add `AppSettings.Development.json` fil
   },
   "StubEmail": "someemail",
   "StubId": "someid",
-  "ResourceEnvironmentName": "LOCAL",
   "StubAuth": true
 } 
 ```

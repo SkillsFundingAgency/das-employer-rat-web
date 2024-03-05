@@ -9,7 +9,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
     {
         public static IServiceCollection AddEmployerSharedUi(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddMaMenuConfiguration("signout", configuration["APPSETTING_ResourceEnvironmentName"]);
+            services.AddMaMenuConfiguration("signout", configuration["EnvironmentName"]);
 
             services.AddSingleton<ICookieBannerViewModel>(provider =>
             {

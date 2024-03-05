@@ -13,7 +13,7 @@
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "APPSETTING_ResourceEnvironmentName": "LOCAL"
+        "EnvironmentName": "LOCAL"
       }
     },
     "SFA.DAS.EmployerRequestApprenticeTraining.Web": {
@@ -22,7 +22,7 @@
       "applicationUrl": "https://localhost:7701;http://localhost:7700",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "APPSETTING_ResourceEnvironmentName": "LOCAL",
+        "EnvironmentName": "LOCAL",
         "StubAuth": "true"
       }
     },
@@ -32,7 +32,7 @@
       "applicationUrl": "https://localhost:5003",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "APPSETTING_ResourceEnvironmentName": "LOCAL",
+        "EnvironmentName": "LOCAL",
         "StubAuth": "false"
       }
     }
