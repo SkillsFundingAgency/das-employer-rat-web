@@ -40,8 +40,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
 
             services.AddConfigurationOptions(_configuration);
 
-            var configurationWeb = _configuration.GetSection<EmployerRequestApprenticeTrainingWeb>();
-            var configurationOuterApi = _configuration.GetSection<EmployerRequestApprenticeTrainingOuterApi>();
+            var configurationWeb = _configuration.GetSection<EmployerRequestApprenticeTrainingWebConfiguration>();
+            var configurationOuterApi = _configuration.GetSection<EmployerRequestApprenticeTrainingOuterApiConfiguration>();
 
             services
                 .AddSingleton(configurationWeb)

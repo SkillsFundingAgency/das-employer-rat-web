@@ -11,7 +11,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
     public static class HealthCheckStartupExtensions
     {
-        public static IServiceCollection AddDasHealthChecks(this IServiceCollection services, EmployerRequestApprenticeTrainingWeb configWeb)
+        public static IServiceCollection AddDasHealthChecks(this IServiceCollection services, EmployerRequestApprenticeTrainingWebConfiguration configWeb)
         {
             services
                 .AddHealthChecks()

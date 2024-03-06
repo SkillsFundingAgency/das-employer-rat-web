@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
 {
-    public class EmployerRequestApprenticeTrainingOuterApi : IApimClientConfiguration
+    public class EmployerRequestApprenticeTrainingOuterApiConfiguration : IApimClientConfiguration
     {
         public string ApiBaseUrl { get; set; }
         public string SubscriptionKey { get; set; }

@@ -8,7 +8,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
     public static class DataProtectionStartupExtensions
     {
-        public static IServiceCollection AddDasDataProtection(this IServiceCollection services, EmployerRequestApprenticeTrainingWeb configWeb, IHostEnvironment environment)
+        public static IServiceCollection AddDasDataProtection(this IServiceCollection services, EmployerRequestApprenticeTrainingWebConfiguration configWeb, IHostEnvironment environment)
         {
             if (environment.IsDevelopment())
             {

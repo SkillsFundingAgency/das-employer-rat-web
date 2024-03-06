@@ -6,7 +6,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
     public static class CacheStartupExtensions
     {
-        public static IServiceCollection AddCache(this IServiceCollection services, IHostEnvironment environment, EmployerRequestApprenticeTrainingWeb config)
+        public static IServiceCollection AddCache(this IServiceCollection services, IHostEnvironment environment, EmployerRequestApprenticeTrainingWebConfiguration config)
         {
             if (environment.IsDevelopment())
             {
