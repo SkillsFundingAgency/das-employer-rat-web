@@ -1,13 +1,9 @@
 using AutoFixture;
 using AutoFixture.NUnit3;
-using Castle.Components.DictionaryAdapter.Xml;
 using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Azure;
-using Microsoft.Rest.TransientFaultHandling;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -16,12 +12,10 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAcco
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions;
 using SFA.DAS.Testing.AutoFixture;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.StartupExtensions
 {
