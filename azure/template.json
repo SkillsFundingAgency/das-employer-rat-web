@@ -85,7 +85,7 @@
         },
         {
             "apiVersion": "2021-04-01",
-            "name": "[concat(parameters('keyVaultCertificateName'), '-', parameters('utcValue'))]",
+            "name": "[concat(variables('appServiceName'), '-app-service-certificate-', parameters('utcValue'))]",
             "type": "Microsoft.Resources/deployments",
             "resourceGroup": "[parameters('sharedEnvResourceGroup')]",
             "properties": {
@@ -124,6 +124,9 @@
                     },
                     "attachedService": {
                         "value": "[variables('appServiceName')]"
+                    },
+                    "logAnalyticsWorkspaceName": {
+                        "type": "string"
                     }
                 }
             },
