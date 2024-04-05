@@ -56,9 +56,6 @@
         "sharedApimName": {
             "type": "string"
         },
-        "stubAuth": {
-            "type": "string"
-        },
         "logAnalyticsSubscriptionId": {
             "type": "string",
             "defaultValue": "[subscription().subscriptionId]"
@@ -195,10 +192,6 @@
                                 {
                                     "name": "LoggingRedisKey",
                                     "value": "[parameters('loggingRedisKey')]"
-                                },
-                                {
-                                    "name": "StubAuth",
-                                    "value": "[parameters('stubAuth')]"
                                 },
                                 {
                                     "name": "Cdn:Url",
