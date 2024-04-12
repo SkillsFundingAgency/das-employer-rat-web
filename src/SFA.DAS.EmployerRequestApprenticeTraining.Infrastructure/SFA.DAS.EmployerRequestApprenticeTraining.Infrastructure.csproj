@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <CodeAnalysisRuleSet>..\.sonarlint\skillsfundingagency_das-employer-request-apprentice-training-webcsharp.ruleset</CodeAnalysisRuleSet>
     <LangVersion>latestmajor</LangVersion>
   </PropertyGroup>
 
