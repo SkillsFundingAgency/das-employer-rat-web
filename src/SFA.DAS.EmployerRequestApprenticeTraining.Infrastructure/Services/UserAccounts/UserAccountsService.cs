@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using RestEase;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts
 {
@@ -26,7 +27,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.User
             catch (ApiException ex)
             {
                 _logger.LogError(ex, $"Unable to get user accounts for userId:{userId} and email:{email}");
-                return new EmployerUser();
+                return new UserAccountsResponse();
             }
         }
     }

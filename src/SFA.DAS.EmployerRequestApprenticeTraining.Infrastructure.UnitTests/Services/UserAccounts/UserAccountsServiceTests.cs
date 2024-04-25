@@ -58,6 +58,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             UserAccountsService userAccountsService)
         {
             // Arrange
+            var userAccountsResponse = new UserAccountsResponse();
+
             outerApi.Setup(p => p.GetUserAccounts(userId, email))
                 .Throws(new ApiException(new HttpRequestMessage(), new HttpResponseMessage(), string.Empty));
 
@@ -65,7 +67,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             var actual = await userAccountsService.GetUserAccounts(userId, email);
 
             // Assert
-            actual.Should().BeEquivalentTo(new EmployerUser());
+            actual.Should().BeEquivalentTo((EmployerUser)userAccountsResponse);
         }
     }
 }

@@ -79,7 +79,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             employerUserAccount.AccountId = employerUserAccount.AccountId.ToUpper();
             employerUserAccount.Role = "Owner";
 
-            userAccountsService.Setup(x => x.GetUserAccounts(email, userId))
+            userAccountsService.Setup(x => x.GetUserAccounts(userId, email))
                 .ReturnsAsync(new EmployerUser
                 {
                     EmployerUserAccounts = new List<EmployerUserAccount>
@@ -115,7 +115,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             employerUserAccount.AccountId = employerUserAccount.AccountId.ToUpper();
             employerUserAccount.Role = "Owner";
 
-            userAccountsService.Setup(x => x.GetUserAccounts(email, userId))
+            userAccountsService.Setup(x => x.GetUserAccounts(userId, email))
                 .ReturnsAsync(new EmployerUser
                 {
                     EmployerUserAccounts = new List<EmployerUserAccount>

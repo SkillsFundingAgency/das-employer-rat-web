@@ -75,7 +75,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAut
                 var email = emailClaim.Value;
                 var userId = userIdClaim.Value;
 
-                var employerUser = await _userAccountsService.GetUserAccounts(email, userId);
+                var employerUser = await _userAccountsService.GetUserAccounts(userId, email);
                 var employerUserAccounts = employerUser.EmployerUserAccounts.ToDictionary(k => k.AccountId);
                 var employerUserAccountsAsJson = JsonConvert.SerializeObject(employerUserAccounts);
 
