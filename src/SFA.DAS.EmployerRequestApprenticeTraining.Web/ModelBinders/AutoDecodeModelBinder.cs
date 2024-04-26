@@ -67,8 +67,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.ModelBinders
             if (container == null) return null;
 
             var propertyType = container.GetProperty(context.ModelMetadata.PropertyName);
-            var attributes = propertyType.GetCustomAttributes(true);
-            var attribute = (AutoDecodeAttribute)attributes.FirstOrDefault(a => a.GetType().IsEquivalentTo(typeof(AutoDecodeAttribute)));
+            var attributes = propertyType.GetCustomAttributes(true).ToList();
+            var attribute = (AutoDecodeAttribute)attributes.Find(a => a.GetType().IsEquivalentTo(typeof(AutoDecodeAttribute)));
 
             return attribute;
         }

@@ -32,14 +32,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
             foreach (var standard in Source)
             {
                 var selected = standard.Selected;
-
                 if (!ViewContext.ModelState.IsValid && ViewContext.ModelState["SelectedStandardId"] != null)
                 {
-                    selected = ViewContext.ModelState["SelectedStandardId"]?.AttemptedValue == string.Empty
-                        ? null
-                        : standard.Id == ViewContext.ModelState["SelectedStandardId"]?.AttemptedValue
-                            ? "selected"
-                            : null;
+                    selected = standard.Id == ViewContext.ModelState["SelectedStandardId"]?.AttemptedValue
+                        ? "selected"
+                        : null;
                 }
 
                 content.Append($"<option value=\"{standard.Id}\" {(string.IsNullOrEmpty(selected) ? string.Empty : "selected=\"selected\"")}>{standard.Title}</option>");

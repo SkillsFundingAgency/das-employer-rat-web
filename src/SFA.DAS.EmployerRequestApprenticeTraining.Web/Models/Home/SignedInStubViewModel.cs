@@ -34,23 +34,20 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home
             return replacedUrl;
         }
 
-        public List<EmployerUserAccount> Accounts
+        public List<EmployerUserAccount> GetAccounts()
         {
-            get
-            {
-                var associatedAccountsClaim = _claimsPrinciple.Claims.FirstOrDefault(c => c.Type.Equals(EmployerClaims.UserAssociatedAccountsClaimsTypeIdentifier))?.Value;
-                if (string.IsNullOrEmpty(associatedAccountsClaim))
-                    return new List<EmployerUserAccount>();
+            var associatedAccountsClaim = _claimsPrinciple.Claims.FirstOrDefault(c => c.Type.Equals(EmployerClaims.UserAssociatedAccountsClaimsTypeIdentifier))?.Value;
+            if (string.IsNullOrEmpty(associatedAccountsClaim))
+                return new List<EmployerUserAccount>();
 
-                try
-                {
-                    var accountsDictionary = JsonSerializer.Deserialize<Dictionary<string, EmployerUserAccount>>(associatedAccountsClaim);
-                    return accountsDictionary?.Values.ToList() ?? new List<EmployerUserAccount>();
-                }
-                catch (JsonException)
-                {
-                    return new List<EmployerUserAccount>();
-                }
+            try
+            {
+                var accountsDictionary = JsonSerializer.Deserialize<Dictionary<string, EmployerUserAccount>>(associatedAccountsClaim);
+                return accountsDictionary?.Values.ToList() ?? new List<EmployerUserAccount>();
+            }
+            catch (JsonException)
+            {
+                return new List<EmployerUserAccount>();
             }
         }
     }

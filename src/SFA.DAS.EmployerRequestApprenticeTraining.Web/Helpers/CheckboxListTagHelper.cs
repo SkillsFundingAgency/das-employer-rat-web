@@ -70,12 +70,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
 
                 content.Append($"<label class=\"{LabelClass}\" for=\"{id}\">{tag.Description}</label>");
 
-                if (ShowHint)
+                if (ShowHint && !string.IsNullOrWhiteSpace(tag.Hint))
                 {
-                    if (!string.IsNullOrWhiteSpace(tag.Hint))
-                    {
-                        content.Append($"<span class=\"{DescriptionClass}\" for=\"{id}\">{tag.Hint}</span>");
-                    }
+                    content.Append($"<span class=\"{DescriptionClass}\" for=\"{id}\">{tag.Hint}</span>");
                 }
 
                 content.Append("</div>");

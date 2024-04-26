@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home;
@@ -19,15 +19,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
     [HideAccountNavigation(true)]
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
         private readonly IConfiguration _config;
         private readonly IStubAuthenticationService _stubAuthenticationService;
         private readonly IHttpContextAccessor _contextAccessor;
 
-        public HomeController(ILogger<HomeController> logger, IConfiguration config, 
+        public HomeController(IConfiguration config, 
             IStubAuthenticationService stubAuthenticationService, IHttpContextAccessor contextAccessor)
         {
-            _logger = logger;
             _config = config;
             _stubAuthenticationService = stubAuthenticationService;
             _contextAccessor = contextAccessor;
@@ -76,8 +74,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
             authenticationProperties.Parameters.Add("id_token", idToken);
 
             List<string> authenticationSchemes = new List<string> { CookieAuthenticationDefaults.AuthenticationScheme };
-            if (!bool.TryParse(_config["StubAuth"], out bool stubAuth) || stubAuth == false)
-                authenticationSchemes.Add("OpenIdConnectDefaults.AuthenticationScheme");
+            if (!bool.TryParse(_config["StubAuth"], out bool stubAuth) || !stubAuth)
+                authenticationSchemes.Add(OpenIdConnectDefaults.AuthenticationScheme);
 
             return SignOut(
                 authenticationProperties,
