@@ -41,6 +41,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
         }
     }
 
+    [ExcludeFromCodeCoverage]
     public static class HtmlHelperExtensions
     {
         public static HtmlString AddClassIfPropertyInError<TModel, TProperty>(

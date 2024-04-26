@@ -2,10 +2,12 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class HttpResponseExtensions
     {
         public static Task WriteJsonAsync(this HttpResponse httpResponse, object body)

@@ -1,10 +1,12 @@
 ﻿using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class StringExtensions
     {
         private const string All = "All";

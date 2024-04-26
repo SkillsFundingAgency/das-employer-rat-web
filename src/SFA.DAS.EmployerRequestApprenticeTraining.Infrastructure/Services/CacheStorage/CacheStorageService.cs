@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.CacheStorage
 {
+    [ExcludeFromCodeCoverage]
     public class CacheStorageService : ICacheStorageService
     {
         private readonly IDistributedCache _distributedCache;

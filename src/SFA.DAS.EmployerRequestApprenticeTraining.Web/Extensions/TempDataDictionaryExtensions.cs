@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class TempDataDictionaryExtensions
     {
         public static readonly string FlashMessageTitleTempDataKey = "FlashMessageTitle";

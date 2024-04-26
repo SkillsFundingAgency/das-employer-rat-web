@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class ListExtensions
     {
         public static bool IsComplete(this List<string> list)

@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Shared;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Filters
 {
-    public class GoogleAnalyticsFilter : ActionFilterAttribute
+    [ExcludeFromCodeCoverage]
+    public class GoogleAnalyticsFilterAttribute : ActionFilterAttribute
     {
         public override void OnActionExecuting(ActionExecutingContext context)
         {

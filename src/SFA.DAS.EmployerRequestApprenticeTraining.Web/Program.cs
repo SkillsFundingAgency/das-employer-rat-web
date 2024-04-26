@@ -3,10 +3,12 @@ using Microsoft.Extensions.Hosting;
 using NLog;
 using NLog.Web;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
 {
-    public class Program
+    [ExcludeFromCodeCoverage]
+    public static class Program
     {
         public static void Main(string[] args)
         {

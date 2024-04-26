@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Routing;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class UrlHelperExtensions
     {
         public static string Action(this IUrlHelper helper, string actionName, object routeValues, bool suppressAutoDecodedProperties)

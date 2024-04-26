@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
 {
+    [ExcludeFromCodeCoverage]
     public class EmployerRequest
     {
         

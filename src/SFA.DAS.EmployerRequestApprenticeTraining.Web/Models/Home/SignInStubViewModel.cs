@@ -1,5 +1,8 @@
-﻿namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home
 {
+    [ExcludeFromCodeCoverage]
     public class SignInStubViewModel
     {
         public string StubEmail { get; set; }

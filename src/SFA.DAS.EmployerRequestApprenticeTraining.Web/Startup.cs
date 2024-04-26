@@ -16,9 +16,11 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Web.Filters;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.ModelBinders;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions;
 using SFA.DAS.Validation.Mvc.Extensions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         private readonly IHostEnvironment _environment;
@@ -56,7 +58,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
                     options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
                     options.Filters.Add(new HideAccountNavigationAttribute(false));
                     options.Filters.Add(new EnableGoogleAnalyticsAttribute(_configuration.GetSection<GoogleAnalytics>()));
-                    options.Filters.Add(new GoogleAnalyticsFilter());
+                    options.Filters.Add(new GoogleAnalyticsFilterAttribute());
                     options.Filters.Add(new AccountActiveFilter(_configuration));
 
                     options.ModelBinderProviders.Insert(0, new AutoDecodeModelBinderProvider());

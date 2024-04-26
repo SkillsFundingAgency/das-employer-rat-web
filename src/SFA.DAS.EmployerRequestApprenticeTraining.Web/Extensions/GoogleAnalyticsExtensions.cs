@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class GoogleAnalyticsExtensions
     {
         public static bool GoogleAnalyticsIsEnabled(this ViewDataDictionary viewData)

@@ -3,6 +3,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -11,6 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home
 {
+    [ExcludeFromCodeCoverage]
     public class SignedInStubViewModel
     {
         private readonly ClaimsPrincipal _claimsPrinciple;
