@@ -47,7 +47,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet()]
         public IActionResult PortalStub()
         {
-            if (!bool.TryParse(_config["StubAuth"], out bool stubAuth) && stubAuth)
+            if (bool.TryParse(_config["StubAuth"], out bool stubAuth) && stubAuth)
             {
                 return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { encodedAccountId = "encodedAccountId" });
             }
