@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
+    [ExcludeFromCodeCoverage]
     public class SecurityHeadersMiddleware
     {
         private readonly RequestDelegate _next;

@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Shared
 {
+    [ExcludeFromCodeCoverage]
     public class GaData
     {
         public string DataLoaded { get; set; } = "dataLoaded";

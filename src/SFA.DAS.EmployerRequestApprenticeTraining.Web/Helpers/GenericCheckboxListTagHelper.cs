@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Shared;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
 {
+    [ExcludeFromCodeCoverage]
     public class GenericCheckboxListTagHelper : TagHelper
     {
         private const string ItemClass = "govuk-checkboxes__item";

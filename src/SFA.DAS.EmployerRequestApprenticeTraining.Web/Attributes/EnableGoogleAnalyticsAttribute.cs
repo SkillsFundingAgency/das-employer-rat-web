@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes
 {
+    [ExcludeFromCodeCoverage]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class EnableGoogleAnalyticsAttribute : ResultFilterAttribute
     {

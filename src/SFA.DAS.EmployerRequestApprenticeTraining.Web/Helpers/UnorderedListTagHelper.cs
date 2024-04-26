@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
 {
+    [ExcludeFromCodeCoverage]
     public class UnorderedListTagHelper : TagHelper
     {
         [HtmlAttributeName("asp-for")]

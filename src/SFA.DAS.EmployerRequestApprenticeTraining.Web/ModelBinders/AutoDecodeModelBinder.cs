@@ -2,11 +2,13 @@
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.Encoding;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.ModelBinders
 {
+    [ExcludeFromCodeCoverage]
     public class AutoDecodeModelBinder : IModelBinder
     {
         private readonly IModelBinder _fallbackBinder;

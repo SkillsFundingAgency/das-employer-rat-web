@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes
 {
+    [ExcludeFromCodeCoverage]
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class HideAccountNavigationAttribute : ResultFilterAttribute
     {

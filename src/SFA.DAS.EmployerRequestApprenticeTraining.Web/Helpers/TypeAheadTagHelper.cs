@@ -3,10 +3,12 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Shared;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
 {
+    [ExcludeFromCodeCoverage]
     public class TypeAheadTagHelper : TagHelper
     {
         [HtmlAttributeName("asp-for")]

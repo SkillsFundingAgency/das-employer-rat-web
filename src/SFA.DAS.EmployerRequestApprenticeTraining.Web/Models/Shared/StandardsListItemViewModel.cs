@@ -1,5 +1,8 @@
-﻿namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Shared
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Shared
 {
+    [ExcludeFromCodeCoverage]
     public class StandardsListItemViewModel
     {
         public string Id { get; set; }

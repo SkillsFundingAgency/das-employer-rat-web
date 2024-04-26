@@ -2,11 +2,13 @@
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.HealthChecks
 {
+    [ExcludeFromCodeCoverage]
     public class ApiHealthCheck : IHealthCheck
     {
         private readonly IEmployerRequestApprenticeTrainingOuterApi _outerApi;

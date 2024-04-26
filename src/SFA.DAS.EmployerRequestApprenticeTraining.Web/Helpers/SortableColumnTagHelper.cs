@@ -7,10 +7,12 @@ using Microsoft.AspNetCore.Razor.TagHelpers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
 {
+    [ExcludeFromCodeCoverage]
     [HtmlTargetElement("sortable-column")]
     public class SortableColumnTagHelper : TagHelper
     {

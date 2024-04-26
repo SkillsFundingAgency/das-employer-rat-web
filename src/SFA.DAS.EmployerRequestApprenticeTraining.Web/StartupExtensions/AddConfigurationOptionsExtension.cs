@@ -3,9 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.Encoding;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
+    [ExcludeFromCodeCoverage]
     public static class AddConfigurationOptionsExtension
     {
         public static void AddConfigurationOptions(this IServiceCollection services, IConfiguration configuration)

@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
+    [ExcludeFromCodeCoverage]
     public static class ConfigurationExtensions
     {
         public static IConfiguration BuildDasConfiguration(this IConfiguration configuration)

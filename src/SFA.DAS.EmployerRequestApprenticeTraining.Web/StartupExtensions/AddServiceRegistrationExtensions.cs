@@ -11,9 +11,11 @@ using SFA.DAS.GovUK.Auth.Services;
 using SFA.DAS.Http.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAuthorization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
+    [ExcludeFromCodeCoverage]
     public static class AddServiceRegistrationExtensions
     {
         public static IServiceCollection AddServiceRegistrations(this IServiceCollection services)

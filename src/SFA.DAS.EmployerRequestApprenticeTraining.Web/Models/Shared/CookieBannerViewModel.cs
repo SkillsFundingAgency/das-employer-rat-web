@@ -1,4 +1,6 @@
-﻿namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Shared
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Shared
 {
     public interface ICookieBannerViewModel
     {
@@ -6,6 +8,7 @@
         string CookieDetailsUrl { get; }
     }
 
+    [ExcludeFromCodeCoverage]
     public class CookieBannerViewModel : ICookieBannerViewModel
     {
         public string CookieDetailsUrl { get; set; }

@@ -5,11 +5,13 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Web.Authorization;
 using SFA.DAS.GovUK.Auth.Authentication;
 using SFA.DAS.GovUK.Auth.Extensions;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Claims;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
+    [ExcludeFromCodeCoverage]
     public static class AuthorizationStartupExtensions
     {
         public static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)

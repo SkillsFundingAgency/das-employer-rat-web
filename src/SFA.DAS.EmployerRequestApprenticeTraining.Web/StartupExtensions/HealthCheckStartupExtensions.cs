@@ -5,10 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.HealthChecks;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
+    [ExcludeFromCodeCoverage]
     public static class HealthCheckStartupExtensions
     {
         public static IServiceCollection AddDasHealthChecks(this IServiceCollection services, EmployerRequestApprenticeTrainingWebConfiguration configWeb)

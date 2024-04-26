@@ -3,9 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.GovUK.Auth.AppStart;
 using SFA.DAS.GovUK.Auth.Configuration;
 using SFA.DAS.GovUK.Auth.Services;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
+    [ExcludeFromCodeCoverage]
     public static class AuthenticationExtensions
     {
         public static IServiceCollection AddEmployerAuthentication(this IServiceCollection services, IConfiguration configuration)
