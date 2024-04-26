@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -29,7 +30,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home
         {
             string decodedUrl = WebUtility.UrlDecode(ReturnUrl);
             string pattern = @"encodedAccountId";
-            string replacedUrl = Regex.Replace(decodedUrl, pattern, accountId);
+            string replacedUrl = Regex.Replace(decodedUrl, pattern, accountId, RegexOptions.None, TimeSpan.FromMilliseconds(25));
 
             return replacedUrl;
         }

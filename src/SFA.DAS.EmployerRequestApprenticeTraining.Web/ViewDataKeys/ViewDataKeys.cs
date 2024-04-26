@@ -1,5 +1,8 @@
-﻿namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.ViewDataKeys
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.ViewDataKeys
 {
+    [ExcludeFromCodeCoverage]
     public static class ViewDataKeys
     {
         public const string HideAccountNavigation = "UI.HideNavigation";
