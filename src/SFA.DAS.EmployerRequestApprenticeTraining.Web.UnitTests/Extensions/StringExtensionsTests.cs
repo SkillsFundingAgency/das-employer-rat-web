@@ -1,4 +1,5 @@
 ﻿using AutoFixture;
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions;
@@ -24,7 +25,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Extensions
             var result = selectedReferenceDataItemIds.ToReferenceDataDescriptionList(referenceDataItems);
 
             // Assert
-            Assert.That(result, Is.EqualTo("All"));
+            result.Should().Be("All");
         }
 
         [Test]
@@ -43,7 +44,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Extensions
                 .Select(x => x.Description)
                 .ToArray());
 
-            Assert.That(expectedList, Is.EqualTo(result));
+            result.Should().BeEquivalentTo(expectedList);
         }
 
         [Test]
@@ -59,7 +60,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Extensions
             // Assert
             var expectedTagDesc = referenceDataItems.Where(x => referenceDataItemIds.Contains(x.Id)).Select(x => x.Description).Single();
 
-            Assert.That(expectedTagDesc, Is.EqualTo(result));
+            result.Should().Be(expectedTagDesc);
         }
 
         [Test]
@@ -73,27 +74,27 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Extensions
             var result = referenceDataItemIds.ToReferenceDataDescriptionList(referenceDataItems);
 
             // Assert
-            Assert.That(result, Is.EqualTo("All"));
+            result.Should().Be("All");
         }
 
         [Test]
         public void IsComplete_Returns_False_When_Text_Is_NotCompletedString()
         {
-            Assert.That("-".IsComplete(), Is.False);
+            "-".IsComplete().Should().BeFalse();
         }
 
         [Test]
         public void IsComplete_Returns_False_When_Text_Is_Null()
         {
             string str = null;
+            str.IsComplete().Should().BeFalse();
 
-            Assert.That(str.IsComplete(), Is.False);
         }
 
         [Test]
         public void IsComplete_Returns_False_When_Text_Is_Empty()
         {
-            Assert.That(string.Empty.IsComplete(), Is.False);
+            string.Empty.IsComplete().Should().BeFalse();
         }
 
         [TestCase("AdditionalLocation", "Manchester, Coventry, AdditionalLocation")]
@@ -108,7 +109,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Extensions
 
             var locationsString = locations.ToApplicationLocationsString(", ", additionalLocation);
 
-            Assert.That(locationsString, Is.EqualTo(expected));
+            locationsString.Should().Be(expected);
         }
 
         [Test]
@@ -119,7 +120,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Extensions
 
             var locationsString = locations.ToApplicationLocationsString(", ", additionalLocation);
 
-            Assert.That(locationsString, Is.EqualTo(additionalLocation));
+            locationsString.Should().Be(additionalLocation);
         }
     }
 }

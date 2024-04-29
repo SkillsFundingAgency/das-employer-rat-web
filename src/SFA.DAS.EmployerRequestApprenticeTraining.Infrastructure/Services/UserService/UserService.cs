@@ -67,7 +67,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.User
             var result = TryGetUserClaimValue(EmployerClaims.UserAssociatedAccountsClaimsTypeIdentifier, out var associatedAccountsClaim);
             if (!result)
             {
-                return null;
+                return [];
             }
 
             try
@@ -82,7 +82,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.User
             }
             catch (JsonSerializationException)
             {
-                return null;
+                return [];
             }
         }
 
@@ -116,6 +116,5 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.User
             }
             return null;
         }
-
     }
 }
