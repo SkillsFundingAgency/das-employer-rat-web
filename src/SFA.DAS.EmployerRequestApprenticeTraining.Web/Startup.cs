@@ -59,7 +59,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
                     options.Filters.Add(new HideAccountNavigationAttribute(false));
                     options.Filters.Add(new EnableGoogleAnalyticsAttribute(_configuration.GetSection<GoogleAnalytics>()));
                     options.Filters.Add(new GoogleAnalyticsFilterAttribute());
-                    options.Filters.Add(new AccountActiveFilter(_configuration));
 
                     options.ModelBinderProviders.Insert(0, new AutoDecodeModelBinderProvider());
                 })

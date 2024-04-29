@@ -12,6 +12,7 @@ using SFA.DAS.Http.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAuthorization;
 using System.Diagnostics.CodeAnalysis;
+using SFA.DAS.GovUK.Auth.Authentication;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
@@ -26,6 +27,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
             services.AddSingleton<IAuthorizationHandler, TransactorRoleAuthorizationHandler>();
             services.AddSingleton<IAuthorizationHandler, ViewerRoleAuthorizationHandler>();
             services.AddSingleton<IAuthorizationHandler, NoneRoleAuthorizationHandler>();
+            services.AddSingleton<IAuthorizationHandler, AccountActiveAuthorizationHandler>();
+
             services.AddTransient<IEmployerRoleAuthorizationService, EmployerRoleAuthorizationService>();
             services.AddTransient<IUserAccountsService, UserAccountsService>();
             
