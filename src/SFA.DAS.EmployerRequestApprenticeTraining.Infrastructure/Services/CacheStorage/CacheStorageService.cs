@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.CacheStorage
 {
-    [ExcludeFromCodeCoverage]
     public class CacheStorageService : ICacheStorageService
     {
         private readonly IDistributedCache _distributedCache;

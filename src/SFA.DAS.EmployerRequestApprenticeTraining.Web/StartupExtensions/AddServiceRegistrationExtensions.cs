@@ -13,6 +13,8 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAcco
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAuthorization;
 using System.Diagnostics.CodeAnalysis;
 using SFA.DAS.GovUK.Auth.Authentication;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
@@ -31,10 +33,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 
             services.AddTransient<IEmployerRoleAuthorizationService, EmployerRoleAuthorizationService>();
             services.AddTransient<IUserAccountsService, UserAccountsService>();
-            
+
+            services.AddTransient<ISessionStorageService, SessionStorageService>();
             services.AddTransient<ICacheStorageService, CacheStorageService>();
             services.AddTransient<IEmployerRequestOrchestrator, EmployerRequestOrchestrator>();
             services.AddTransient<ICustomClaims, PostAuthenticationClaimsHandler>();
+
+            services.AddScoped<ValidateRequiredQueryParametersAttribute>();
 
             return services;
         }

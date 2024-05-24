@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.GovUK.Auth.Services;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
+using Microsoft.Extensions.Configuration;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
@@ -25,19 +26,24 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
     public class PostAuthenticationClaimsHandler : ICustomClaims
     {
         private readonly IUserAccountsService _userAccountService;
+        private readonly IConfiguration _config;
 
-        public PostAuthenticationClaimsHandler(IUserAccountsService userAccountService)
+        public PostAuthenticationClaimsHandler(IUserAccountsService userAccountService, IConfiguration config)
         {
             _userAccountService = userAccountService;
+            _config = config;
         }
 
         public async Task<IEnumerable<Claim>> GetClaims(TokenValidatedContext tokenValidatedContext)
         {
             var claims = new List<Claim>();
+
+            if (IsStubAuthEnabled() && HasAssociatedAccountsClaim(tokenValidatedContext))
+                return claims;
             
             var userId = tokenValidatedContext.Principal.Claims
-                    .First(c => c.Type.Equals(ClaimTypes.NameIdentifier))
-                    .Value;
+                .First(c => c.Type.Equals(ClaimTypes.NameIdentifier))
+                .Value;
             var email = tokenValidatedContext.Principal.Claims
                     .First(c => c.Type.Equals(ClaimTypes.Email))
                     .Value;
@@ -45,7 +51,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
             var employerUser = await _userAccountService.GetUserAccounts(userId, email);
             if (employerUser == null)
                 return claims;
-            
+
             var employerUserAccountsAsJson = JsonConvert.SerializeObject(employerUser.EmployerUserAccounts.ToDictionary(k => k.AccountId));
             var associatedAccountsClaim = new Claim(EmployerClaims.UserAssociatedAccountsClaimsTypeIdentifier, employerUserAccountsAsJson, JsonClaimValueTypes.Json);
             claims.Add(associatedAccountsClaim);
@@ -71,5 +77,17 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 
             return claims;
         }
+
+        private bool IsStubAuthEnabled()
+        {
+            return bool.TryParse(_config["StubAuth"], out bool stubAuth) && stubAuth;
+        }
+
+        private bool HasAssociatedAccountsClaim(TokenValidatedContext tokenValidatedContext)
+        {
+            return tokenValidatedContext.Principal.Claims
+                .Any(c => c.Type.Equals(EmployerClaims.UserAssociatedAccountsClaimsTypeIdentifier));
+        }
+
     }
 }

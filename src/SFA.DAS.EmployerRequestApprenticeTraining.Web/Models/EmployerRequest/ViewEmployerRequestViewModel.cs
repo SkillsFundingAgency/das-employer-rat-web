@@ -3,7 +3,7 @@ using System;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models
 {
-    public class GetEmployerRequestViewModel
+    public class ViewEmployerRequestViewModel
     {
         public long AccountId { get; set; }
         public Guid EmployerRequestId { get; set; }

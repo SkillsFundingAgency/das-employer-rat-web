@@ -2,6 +2,7 @@
 {
     public enum RequestType : byte
     {
-        Shortlist = 1
+        Shortlist = 1,
+        ProviderSearch = 2
     }
 }

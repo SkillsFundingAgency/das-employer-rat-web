@@ -8,7 +8,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Queries.GetEmployerRequest
 {
     [TestFixture]
-    public class GetEmployerRequestQueryHandlerTests
+    public class GetEmployerRequestQueryTests
     {
         private Mock<IEmployerRequestApprenticeTrainingOuterApi> _mockOuterApi;
         private GetEmployerRequestQueryHandler _handler;
