@@ -9,27 +9,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Attributes\**" />
     <Compile Remove="Extensions\**" />
     <Compile Remove="Models\**" />
     <Compile Remove="StartupExtensions\**" />
     <Compile Remove="TagHelpers\**" />
     <Compile Remove="ValidatorInteceptors\**" />
-    <Compile Remove="Validators\**" />
-    <EmbeddedResource Remove="Attributes\**" />
     <EmbeddedResource Remove="Extensions\**" />
     <EmbeddedResource Remove="Models\**" />
     <EmbeddedResource Remove="StartupExtensions\**" />
     <EmbeddedResource Remove="TagHelpers\**" />
     <EmbeddedResource Remove="ValidatorInteceptors\**" />
-    <EmbeddedResource Remove="Validators\**" />
-    <None Remove="Attributes\**" />
     <None Remove="Extensions\**" />
     <None Remove="Models\**" />
     <None Remove="StartupExtensions\**" />
     <None Remove="TagHelpers\**" />
     <None Remove="ValidatorInteceptors\**" />
-    <None Remove="Validators\**" />
   </ItemGroup>
 
   <ItemGroup>

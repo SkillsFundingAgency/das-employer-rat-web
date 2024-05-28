@@ -159,5 +159,41 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Assert
             result.Should().Be(employerRequestId);
         }
+
+        [Test]
+        public void BackLink_Should_Return_Shortlist_Url_When_RequestType_Is_Shortlist()
+        {
+            // Arrange
+            var model = new OverviewEmployerRequestViewModel
+            {
+                RequestType = RequestType.Shortlist,
+                FindApprenticeshipTrainingBaseUrl = "http://example.com/"
+            };
+
+            // Act
+            var backLink = model.BackLink;
+
+            // Assert
+            backLink.Should().Be("http://example.com/shortlist");
+        }
+
+        [Test]
+        public void BackLink_Should_Return_ProviderSearch_Url_When_RequestType_Is_ProviderSearch()
+        {
+            // Arrange
+            var model = new OverviewEmployerRequestViewModel
+            {
+                RequestType = RequestType.ProviderSearch,
+                FindApprenticeshipTrainingBaseUrl = "http://example.com/",
+                StandardLarsCode = 123,
+                Location = "London"
+            };
+
+            // Act
+            var backLink = model.BackLink;
+
+            // Assert
+            backLink.Should().Be("http://example.com/courses/123/providers?Location=London");
+        }
     }
 }
