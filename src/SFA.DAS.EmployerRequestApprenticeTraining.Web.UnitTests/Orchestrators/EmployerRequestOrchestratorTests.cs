@@ -47,7 +47,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var parameters = new OverviewEmployerRequestParameters
             {
-                EncodedAccountId = "ABC123",
+                HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
                 StandardId = "ST0123",
                 Location = "London"
@@ -62,7 +62,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
 
             // Assert
             result.Should().NotBeNull();
-            result.EncodedAccountId.Should().Be(parameters.EncodedAccountId);
+            result.HashedAccountId.Should().Be(parameters.HashedAccountId);
             result.RequestType.Should().Be(parameters.RequestType);
             result.StandardId.Should().Be(parameters.StandardId);
             result.Location.Should().Be(parameters.Location);
@@ -78,7 +78,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var parameters = new OverviewEmployerRequestParameters
             {
-                EncodedAccountId = "ABC123",
+                HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
                 StandardId = "ST0123",
                 Location = "London"
@@ -146,7 +146,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var request = new CreateEmployerRequestViewModel
             {
-                EncodedAccountId = "ABC123",
+                HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist
             };
             var employerRequestId = Guid.NewGuid();

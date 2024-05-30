@@ -4,7 +4,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Requests
 {
     public class PostEmployerRequest
     {
-        public string EncodedAccountId { get; set; }
+        public string HashedAccountId { get; set; }
         public RequestType RequestType { get; set; }
     }
 }

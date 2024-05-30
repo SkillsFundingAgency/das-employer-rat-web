@@ -35,7 +35,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var parameters = new OverviewEmployerRequestParameters
             {
-                EncodedAccountId = "ABC123",
+                HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
                 StandardId = "ST0123",
                 Location = "London"
@@ -43,7 +43,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             
             var viewModel = new OverviewEmployerRequestViewModel
             {
-                EncodedAccountId = "ABC123",
+                HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
                 StandardId = "ST0123",
                 Location = "London"
@@ -65,7 +65,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var parameters = new CreateEmployerRequestParameters
             {
-                EncodedAccountId = "ABC123",
+                HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
                 StandardId = "ST0123",
                 Location = "London"
@@ -84,7 +84,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var parameters = new CreateEmployerRequestParameters
             {
-                EncodedAccountId = "ABC123",
+                HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
                 StandardId = "ST0123",
                 Location = "London"
@@ -96,7 +96,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Assert
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.OverviewEmployerRequestRouteGet);
-            result.RouteValues["encodedAccountId"].Should().Be(parameters.EncodedAccountId);
+            result.RouteValues["hashedAccountId"].Should().Be(parameters.HashedAccountId);
             result.RouteValues["requestType"].Should().Be(parameters.RequestType);
             result.RouteValues["standardId"].Should().Be(parameters.StandardId);
             result.RouteValues["location"].Should().Be(parameters.Location);

@@ -39,7 +39,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
             return new OverviewEmployerRequestViewModel
             {
-                EncodedAccountId = parameters.EncodedAccountId,
+                HashedAccountId = parameters.HashedAccountId,
                 RequestType = parameters.RequestType,
                 StandardId = parameters.StandardId,
                 Location = parameters.Location,
@@ -79,7 +79,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         public async Task<Guid> CreateEmployerRequest(CreateEmployerRequestViewModel request)
         {
             var employerRequestId = await _mediator.Send(new CreateEmployerRequestCommand(
-                request.EncodedAccountId, request.RequestType
+                request.HashedAccountId, request.RequestType
             ));
 
             return employerRequestId;

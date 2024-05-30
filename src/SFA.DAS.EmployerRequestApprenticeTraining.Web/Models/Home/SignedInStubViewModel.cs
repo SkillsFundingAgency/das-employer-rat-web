@@ -31,7 +31,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home
         public string ReplaceAccountUrl(string accountId)
         {
             string decodedUrl = WebUtility.UrlDecode(ReturnUrl);
-            string pattern = @"encodedAccountId";
+            string pattern = @"hashedAccountId";
             string replacedUrl = Regex.Replace(decodedUrl, pattern, accountId, RegexOptions.None, TimeSpan.FromMilliseconds(25));
 
             return replacedUrl;

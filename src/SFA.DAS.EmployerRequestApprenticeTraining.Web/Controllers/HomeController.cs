@@ -54,10 +54,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         {
             if (bool.TryParse(_config["StubAuth"], out bool stubAuth) && stubAuth)
             {
-                return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { encodedAccountId = "encodedAccountId" });
+                return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { hashedAccountId = "hashedAccountId" });
             }
 
-            return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { encodedAccountId = "BB4KGX" });
+            return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { hashedAccountId = "BB4KGX" });
         }
 
         [Route("error", Name = ErrorRouteGet)]

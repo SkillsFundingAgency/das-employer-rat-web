@@ -83,7 +83,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.ActionName.Should().Be("ViewEmployerRequests");
             result.ControllerName.Should().Be("EmployerRequest");
-            result.RouteValues["encodedAccountId"].Should().Be("encodedAccountId");
+            result.RouteValues["hashedAccountId"].Should().Be("hashedAccountId");
         }
 
         [Test]

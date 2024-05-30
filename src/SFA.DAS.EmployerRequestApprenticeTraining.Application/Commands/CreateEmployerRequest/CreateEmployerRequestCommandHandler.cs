@@ -17,7 +17,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CreateE
         {
             var employerRequestId = await _outerApi.CreateEmployerRequest(new PostEmployerRequest 
             { 
-                EncodedAccountId = command.EncodedAccountId,
+                HashedAccountId = command.HashedAccountId,
                 RequestType = command.RequestType
             });
 

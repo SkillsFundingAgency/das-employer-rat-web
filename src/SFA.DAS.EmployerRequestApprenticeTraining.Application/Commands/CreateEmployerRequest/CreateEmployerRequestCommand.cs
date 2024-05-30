@@ -5,13 +5,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CreateE
 {
     public class CreateEmployerRequestCommand : IRequest<Guid>
     {
-        public CreateEmployerRequestCommand(string encodedAccountId, RequestType requestType) 
+        public CreateEmployerRequestCommand(string hashedAccountId, RequestType requestType) 
         {
-            EncodedAccountId = encodedAccountId;
+            HashedAccountId = hashedAccountId;
             RequestType = requestType;
         }
         
-        public string EncodedAccountId { get; set; }
+        public string HashedAccountId { get; set; }
         public RequestType RequestType { get; set; }
     }
 }

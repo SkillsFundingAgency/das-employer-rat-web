@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
 {
     [Authorize(Policy = PolicyNames.NoneRole)]
-    [Route("accounts/{encodedAccountId}/employer-requests")]
+    [Route("accounts/{hashedAccountId}/employer-requests")]
     public class EmployerRequestController : Controller
     {
         private readonly IEmployerRequestOrchestrator _orchestrator;
@@ -39,7 +39,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         public IActionResult Start(CreateEmployerRequestParameters parameters)
         {
             _orchestrator.StartEmployerRequest();
-            return RedirectToRoute(OverviewEmployerRequestRouteGet, new { parameters.EncodedAccountId, parameters.RequestType, parameters.StandardId, parameters.Location, BackToCheckAnswers=false });
+            return RedirectToRoute(OverviewEmployerRequestRouteGet, new { parameters.HashedAccountId, parameters.RequestType, parameters.StandardId, parameters.Location, BackToCheckAnswers=false });
         }
     }
 }

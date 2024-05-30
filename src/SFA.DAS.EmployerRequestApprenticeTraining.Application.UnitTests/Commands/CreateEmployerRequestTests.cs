@@ -29,7 +29,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Comman
             // Arrange
             var expectedGuid = Guid.NewGuid();
             _mockOuterApi.Setup(x => x.CreateEmployerRequest(It.Is<PostEmployerRequest>(req =>
-                req.EncodedAccountId == "ABC123" && req.RequestType == RequestType.Shortlist)))
+                req.HashedAccountId == "ABC123" && req.RequestType == RequestType.Shortlist)))
                 .ReturnsAsync(expectedGuid);
 
             // Act

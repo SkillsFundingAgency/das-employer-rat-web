@@ -31,21 +31,21 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Attributes
 
             // Assert
             attribute.Should().NotBeNull("AutoDecodeAttribute should be applied to the AccountId property.");
-            attribute.Source.Should().Be("EncodedAccountId", "the source value of the AutoDecodeAttribute is incorrect.");
+            attribute.Source.Should().Be("HashedAccountId", "the source value of the AutoDecodeAttribute is incorrect.");
             attribute.EncodingType.Should().Be(EncodingType.AccountId, "the EncodingType of the AutoDecodeAttribute is incorrect.");
         }
 
         [Test]
-        public void AutoDecodeAttribute_Should_Decode_EncodedAccountId_To_AccountId()
+        public void AutoDecodeAttribute_Should_Decode_HashedAccountId_To_AccountId()
         {
             // Arrange
-            var encodedAccountId = "XYZ123";
+            var hashedAccountId = "XYZ123";
             var expectedAccountId = 12345;
-            _encodingServiceMock.Setup(x => x.Decode(encodedAccountId, EncodingType.AccountId)).Returns(expectedAccountId);
+            _encodingServiceMock.Setup(x => x.Decode(hashedAccountId, EncodingType.AccountId)).Returns(expectedAccountId);
 
             var parameters = new Parameters
             {
-                EncodedAccountId = encodedAccountId
+                HashedAccountId = hashedAccountId
             };
 
             // Act
@@ -56,12 +56,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Attributes
             // Simulate the usage of the attribute
             if (attribute != null)
             {
-                var decodedValue = _encodingServiceMock.Object.Decode(parameters.EncodedAccountId, attribute.EncodingType);
+                var decodedValue = _encodingServiceMock.Object.Decode(parameters.HashedAccountId, attribute.EncodingType);
                 property.SetValue(parameters, decodedValue);
             }
 
             // Assert
-            parameters.AccountId.Should().Be(expectedAccountId, "the AccountId should be decoded correctly from the EncodedAccountId.");
+            parameters.AccountId.Should().Be(expectedAccountId, "the AccountId should be decoded correctly from the HashedAccountId.");
         }
     }
 }
