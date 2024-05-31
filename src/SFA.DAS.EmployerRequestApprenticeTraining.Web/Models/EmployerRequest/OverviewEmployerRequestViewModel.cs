@@ -17,10 +17,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
                 {
                     case RequestType.Shortlist:
                         return $"{FindApprenticeshipTrainingBaseUrl}shortlist";
-                    
-                    case RequestType.ProviderSearch:
+
+                    case RequestType.CourseDetail:
+                        return $"{FindApprenticeshipTrainingBaseUrl}courses/{StandardLarsCode}?location={Location}";
+
+                    case RequestType.Providers:
                         return $"{FindApprenticeshipTrainingBaseUrl}courses/{StandardLarsCode}/providers?Location={Location}";
-                    
+
                     default:
                         return string.Empty;
                 }

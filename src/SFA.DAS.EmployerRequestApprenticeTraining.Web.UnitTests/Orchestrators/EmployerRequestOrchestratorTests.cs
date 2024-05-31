@@ -183,7 +183,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var model = new OverviewEmployerRequestViewModel
             {
-                RequestType = RequestType.ProviderSearch,
+                RequestType = RequestType.Providers,
                 FindApprenticeshipTrainingBaseUrl = "http://example.com/",
                 StandardLarsCode = 123,
                 Location = "London"

@@ -63,7 +63,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Validators
         public void Validate_Should_Not_Have_Error_When_RequestType_Is_Not_Empty()
         {
             // Arrange
-            var model = new OverviewEmployerRequestParameters { RequestType = SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types.RequestType.ProviderSearch };
+            var model = new OverviewEmployerRequestParameters { RequestType = Domain.Types.RequestType.Providers };
 
             // Act
             var result = _sut.TestValidate(model);
