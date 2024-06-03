@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home;
@@ -26,6 +27,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         private readonly IStubAuthenticationService _stubAuthenticationService;
 
         #region Routes
+        public const string OverviewStubRouteGet = nameof(OverviewStubRouteGet);
         public const string ErrorRouteGet = nameof(ErrorRouteGet);
         #endregion Routes
 
@@ -47,17 +49,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         public IActionResult AccessDenied()
         {
             return View();
-        }
-
-        [HttpGet()]
-        public IActionResult PortalStub()
-        {
-            if (bool.TryParse(_config["StubAuth"], out bool stubAuth) && stubAuth)
-            {
-                return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { hashedAccountId = "hashedAccountId" });
-            }
-
-            return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { hashedAccountId = "BB4KGX" });
         }
 
         [Route("error", Name = ErrorRouteGet)]
@@ -97,6 +88,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
             _contextAccessor.HttpContext.Response.Cookies.Delete("SFA.DAS.EmployerRequestApprenticeTraining.Web.Auth");
         }
 #if DEBUG
+        [Route("Overview-Stub", Name= OverviewStubRouteGet)]
+        public IActionResult OverviewStub()
+        {
+            return RedirectToRoute(EmployerRequestController.OverviewEmployerRequestRouteGet, new { hashedAccountId = SignedInStubViewModel.HashedAccountIdPlaceholder, standardId=274, requestType=RequestType.Providers });
+        }
+
         [AllowAnonymous()]
         [HttpGet]
         [Route("SignIn-Stub", Name = "SignInStub")]

@@ -15,6 +15,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home
     [ExcludeFromCodeCoverage]
     public class SignedInStubViewModel
     {
+        public const string HashedAccountIdPlaceholder = "{{hashedAccountId}}";
         private readonly ClaimsPrincipal _claimsPrinciple;
 
         public SignedInStubViewModel(IHttpContextAccessor httpContextAccessor, string returnUrl)
@@ -28,11 +29,18 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home
 
         public string ReturnUrl { get; }
 
-        public string ReplaceAccountUrl(string accountId)
+        public bool HasHashedAccountIdPlaceholder()
         {
-            string decodedUrl = WebUtility.UrlDecode(ReturnUrl);
-            string pattern = @"hashedAccountId";
-            string replacedUrl = Regex.Replace(decodedUrl, pattern, accountId, RegexOptions.None, TimeSpan.FromMilliseconds(25));
+            return Uri.UnescapeDataString(ReturnUrl).Contains(HashedAccountIdPlaceholder);
+        }
+
+        public string ReplaceHashedAccountIdPlaceholderUrl(string hashedAccountId)
+        {
+            string replacedUrl = Regex.Replace(Uri.UnescapeDataString(ReturnUrl), 
+                HashedAccountIdPlaceholder, 
+                hashedAccountId, 
+                RegexOptions.None, 
+                TimeSpan.FromMilliseconds(25));
 
             return replacedUrl;
         }
