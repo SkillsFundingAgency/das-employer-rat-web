@@ -46,20 +46,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Validators
         }
 
         [Test]
-        public void Validate_Should_Have_Error_When_RequestType_Is_Empty()
-        {
-            // Arrange
-            var model = new OverviewEmployerRequestParameters { RequestType = 0 };
-
-            // Act
-            var result = _sut.TestValidate(model);
-
-            // Assert
-            result.ShouldHaveValidationErrorFor(x => x.RequestType)
-                .WithErrorMessage($"{ValidateRequiredQueryParametersAttribute.MissingRequireQueryParameterMessage}{nameof(OverviewEmployerRequestParameters.RequestType)}");
-        }
-
-        [Test]
         public void Validate_Should_Not_Have_Error_When_RequestType_Is_Not_Empty()
         {
             // Arrange

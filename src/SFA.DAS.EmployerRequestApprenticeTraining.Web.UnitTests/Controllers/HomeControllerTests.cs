@@ -11,6 +11,7 @@ using NUnit.Framework;
 using SFA.DAS.EmployerRequestApprenticeTraining.TestHelper.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home;
 using SFA.DAS.GovUK.Auth.Services;
 using System;
 using System.Collections.Generic;
@@ -71,19 +72,18 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public void PortalStub_ShouldRedirectToViewEmployerRequests()
+        public void OverviewStub_ShouldRedirectToViewEmployerRequests()
         {
             // Arrange
             _configMock.Setup(c => c["StubAuth"]).Returns("true");
 
             // Act
-            var result = _sut.PortalStub() as RedirectToActionResult;
+            var result = _sut.OverviewStub() as RedirectToRouteResult;
 
             // Assert
             result.Should().NotBeNull();
-            result.ActionName.Should().Be("ViewEmployerRequests");
-            result.ControllerName.Should().Be("EmployerRequest");
-            result.RouteValues["hashedAccountId"].Should().Be("hashedAccountId");
+            result.RouteName.Should().Be(EmployerRequestController.OverviewEmployerRequestRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(SignedInStubViewModel.HashedAccountIdPlaceholder);
         }
 
         [Test]
