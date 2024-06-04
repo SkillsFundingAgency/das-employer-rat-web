@@ -72,21 +72,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public void OverviewStub_ShouldRedirectToViewEmployerRequests()
-        {
-            // Arrange
-            _configMock.Setup(c => c["StubAuth"]).Returns("true");
-
-            // Act
-            var result = _sut.OverviewStub() as RedirectToRouteResult;
-
-            // Assert
-            result.Should().NotBeNull();
-            result.RouteName.Should().Be(EmployerRequestController.OverviewEmployerRequestRouteGet);
-            result.RouteValues["hashedAccountId"].Should().Be(SignedInStubViewModel.HashedAccountIdPlaceholder);
-        }
-
-        [Test]
         public void Error_ShouldLogErrorAndReturnView()
         {
             // Arrange
