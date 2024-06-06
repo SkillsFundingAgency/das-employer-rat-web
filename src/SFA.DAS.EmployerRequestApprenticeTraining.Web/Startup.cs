@@ -71,7 +71,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
                 .SetDefaultNavigationSection(NavigationSection.AccountsFinance);
 
             services
-                .AddFluentValidationAutoValidation()
                 .AddValidatorsFromAssemblyContaining<Startup>();
 
             services

@@ -37,7 +37,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         public void EmployerRequest_Get_ShouldReturnEmployerRequestFromSession()
         {
             // Arrange
-            var expectedEmployerRequest = new EmployerRequest { Id = Guid.NewGuid(), AccountId = 123, RequestType = RequestType.Shortlist };
+            var expectedEmployerRequest = new EmployerRequest { Id = Guid.NewGuid(), AccountId = 123, RequestType = RequestType.Shortlist, NumberOfApprentices = 10 };
             var serializedValue = JsonConvert.SerializeObject(expectedEmployerRequest);
             var byteArray = System.Text.Encoding.UTF8.GetBytes(serializedValue);
 
@@ -55,7 +55,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         public void EmployerRequest_Set_ShouldStoreEmployerRequestInSession()
         {
             // Arrange
-            var employerRequest = new EmployerRequest { Id = Guid.NewGuid(), AccountId = 123, RequestType = RequestType.Shortlist };
+            var employerRequest = new EmployerRequest { Id = Guid.NewGuid(), AccountId = 123, RequestType = RequestType.Shortlist, NumberOfApprentices = 10 };
             var serializedValue = JsonConvert.SerializeObject(employerRequest);
             var byteArray = System.Text.Encoding.UTF8.GetBytes(serializedValue);
 

@@ -10,6 +10,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home;
+using SFA.DAS.GovUK.Auth.Configuration;
 using SFA.DAS.GovUK.Auth.Models;
 using SFA.DAS.GovUK.Auth.Services;
 using System.Collections.Generic;
@@ -88,9 +89,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
             _contextAccessor.HttpContext.Response.Cookies.Delete("SFA.DAS.EmployerRequestApprenticeTraining.Web.Auth");
         }
 #if DEBUG
+        [AllowAnonymous()]
         [Route("Overview-Stub", Name= OverviewStubRouteGet)]
         public IActionResult OverviewStub()
         {
+            _contextAccessor.HttpContext.Response.Cookies.Delete(GovUkConstants.StubAuthCookieName);
             return RedirectToRoute(EmployerRequestController.OverviewEmployerRequestRouteGet, new { hashedAccountId = SignedInStubViewModel.HashedAccountIdPlaceholder, standardId=274, requestType=RequestType.Providers });
         }
 

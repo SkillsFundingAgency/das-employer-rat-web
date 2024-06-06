@@ -40,7 +40,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 
             if (IsStubAuthEnabled() && HasAssociatedAccountsClaim(tokenValidatedContext))
                 return claims;
-            
+
             var userId = tokenValidatedContext.Principal.Claims
                 .First(c => c.Type.Equals(ClaimTypes.NameIdentifier))
                 .Value;

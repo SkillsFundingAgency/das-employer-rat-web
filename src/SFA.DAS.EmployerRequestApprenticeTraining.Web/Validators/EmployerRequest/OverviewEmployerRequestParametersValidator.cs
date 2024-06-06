@@ -6,17 +6,17 @@ using System;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators
 {
-    public class OverviewEmployerRequestParametersValidator : AbstractValidator<OverviewEmployerRequestParameters>
+    public class OverviewEmployerRequestParametersValidator : AbstractValidator<CreateEmployerRequestParameters>
     {
         public OverviewEmployerRequestParametersValidator()
         {
             RuleFor(x => x.StandardId)
                 .NotEmpty()
-                .WithMessage($"{ValidateRequiredQueryParametersAttribute.MissingRequireQueryParameterMessage}{nameof(OverviewEmployerRequestParameters.StandardId)}");
+                .WithMessage($"{ValidateRequiredQueryParametersAttribute.MissingRequireQueryParameterMessage}{nameof(CreateEmployerRequestParameters.StandardId)}");
 
             RuleFor(x => x.RequestType)
                 .Must(NotInvalidRequestType)
-                .WithMessage($"{ValidateRequiredQueryParametersAttribute.MissingRequireQueryParameterMessage}{nameof(OverviewEmployerRequestParameters.RequestType)}");
+                .WithMessage($"{ValidateRequiredQueryParametersAttribute.MissingRequireQueryParameterMessage}{nameof(CreateEmployerRequestParameters.RequestType)}");
         }
 
         private bool NotInvalidRequestType(RequestType requestType)
