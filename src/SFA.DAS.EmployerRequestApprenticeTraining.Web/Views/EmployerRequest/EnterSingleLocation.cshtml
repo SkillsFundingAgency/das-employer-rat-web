@@ -2,13 +2,13 @@
 @using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
 @using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
 @using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
-@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.EnterApprenticesEmployerRequestViewModel
+@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.EnterSingleLocationEmployerRequestViewModel
 
 @{
-    ViewData["Title"] = "How many apprentices would do this apprenticeship training?";
-    ViewBag.GaData.Vpv = "/accounts/employerrequests/enterapprentices";
+    ViewData["Title"] = "Where is the apprenticeship location?";
+    ViewBag.GaData.Vpv = "/accounts/employerrequests/entersinglelocation";
 }
-<a asp-route="@EmployerRequestController.OverviewEmployerRequestRouteGet"
+<a asp-route="@EmployerRequestController.EnterApprenticesRouteGet"
    asp-route-hashedAccountId="@Model.HashedAccountId"
    asp-route-requestType="@Model.RequestType"
    asp-route-standardId="@Model.StandardId"
@@ -18,24 +18,25 @@
     <partial name="_ValidationSummary" />
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
-            <form asp-route="@EmployerRequestController.EnterApprenticesRoutePost" method="post">
+            <form asp-route="@EmployerRequestController.EnterSingleLocationRoutePost" method="post">
                 @Html.HiddenFor(model => model.HashedAccountId)
                 @Html.HiddenFor(model => model.StandardId)
                 @Html.HiddenFor(model => model.RequestType)
                 @Html.HiddenFor(model => model.Location)
-                <div class="govuk-form-group" das-highlight-error-for="NumberOfApprentices" error-class="govuk-form-group--error" id="NumberOfApprentices">
+
+                <div class="govuk-form-group" das-highlight-error-for="SingleLocation" error-class="govuk-form-group--error" id="EnteredLocation">
                     <h1 class="govuk-label-wrapper">
-                        <label class="govuk-label govuk-label--l" for="NumberOfApprentices">
+                        <label class="govuk-label govuk-label--l" for="EnteredLocation">
                             @ViewData["Title"]
                         </label>
                     </h1>
-                    <div id="NumberOfApprentices-hint" class="govuk-hint">
-                        You can give us an estimated number
+                    <div id="EnteredLocation-hint" class="govuk-hint">
+                        Town, city or postcode
                     </div>
-                    <p das-validation-for="NumberOfApprentices" class="govuk-error-message">
+                    <p das-validation-for="SingleLocation" class="govuk-error-message">
                         <span class="govuk-visually-hidden">Error: </span>
                     </p>
-                    <input class="govuk-input govuk-input--width-4" id="number-of-apprentices" asp-for="NumberOfApprentices" das-highlight-error-for="NumberOfApprentices" error-class="govuk-input--error" type="text" aria-describedby="NumberOfApprentices-hint NumberOfApprentices-error">
+                    <input class="govuk-input" id="search-location" asp-for="SingleLocation" das-highlight-error-for="SingleLocation" error-class="govuk-input--error" type="search" title="Search" data-submit-on-selection="false" data-default-value="@Model.SingleLocation" aria-describedby="EnteredLocation-hint EnteredLocation-error">
                 </div>
                 <div class="govuk-button-group">
                     <button type="submit" class="govuk-button" data-module="govuk-button">

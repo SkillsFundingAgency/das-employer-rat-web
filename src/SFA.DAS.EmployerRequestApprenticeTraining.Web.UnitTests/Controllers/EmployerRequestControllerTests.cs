@@ -63,7 +63,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public void Start_ShouldCallStartEmployerRequest()
+        public async Task Start_ShouldCallStartEmployerRequest()
         {
             // Arrange
             var parameters = new CreateEmployerRequestParameters
@@ -75,14 +75,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             };
 
             // Act
-            _sut.Start(parameters);
+            await _sut.Start(parameters);
 
             // Assert
-            _orchestratorMock.Verify(o => o.StartEmployerRequest(), Times.Once);
+            _orchestratorMock.Verify(o => o.StartEmployerRequest(parameters.Location), Times.Once);
         }
 
         [Test]
-        public void Start_ShouldRedirectToOverview()
+        public async Task Start_ShouldRedirectToOverview()
         {
             // Arrange
             var parameters = new CreateEmployerRequestParameters
@@ -94,7 +94,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             };
 
             // Act
-            var result = _sut.Start(parameters) as RedirectToRouteResult;
+            var result = await _sut.Start(parameters) as RedirectToRouteResult;
 
             // Assert
             result.Should().NotBeNull();
@@ -106,7 +106,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public void Cancel_ShouldCallStartEmployerRequest()
+        public async Task Cancel_ShouldCallStartEmployerRequest()
         {
             // Arrange
             var parameters = new CreateEmployerRequestParameters
@@ -118,14 +118,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             };
 
             // Act
-            _sut.Cancel(parameters);
+            await _sut.Cancel(parameters);
 
             // Assert
-            _orchestratorMock.Verify(o => o.StartEmployerRequest(), Times.Once);
+            _orchestratorMock.Verify(o => o.StartEmployerRequest(parameters.Location), Times.Once);
         }
 
         [Test]
-        public void Cancel_ShouldRedirectToOverview()
+        public async Task Cancel_ShouldRedirectToOverview()
         {
             // Arrange
             var parameters = new CreateEmployerRequestParameters
@@ -137,7 +137,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             };
 
             // Act
-            var result = _sut.Cancel(parameters) as RedirectToRouteResult;
+            var result = await _sut.Cancel(parameters) as RedirectToRouteResult;
 
             // Assert
             result.Should().NotBeNull();
@@ -220,7 +220,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public async Task EnterApprenticesPost_ShouldRedirectToEnterApprenticesWhenModelStateIsValid()
+        public async Task EnterApprenticesPost_ShouldRedirectToEnterSingleLocationWhenModelStateIsValid()
         {
             // Arrange
             var viewModel = new EnterApprenticesEmployerRequestViewModel
@@ -238,7 +238,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
 
             // Assert
             result.Should().NotBeNull();
-            result.RouteName.Should().Be(EmployerRequestController.EnterApprenticesRouteGet);
+            result.RouteName.Should().Be(EmployerRequestController.EnterSingleLocationRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
             result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
             result.RouteValues["standardId"].Should().Be(viewModel.StandardId);

@@ -20,6 +20,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         public const string CancelEmployerRequestRouteGet = nameof(CancelEmployerRequestRouteGet);
         public const string EnterApprenticesRouteGet = nameof(EnterApprenticesRouteGet);
         public const string EnterApprenticesRoutePost = nameof(EnterApprenticesRoutePost);
+        public const string EnterSingleLocationRouteGet = nameof(EnterSingleLocationRouteGet);
+        public const string EnterSingleLocationRoutePost = nameof(EnterSingleLocationRoutePost);
         #endregion Routes
 
         public EmployerRequestController(IEmployerRequestOrchestrator orchestrator)
@@ -39,18 +41,18 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("start", Name = StartEmployerRequestRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public IActionResult Start(CreateEmployerRequestParameters parameters)
+        public async Task<IActionResult> Start(CreateEmployerRequestParameters parameters)
         {
-            _orchestrator.StartEmployerRequest();
+            await _orchestrator.StartEmployerRequest(parameters.Location);
             return RedirectToRoute(EnterApprenticesRouteGet, new { parameters.HashedAccountId, parameters.RequestType, parameters.StandardId, parameters.Location, BackToCheckAnswers=false });
         }
 
         [HttpGet]
         [Route("cancel", Name = CancelEmployerRequestRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public IActionResult Cancel(CreateEmployerRequestParameters parameters)
+        public async Task<IActionResult> Cancel(CreateEmployerRequestParameters parameters)
         {
-            _orchestrator.StartEmployerRequest();
+            await _orchestrator.StartEmployerRequest(parameters.Location);
             return RedirectToRoute(OverviewEmployerRequestRouteGet, new { parameters.HashedAccountId, parameters.RequestType, parameters.StandardId, parameters.Location, BackToCheckAnswers = false });
         }
 
@@ -74,7 +76,30 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
             
             _orchestrator.UpdateNumberOfApprenticesForEmployerRequest(viewModel);
 
-            return RedirectToRoute(EnterApprenticesRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+            return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+        }
+
+        [HttpGet]
+        [Route("location", Name = EnterSingleLocationRouteGet)]
+        [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        public IActionResult EnterSingleLocation(CreateEmployerRequestParameters parameters)
+        {
+            return View(_orchestrator.GetEnterSingleLocationEmployerRequestViewModel(parameters, ModelState));
+        }
+
+        [HttpPost]
+        [Route("location", Name = EnterSingleLocationRoutePost)]
+        [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        public async Task<ActionResult> EnterSingleLocation(EnterSingleLocationEmployerRequestViewModel viewModel)
+        {
+            if (!await _orchestrator.ValidateEnterSingleLocationEmployerRequestViewModel(viewModel, ModelState))
+            {
+                return RedirectToRoute(EnterSingleLocationRoutePost, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+            }
+
+            _orchestrator.UpdateSingleLocationForEmployerRequest(viewModel);
+
+            return RedirectToRoute(EnterSingleLocationRoutePost, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
         }
     }
 }

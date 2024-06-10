@@ -7,7 +7,9 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerR
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
@@ -20,16 +22,21 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
     {
         private readonly IMediator _mediator;
         private readonly ISessionStorageService _sessionStorage;
+        private readonly ILocationService _locationService;
         private readonly IValidator<EnterApprenticesEmployerRequestViewModel> _enterApprenticesEmployerRequestViewModelValidator;
+        private readonly IValidator<EnterSingleLocationEmployerRequestViewModel> _enterSingleLocationEmployerRequestViewModelValidator;
         private readonly EmployerRequestApprenticeTrainingWebConfiguration _config;
 
-        public EmployerRequestOrchestrator(IMediator mediator, ISessionStorageService sessionStorage, 
+        public EmployerRequestOrchestrator(IMediator mediator, ISessionStorageService sessionStorage, ILocationService locationService,
             IValidator<EnterApprenticesEmployerRequestViewModel> enterApprenticesEmployerRequestViewModelValidator,
+            IValidator<EnterSingleLocationEmployerRequestViewModel> enterSingleLocationEmployerRequestViewModelValidator,
             IOptions<EmployerRequestApprenticeTrainingWebConfiguration> options)
         {
             _mediator = mediator;
             _sessionStorage = sessionStorage;
+            _locationService = locationService;
             _enterApprenticesEmployerRequestViewModelValidator = enterApprenticesEmployerRequestViewModelValidator;
+            _enterSingleLocationEmployerRequestViewModelValidator = enterSingleLocationEmployerRequestViewModelValidator;
             _config = options?.Value;
         }
 
@@ -54,36 +61,61 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             };
         }
 
-        public void StartEmployerRequest()
+        public async Task StartEmployerRequest(string location)
         {
-            _sessionStorage.EmployerRequest = new EmployerRequest();
+            _sessionStorage.EmployerRequest = new EmployerRequest
+            {
+                SingleLocation = await _locationService.CheckLocationExists(location) ? location : string.Empty
+            };
         }
 
         public EnterApprenticesEmployerRequestViewModel GetEnterApprenticesEmployerRequestViewModel(CreateEmployerRequestParameters parameters, ModelStateDictionary modelState)
         {
-            var employerRequest = _sessionStorage.EmployerRequest ?? new EmployerRequest();
-
             return new EnterApprenticesEmployerRequestViewModel
             { 
                 HashedAccountId = parameters.HashedAccountId,
                 StandardId = parameters.StandardId,
                 RequestType = parameters.RequestType,
                 Location = parameters.Location,
-                NumberOfApprentices = employerRequest.NumberOfApprentices.ToString()
+                NumberOfApprentices = EmployerRequest.NumberOfApprentices.ToString()
             };
         }
 
         public async Task<bool> ValidateEnterApprenticesEmployerRequestViewModel(EnterApprenticesEmployerRequestViewModel viewModel, ModelStateDictionary modelState)
         {
-            await _enterApprenticesEmployerRequestViewModelValidator.ValidateAndAddModelErrorsAsync(viewModel, modelState);
-            return modelState.IsValid;
+            return await ValidateViewModel(_enterApprenticesEmployerRequestViewModelValidator, viewModel, modelState);
         }
 
         public void UpdateNumberOfApprenticesForEmployerRequest(EnterApprenticesEmployerRequestViewModel viewModel)
         {
-            var employerRequest = _sessionStorage.EmployerRequest ?? new EmployerRequest();
-            employerRequest.NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
-            _sessionStorage.EmployerRequest = employerRequest;
+            UpdateEmployerRequest((employerRequest) => { employerRequest.NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices); });
+        }
+
+        public EnterSingleLocationEmployerRequestViewModel GetEnterSingleLocationEmployerRequestViewModel(CreateEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        {
+            return new EnterSingleLocationEmployerRequestViewModel
+            {
+                HashedAccountId = parameters.HashedAccountId,
+                StandardId = parameters.StandardId,
+                RequestType = parameters.RequestType,
+                Location = parameters.Location,
+                // this is a special case where the attempted value will not automatically populate the
+                // input element as the input element is being replaced with an autocomplete using javascript
+                SingleLocation = modelState.GetAttemptedValueWhenInvalid(nameof(EmployerRequest.SingleLocation), EmployerRequest.SingleLocation)
+            };
+        }
+
+        public async Task<bool> ValidateEnterSingleLocationEmployerRequestViewModel(EnterSingleLocationEmployerRequestViewModel viewModel, ModelStateDictionary modelState)
+        {
+            return await ValidateViewModel(_enterSingleLocationEmployerRequestViewModelValidator, viewModel, modelState);
+        }
+
+        public void UpdateSingleLocationForEmployerRequest(EnterSingleLocationEmployerRequestViewModel viewModel)
+        {
+            UpdateEmployerRequest((employerRequest) => 
+            { 
+                employerRequest.SingleLocation = viewModel.SingleLocation;
+            });
         }
 
         public async Task<Guid> CreateEmployerRequest(CreateEmployerRequestViewModel request)
@@ -114,6 +146,24 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 AccountId = result.AccountId,
                 RequestType = result.RequestType
             };
+        }
+
+        private EmployerRequest EmployerRequest
+        {
+            get => _sessionStorage.EmployerRequest ?? new EmployerRequest();
+        }
+
+        private void UpdateEmployerRequest(Action<EmployerRequest> action)
+        {
+            var employerRequest = EmployerRequest;
+            action(employerRequest);
+            _sessionStorage.EmployerRequest = employerRequest;
+        }
+
+        private async Task<bool> ValidateViewModel<T>(IValidator<T> validator, T viewModel, ModelStateDictionary modelState)
+        {
+            await validator.ValidateAndAddModelErrorsAsync(viewModel, modelState);
+            return modelState.IsValid;
         }
     }
 }

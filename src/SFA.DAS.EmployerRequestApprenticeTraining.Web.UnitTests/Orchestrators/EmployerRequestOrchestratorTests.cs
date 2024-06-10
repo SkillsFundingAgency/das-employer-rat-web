@@ -11,6 +11,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerR
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
@@ -26,7 +27,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
     {
         private Mock<IMediator> _mediatorMock;
         private Mock<ISessionStorageService> _sessionStorageMock;
+        private Mock<ILocationService> _locationServiceMock;
         private Mock<IValidator<EnterApprenticesEmployerRequestViewModel>> _enterApprenticesEmployerRequestViewModelValidatorMock;
+        private Mock<IValidator<EnterSingleLocationEmployerRequestViewModel>> _enterSingleLocationEmployerRequestViewModelValidatorMock;
         private Mock<IOptions<EmployerRequestApprenticeTrainingWebConfiguration>> _optionsMock;
         private EmployerRequestOrchestrator _sut;
         private EmployerRequestApprenticeTrainingWebConfiguration _config;
@@ -36,7 +39,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         {
             _mediatorMock = new Mock<IMediator>();
             _sessionStorageMock = new Mock<ISessionStorageService>();
+            _locationServiceMock = new Mock<ILocationService>();
             _enterApprenticesEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterApprenticesEmployerRequestViewModel>>();
+            _enterSingleLocationEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterSingleLocationEmployerRequestViewModel>>();
             _config = new EmployerRequestApprenticeTrainingWebConfiguration
             {
                 FindApprenticeshipTrainingBaseUrl = "http://example.com"
@@ -44,8 +49,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _optionsMock = new Mock<IOptions<EmployerRequestApprenticeTrainingWebConfiguration>>();
             _optionsMock.Setup(o => o.Value).Returns(_config);
 
-            _sut = new EmployerRequestOrchestrator(_mediatorMock.Object, _sessionStorageMock.Object,
-                _enterApprenticesEmployerRequestViewModelValidatorMock.Object, _optionsMock.Object);
+            _sut = new EmployerRequestOrchestrator(_mediatorMock.Object, _sessionStorageMock.Object, _locationServiceMock.Object,
+                _enterApprenticesEmployerRequestViewModelValidatorMock.Object,
+                _enterSingleLocationEmployerRequestViewModelValidatorMock.Object,
+                _optionsMock.Object);
         }
 
         [Test]
@@ -138,10 +145,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         }
 
         [Test]
-        public void StartEmployerRequest_ShouldSetEmployerRequestInSession()
+        public async Task StartEmployerRequest_ShouldSetEmployerRequestInSession()
         {
             // Act
-            _sut.StartEmployerRequest();
+            await _sut.StartEmployerRequest("Some Location");
 
             // Assert
             _sessionStorageMock.VerifySet(x => x.EmployerRequest = It.IsAny<EmployerRequest>(), Times.Once);
