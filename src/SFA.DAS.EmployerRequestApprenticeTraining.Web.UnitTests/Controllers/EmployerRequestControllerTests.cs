@@ -335,11 +335,94 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
 
             // Assert
             result.Should().NotBeNull();
-            result.RouteName.Should().Be(EmployerRequestController.EnterSingleLocationRouteGet);
+            result.RouteName.Should().Be(EmployerRequestController.EnterTrainingOptionsRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
             result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
             result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
             result.RouteValues["location"].Should().Be(viewModel.Location);
+        }
+
+        [Test]
+        public void EnterTrainingOptions_Get_ShouldReturnViewWithViewModel()
+        {
+            // Arrange
+            var parameters = new CreateEmployerRequestParameters
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+            var viewModel = new EnterTrainingOptionsEmployerRequestViewModel();
+
+            _orchestratorMock
+                .Setup(o => o.GetEnterTrainingOptionsEmployerRequestViewModel(parameters, It.IsAny<ModelStateDictionary>()))
+                .Returns(viewModel);
+
+            // Act
+            var result = _sut.EnterTrainingOptions(parameters) as ViewResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Model.Should().BeEquivalentTo(viewModel);
+        }
+
+        [Test]
+        public async Task EnterTrainingOptions_Post_ShouldRedirectToEnterTrainingOptions_WhenModelStateIsInvalid()
+        {
+            // Arrange
+            var viewModel = new EnterTrainingOptionsEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+
+            _orchestratorMock
+                .Setup(o => o.ValidateEnterTrainingOptionsEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>()))
+                .ReturnsAsync(false);
+
+            // Act
+            var result = await _sut.EnterTrainingOptions(viewModel) as RedirectToRouteResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.EnterTrainingOptionsRouteGet);
+            result.RouteValues["HashedAccountId"].Should().Be(viewModel.HashedAccountId);
+            result.RouteValues["RequestType"].Should().Be(viewModel.RequestType);
+            result.RouteValues["StandardId"].Should().Be(viewModel.StandardId);
+            result.RouteValues["Location"].Should().Be(viewModel.Location);
+        }
+
+        [Test]
+        public async Task EnterTrainingOptions_Post_ShouldUpdateTrainingOptionsAndRedirect_WhenModelStateIsValid()
+        {
+            // Arrange
+            var viewModel = new EnterTrainingOptionsEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+
+            _orchestratorMock
+                .Setup(o => o.ValidateEnterTrainingOptionsEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>()))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _sut.EnterTrainingOptions(viewModel) as RedirectToRouteResult;
+
+            // Assert
+            _orchestratorMock.Verify(o => o.UpdateTrainingOptionsForEmployerRequest(viewModel), Times.Once);
+
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.EnterTrainingOptionsRouteGet);
+            result.RouteValues["HashedAccountId"].Should().Be(viewModel.HashedAccountId);
+            result.RouteValues["RequestType"].Should().Be(viewModel.RequestType);
+            result.RouteValues["StandardId"].Should().Be(viewModel.StandardId);
+            result.RouteValues["Location"].Should().Be(viewModel.Location);
         }
     }
 }

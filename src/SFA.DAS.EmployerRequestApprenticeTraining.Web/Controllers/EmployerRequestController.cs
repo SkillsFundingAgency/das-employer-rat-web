@@ -22,6 +22,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         public const string EnterApprenticesRoutePost = nameof(EnterApprenticesRoutePost);
         public const string EnterSingleLocationRouteGet = nameof(EnterSingleLocationRouteGet);
         public const string EnterSingleLocationRoutePost = nameof(EnterSingleLocationRoutePost);
+        public const string EnterTrainingOptionsRouteGet = nameof(EnterTrainingOptionsRouteGet);
+        public const string EnterTrainingOptionsRoutePost = nameof(EnterTrainingOptionsRoutePost);
         #endregion Routes
 
         public EmployerRequestController(IEmployerRequestOrchestrator orchestrator)
@@ -99,7 +101,30 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
 
             _orchestrator.UpdateSingleLocationForEmployerRequest(viewModel);
 
-            return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+            return RedirectToRoute(EnterTrainingOptionsRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+        }
+
+        [HttpGet]
+        [Route("training-options", Name = EnterTrainingOptionsRouteGet)]
+        [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        public IActionResult EnterTrainingOptions(CreateEmployerRequestParameters parameters)
+        {
+            return View(_orchestrator.GetEnterTrainingOptionsEmployerRequestViewModel(parameters, ModelState));
+        }
+
+        [HttpPost]
+        [Route("training-options", Name = EnterTrainingOptionsRoutePost)]
+        [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        public async Task<ActionResult> EnterTrainingOptions(EnterTrainingOptionsEmployerRequestViewModel viewModel)
+        {
+            if (!await _orchestrator.ValidateEnterTrainingOptionsEmployerRequestViewModel(viewModel, ModelState))
+            {
+                return RedirectToRoute(EnterTrainingOptionsRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+            }
+
+            _orchestrator.UpdateTrainingOptionsForEmployerRequest(viewModel);
+
+            return RedirectToRoute(EnterTrainingOptionsRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
         }
     }
 }

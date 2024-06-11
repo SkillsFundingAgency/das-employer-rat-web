@@ -11,5 +11,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
         public long AccountId { get; set; }
         public int NumberOfApprentices { get; set; }
         public string SingleLocation { get; set; }
+        public bool AtApprenticesWorkplace { get; set; }
+        public bool DayRelease { get; set; }
+        public bool BlockRelease { get; set; }
     }
 }

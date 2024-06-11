@@ -13,7 +13,6 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
-using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators;
 using System;
@@ -30,6 +29,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         private Mock<ILocationService> _locationServiceMock;
         private Mock<IValidator<EnterApprenticesEmployerRequestViewModel>> _enterApprenticesEmployerRequestViewModelValidatorMock;
         private Mock<IValidator<EnterSingleLocationEmployerRequestViewModel>> _enterSingleLocationEmployerRequestViewModelValidatorMock;
+        private Mock<IValidator<EnterTrainingOptionsEmployerRequestViewModel>> _enterTrainingOptionsEmployerRequestViewModelValidatorMock;
         private Mock<IOptions<EmployerRequestApprenticeTrainingWebConfiguration>> _optionsMock;
         private EmployerRequestOrchestrator _sut;
         private EmployerRequestApprenticeTrainingWebConfiguration _config;
@@ -42,6 +42,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _locationServiceMock = new Mock<ILocationService>();
             _enterApprenticesEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterApprenticesEmployerRequestViewModel>>();
             _enterSingleLocationEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterSingleLocationEmployerRequestViewModel>>();
+            _enterTrainingOptionsEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterTrainingOptionsEmployerRequestViewModel>>();
             _config = new EmployerRequestApprenticeTrainingWebConfiguration
             {
                 FindApprenticeshipTrainingBaseUrl = "http://example.com"
@@ -52,6 +53,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _sut = new EmployerRequestOrchestrator(_mediatorMock.Object, _sessionStorageMock.Object, _locationServiceMock.Object,
                 _enterApprenticesEmployerRequestViewModelValidatorMock.Object,
                 _enterSingleLocationEmployerRequestViewModelValidatorMock.Object,
+                _enterTrainingOptionsEmployerRequestViewModelValidatorMock.Object,
                 _optionsMock.Object);
         }
 
@@ -480,6 +482,99 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
 
             // Assert
             _sessionStorageMock.VerifySet(s => s.EmployerRequest = It.Is<EmployerRequest>(er => er.SingleLocation == "New Location"), Times.Once);
+        }
+
+        [Test]
+        public void GetEnterTrainingOptionsEmployerRequestViewModel_ShouldReturnViewModel_WithCorrectValues()
+        {
+            // Arrange
+            var parameters = new CreateEmployerRequestParameters
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+            var employerRequest = new EmployerRequest
+            {
+                AtApprenticesWorkplace = true,
+                DayRelease = true,
+                BlockRelease = false
+            };
+            _sessionStorageMock.Setup(x => x.EmployerRequest).Returns(employerRequest);
+
+            // Act
+            var result = _sut.GetEnterTrainingOptionsEmployerRequestViewModel(parameters, new ModelStateDictionary());
+
+            // Assert
+            result.HashedAccountId.Should().Be(parameters.HashedAccountId);
+            result.StandardId.Should().Be(parameters.StandardId);
+            result.RequestType.Should().Be(parameters.RequestType);
+            result.Location.Should().Be(parameters.Location);
+            result.AtApprenticesWorkplace.Should().BeTrue();
+            result.DayRelease.Should().BeTrue();
+            result.BlockRelease.Should().BeFalse();
+        }
+
+        [Test]
+        public async Task ValidateEnterTrainingOptionsEmployerRequestViewModel_ShouldReturnTrue_WhenModelIsValid()
+        {
+            // Arrange
+            var viewModel = new EnterTrainingOptionsEmployerRequestViewModel();
+            var modelState = new ModelStateDictionary();
+            var validationResult = new ValidationResult(); // No errors
+
+            _enterTrainingOptionsEmployerRequestViewModelValidatorMock.Setup(v => v.ValidateAsync(viewModel, default)).ReturnsAsync(validationResult);
+
+            // Act
+            var result = await _sut.ValidateEnterTrainingOptionsEmployerRequestViewModel(viewModel, modelState);
+
+            // Assert
+            result.Should().BeTrue();
+            modelState.IsValid.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task ValidateEnterTrainingOptionsEmployerRequestViewModel_ShouldReturnFalse_WhenModelIsInvalid()
+        {
+            // Arrange
+            var viewModel = new EnterTrainingOptionsEmployerRequestViewModel();
+            var modelState = new ModelStateDictionary();
+            var validationResult = new ValidationResult(new[] { new ValidationFailure("AtApprenticesWorkplace", "Select a training option") });
+
+            _enterTrainingOptionsEmployerRequestViewModelValidatorMock.Setup(v => v.ValidateAsync(viewModel, default)).ReturnsAsync(validationResult);
+
+            // Act
+            var result = await _sut.ValidateEnterTrainingOptionsEmployerRequestViewModel(viewModel, modelState);
+
+            // Assert
+            result.Should().BeFalse();
+            modelState.IsValid.Should().BeFalse();
+            modelState["AtApprenticesWorkplace"].Errors[0].ErrorMessage.Should().Be("Select a training option");
+        }
+
+        [Test]
+        public void UpdateTrainingOptionsForEmployerRequest_ShouldUpdateEmployerRequest_WithCorrectValues()
+        {
+            // Arrange
+            var viewModel = new EnterTrainingOptionsEmployerRequestViewModel
+            {
+                AtApprenticesWorkplace = true,
+                DayRelease = false,
+                BlockRelease = true
+            };
+            var employerRequest = new EmployerRequest();
+
+            _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
+
+            // Act
+            _sut.UpdateTrainingOptionsForEmployerRequest(viewModel);
+
+            // Assert
+            employerRequest.AtApprenticesWorkplace.Should().BeTrue();
+            employerRequest.DayRelease.Should().BeFalse();
+            employerRequest.BlockRelease.Should().BeTrue();
+            _sessionStorageMock.VerifySet(s => s.EmployerRequest = employerRequest, Times.Once);
         }
     }
 }
