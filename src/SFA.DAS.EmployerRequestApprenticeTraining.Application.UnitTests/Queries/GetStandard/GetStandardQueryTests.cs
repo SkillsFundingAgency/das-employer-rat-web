@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
@@ -14,6 +15,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
     {
         private Mock<IEmployerRequestApprenticeTrainingOuterApi> _mockOuterApi;
         private Mock<ICacheStorageService> _mockCacheStorageService;
+        private Mock<IValidator<GetStandardQuery>> _mockValidator;
         private GetStandardQueryHandler _handler;
         private GetStandardQuery _query;
 
@@ -22,8 +24,19 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
         {
             _mockOuterApi = new Mock<IEmployerRequestApprenticeTrainingOuterApi>();
             _mockCacheStorageService = new Mock<ICacheStorageService>();
-            _handler = new GetStandardQueryHandler(_mockOuterApi.Object, _mockCacheStorageService.Object);
+            _mockValidator = new Mock<IValidator<GetStandardQuery>>();
+            _handler = new GetStandardQueryHandler(_mockOuterApi.Object, _mockCacheStorageService.Object, _mockValidator.Object);
             _query = new GetStandardQuery("ST0100");
+        }
+
+        [Test]
+        public async Task Handle_ShouldCallValidator()
+        {
+            // Act
+            var result = await _handler.Handle(_query, CancellationToken.None);
+
+            // Assert
+            _mockValidator.Verify(x => x.ValidateAsync(_query, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]

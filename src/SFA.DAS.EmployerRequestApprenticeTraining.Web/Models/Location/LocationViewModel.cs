@@ -1,4 +1,4 @@
-﻿using static SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types.Locations;
+﻿using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Location
 {
@@ -6,7 +6,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Location
     {
         public string Name { get; set; }
         
-        public static implicit operator LocationViewModel(LocationItem source)
+        public static implicit operator LocationViewModel(LocationSearchResponse source)
         {
             return new LocationViewModel
             {

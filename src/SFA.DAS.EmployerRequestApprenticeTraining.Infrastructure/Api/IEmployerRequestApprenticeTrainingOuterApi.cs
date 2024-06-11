@@ -23,7 +23,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
         Task<UserAccountsResponse> GetUserAccounts([Path] string userId, [Query] string email);
 
         [Get("/locations")]
-        Task<Locations> GetLocations([Query] string searchTerm);
+        Task<List<LocationSearchResponse>> GetLocations([Query] string searchTerm);
 
         [Get("/standards/{standardId}")]
         Task<Standard> GetStandard([Path] string standardId);

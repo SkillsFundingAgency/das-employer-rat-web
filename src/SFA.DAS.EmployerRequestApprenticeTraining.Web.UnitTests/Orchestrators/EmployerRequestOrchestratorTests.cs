@@ -344,5 +344,142 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Assert
             backLink.Should().Be("http://example.com/courses/123/providers?Location=London");
         }
+
+        [Test]
+        public void GetEnterSingleLocationEmployerRequestViewModel_ShouldReturnViewModel_WhenSessionHasEmployerRequest()
+        {
+            // Arrange
+            var parameters = new CreateEmployerRequestParameters
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+            var employerRequest = new EmployerRequest { SingleLocation = "Location1" };
+            var modelState = new ModelStateDictionary();
+
+            _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
+
+            // Act
+            var result = _sut.GetEnterSingleLocationEmployerRequestViewModel(parameters, modelState);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.HashedAccountId.Should().Be(parameters.HashedAccountId);
+            result.StandardId.Should().Be(parameters.StandardId);
+            result.RequestType.Should().Be(parameters.RequestType);
+            result.Location.Should().Be(parameters.Location);
+            result.SingleLocation.Should().Be(employerRequest.SingleLocation);
+        }
+
+        [Test]
+        public void GetEnterSingleLocationEmployerRequestViewModel_ShouldReturnViewModel_WhenSessionIsEmpty()
+        {
+            // Arrange
+            var parameters = new CreateEmployerRequestParameters
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+            var modelState = new ModelStateDictionary();
+
+            _sessionStorageMock.Setup(s => s.EmployerRequest).Returns((EmployerRequest)null);
+
+            // Act
+            var result = _sut.GetEnterSingleLocationEmployerRequestViewModel(parameters, modelState);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.HashedAccountId.Should().Be(parameters.HashedAccountId);
+            result.StandardId.Should().Be(parameters.StandardId);
+            result.RequestType.Should().Be(parameters.RequestType);
+            result.Location.Should().Be(parameters.Location);
+            result.SingleLocation.Should().BeNull();
+        }
+
+        [Test]
+        public async Task ValidateEnterSingleLocationEmployerRequestViewModel_ShouldReturnTrue_WhenModelIsValid()
+        {
+            // Arrange
+            var viewModel = new EnterSingleLocationEmployerRequestViewModel();
+            var modelState = new ModelStateDictionary();
+            var validationResult = new ValidationResult(); // No errors
+
+            _enterSingleLocationEmployerRequestViewModelValidatorMock
+                .Setup(v => v.ValidateAsync(viewModel, default))
+                .ReturnsAsync(validationResult);
+
+            // Act
+            var result = await _sut.ValidateEnterSingleLocationEmployerRequestViewModel(viewModel, modelState);
+
+            // Assert
+            result.Should().BeTrue();
+            modelState.IsValid.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task ValidateEnterSingleLocationEmployerRequestViewModel_ShouldReturnFalse_WhenModelIsInvalid()
+        {
+            // Arrange
+            var viewModel = new EnterSingleLocationEmployerRequestViewModel();
+            var modelState = new ModelStateDictionary();
+            var validationResult = new ValidationResult(new List<ValidationFailure>
+            {
+                new ValidationFailure("PropertyName", "Error message")
+            });
+
+            _enterSingleLocationEmployerRequestViewModelValidatorMock
+                .Setup(v => v.ValidateAsync(viewModel, default))
+                .ReturnsAsync(validationResult);
+
+            // Act
+            var result = await _sut.ValidateEnterSingleLocationEmployerRequestViewModel(viewModel, modelState);
+
+            // Assert
+            result.Should().BeFalse();
+            modelState.IsValid.Should().BeFalse();
+            modelState["PropertyName"].Errors[0].ErrorMessage.Should().Be("Error message");
+        }
+
+        [Test]
+        public void UpdateSingleLocationForEmployerRequest_ShouldUpdateSingleLocation_WhenSessionHasEmployerRequest()
+        {
+            // Arrange
+            var viewModel = new EnterSingleLocationEmployerRequestViewModel
+            {
+                SingleLocation = "New Location"
+            };
+            var employerRequest = new EmployerRequest();
+
+            _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
+
+            // Act
+            _sut.UpdateSingleLocationForEmployerRequest(viewModel);
+
+            // Assert
+            employerRequest.SingleLocation.Should().Be("New Location");
+            _sessionStorageMock.VerifySet(s => s.EmployerRequest = employerRequest, Times.Once);
+        }
+
+        [Test]
+        public void UpdateSingleLocationForEmployerRequest_ShouldSetNewEmployerRequest_WhenSessionIsEmpty()
+        {
+            // Arrange
+            var viewModel = new EnterSingleLocationEmployerRequestViewModel
+            {
+                SingleLocation = "New Location"
+            };
+
+            _sessionStorageMock.Setup(s => s.EmployerRequest).Returns((EmployerRequest)null);
+
+            // Act
+            _sut.UpdateSingleLocationForEmployerRequest(viewModel);
+
+            // Assert
+            _sessionStorageMock.VerifySet(s => s.EmployerRequest = It.Is<EmployerRequest>(er => er.SingleLocation == "New Location"), Times.Once);
+        }
     }
 }

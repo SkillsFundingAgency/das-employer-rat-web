@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Employer.Shared.UI;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers;
@@ -71,7 +72,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
                 .SetDefaultNavigationSection(NavigationSection.AccountsFinance);
 
             services
-                .AddValidatorsFromAssemblyContaining<Startup>();
+                .AddValidatorsFromAssemblyContaining<Startup>()
+                .AddValidatorsFromAssemblyContaining<GetEmployerRequestQueryValidator>();
 
             services
                 .AddEmployerAuthentication(_configuration)

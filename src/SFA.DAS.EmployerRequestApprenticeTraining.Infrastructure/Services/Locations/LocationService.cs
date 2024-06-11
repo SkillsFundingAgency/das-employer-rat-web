@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using RestEase;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
+using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations
@@ -16,16 +18,17 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Loca
             _logger = logger;
         }
 
-        public async Task<Domain.Types.Locations> GetLocations(string searchTerm)
+        public async Task<List<LocationSearchResponse>> GetLocations(string searchTerm)
         {
             try
             {
-                return await _outerApi.GetLocations(searchTerm);
+                var result = await _outerApi.GetLocations(searchTerm);
+                return result;
             }
             catch (ApiException ex)
             {
                 _logger.LogError(ex, $"Unable to get locations for searchTerm:{searchTerm}");
-                return new Domain.Types.Locations();
+                return new List<LocationSearchResponse>();
             }
         }
 
@@ -37,7 +40,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Loca
             // using the first 3 letters only attempt to match what to a verify a location
             // as the full string will not be returned if it includes the district
             var locations = await GetLocations(searchTerm[..3]);
-            return locations.LocationItems.Exists(p => p.Name == searchTerm);
+            return locations.Exists(p => p.Name == searchTerm);
         }
     }
 }

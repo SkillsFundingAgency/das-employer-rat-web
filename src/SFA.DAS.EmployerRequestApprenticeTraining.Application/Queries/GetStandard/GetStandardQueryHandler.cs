@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.CacheStorage;
@@ -9,15 +10,19 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmplo
     {
         private readonly IEmployerRequestApprenticeTrainingOuterApi _outerApi;
         private readonly ICacheStorageService _cacheStorageService;
+        private readonly IValidator<GetStandardQuery> _validator;
 
-        public GetStandardQueryHandler(IEmployerRequestApprenticeTrainingOuterApi outerApi, ICacheStorageService cacheStorageService)
+        public GetStandardQueryHandler(IEmployerRequestApprenticeTrainingOuterApi outerApi, ICacheStorageService cacheStorageService, IValidator<GetStandardQuery> validator)
         {
             _outerApi = outerApi;
             _cacheStorageService = cacheStorageService;
+            _validator = validator;
         }
 
         public async Task<Standard> Handle(GetStandardQuery request, CancellationToken cancellationToken)
         {
+            await _validator.ValidateAsync(request, cancellationToken);
+
             var standardCacheKey = $"GetStandard:{request.StandardId}";
             var standard = await _cacheStorageService.RetrieveFromCache<Standard?>(standardCacheKey);
             

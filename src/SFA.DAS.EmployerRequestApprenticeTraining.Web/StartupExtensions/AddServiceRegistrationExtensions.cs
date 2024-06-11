@@ -16,6 +16,8 @@ using SFA.DAS.GovUK.Auth.Authentication;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
+using FluentValidation;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {

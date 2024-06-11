@@ -28,7 +28,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
            
             var model = new LocationsViewModel
             {
-                Locations = result.LocationItems?.Select(c => (LocationViewModel)c).ToList()
+                Locations = result?.Select(c => (LocationViewModel)c).ToList()
             };
 
             return new JsonResult(model);

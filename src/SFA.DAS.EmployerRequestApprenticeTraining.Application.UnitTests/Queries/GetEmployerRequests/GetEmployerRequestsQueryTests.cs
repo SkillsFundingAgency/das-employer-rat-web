@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentValidation;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
@@ -11,6 +12,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
     public class GetEmployerRequestsQueryTests
     {
         private Mock<IEmployerRequestApprenticeTrainingOuterApi> _mockOuterApi;
+        private Mock<IValidator<GetEmployerRequestsQuery>> _mockValidator;
         private GetEmployerRequestsQueryHandler _handler;
         private GetEmployerRequestsQuery _query;
 
@@ -18,8 +20,19 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
         public void Setup()
         {
             _mockOuterApi = new Mock<IEmployerRequestApprenticeTrainingOuterApi>();
-            _handler = new GetEmployerRequestsQueryHandler(_mockOuterApi.Object);
+            _mockValidator = new Mock<IValidator<GetEmployerRequestsQuery>>();
+            _handler = new GetEmployerRequestsQueryHandler(_mockOuterApi.Object, _mockValidator.Object);
             _query = new GetEmployerRequestsQuery { AccountId = 123456 };
+        }
+
+        [Test]
+        public async Task Handle_ShouldCallValidator()
+        {
+            // Act
+            var result = await _handler.Handle(_query, CancellationToken.None);
+
+            // Assert
+            _mockValidator.Verify(x => x.ValidateAsync(_query, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]

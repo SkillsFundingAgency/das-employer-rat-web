@@ -94,12 +94,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         {
             if (!await _orchestrator.ValidateEnterSingleLocationEmployerRequestViewModel(viewModel, ModelState))
             {
-                return RedirectToRoute(EnterSingleLocationRoutePost, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
             }
 
             _orchestrator.UpdateSingleLocationForEmployerRequest(viewModel);
 
-            return RedirectToRoute(EnterSingleLocationRoutePost, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+            return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
         }
     }
 }
