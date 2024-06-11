@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetLocations;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Location;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -28,7 +29,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
            
             var model = new LocationsViewModel
             {
-                Locations = result?.Select(c => (LocationViewModel)c).ToList()
+                Locations = result?.Select(c => (LocationViewModel)c).ToList() ?? new List<LocationViewModel>()
             };
 
             return new JsonResult(model);
