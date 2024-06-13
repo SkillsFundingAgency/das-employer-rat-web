@@ -8,12 +8,24 @@
     ViewData["Title"] = "Where is the apprenticeship location?";
     ViewBag.GaData.Vpv = "/accounts/employerrequests/entersinglelocation";
 }
-<a asp-route="@EmployerRequestController.EnterApprenticesRouteGet"
-   asp-route-hashedAccountId="@Model.HashedAccountId"
-   asp-route-requestType="@Model.RequestType"
-   asp-route-standardId="@Model.StandardId"
-   asp-route-location="@Model.Location" 
-   class="govuk-back-link">Back</a>
+@if(Model.BackToCheckAnswers)
+{
+    <a asp-route="@EmployerRequestController.CheckYourAnswersRouteGet"
+       asp-route-hashedAccountId="@Model.HashedAccountId"
+       asp-route-requestType="@Model.RequestType"
+       asp-route-standardId="@Model.StandardId"
+       asp-route-location="@Model.Location"
+       class="govuk-back-link">Back</a>
+}
+else
+{
+    <a asp-route="@EmployerRequestController.EnterApprenticesRouteGet"
+       asp-route-hashedAccountId="@Model.HashedAccountId"
+       asp-route-requestType="@Model.RequestType"
+       asp-route-standardId="@Model.StandardId"
+       asp-route-location="@Model.Location" 
+       class="govuk-back-link">Back</a>
+}
 <main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
     <partial name="_ValidationSummary" />
     <div class="govuk-grid-row">
@@ -23,6 +35,7 @@
                 @Html.HiddenFor(model => model.StandardId)
                 @Html.HiddenFor(model => model.RequestType)
                 @Html.HiddenFor(model => model.Location)
+                @Html.HiddenFor(model => model.BackToCheckAnswers)
 
                 <div class="govuk-form-group" das-highlight-error-for="SingleLocation" error-class="govuk-form-group--error" id="EnteredLocation">
                     <h1 class="govuk-label-wrapper">

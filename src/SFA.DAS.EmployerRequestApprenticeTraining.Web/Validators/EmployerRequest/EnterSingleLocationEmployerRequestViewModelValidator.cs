@@ -8,29 +8,32 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators
 {
     public class EnterSingleLocationEmployerRequestViewModelValidator : AbstractValidator<EnterSingleLocationEmployerRequestViewModel>
     {
-        private readonly ILocationService _locationService;
-
         public EnterSingleLocationEmployerRequestViewModelValidator(ILocationService locationService)
         {
-            _locationService = locationService;
-
             RuleFor(x => x.SingleLocation)
-                .NotEmpty().WithMessage("Enter a town, city or postcode")
-                .DependentRules(() =>
-                {
-                    RuleFor(x => x.SingleLocation)
-                        .MustAsync(IsValidLocationAsync).WithMessage("Enter a valid location");
-                });
+                .ValidateSingleLocation(locationService);
+        }
+    }
+
+    public static class EnterSingleLocationEmployerRequestViewModelValidatorRules
+    {
+        public static IRuleBuilderOptions<T, string> ValidateSingleLocation<T>(this IRuleBuilder<T, string> ruleBuilder, ILocationService locationService)
+        {
+            return ruleBuilder
+                .NotEmpty()
+                    .WithMessage("Enter a town, city or postcode")
+                .MustAsync((locationName, cancellationToken) => IsValidLocationAsync(locationName, locationService, cancellationToken))
+                    .WithMessage("Enter a valid location");
         }
 
-        private async Task<bool> IsValidLocationAsync(string locationName, CancellationToken cancellationToken)
+        private static async Task<bool> IsValidLocationAsync(string locationName, ILocationService locationService, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(locationName))
             {
                 return false;
             }
 
-            return await _locationService.CheckLocationExists(locationName);
+            return await locationService.CheckLocationExists(locationName);
         }
     }
 }

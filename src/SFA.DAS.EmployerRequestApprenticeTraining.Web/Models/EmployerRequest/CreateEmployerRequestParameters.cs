@@ -13,5 +13,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
 
         [FromQuery]
         public string Location { get; set; }
+
+        [FromQuery]
+        public bool BackToCheckAnswers { get; set; }
     }
 }

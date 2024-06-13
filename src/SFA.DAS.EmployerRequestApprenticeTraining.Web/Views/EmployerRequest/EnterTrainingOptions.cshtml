@@ -2,18 +2,31 @@
 @using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
 @using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
 @using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
 @model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.EnterTrainingOptionsEmployerRequestViewModel
 
 @{
     ViewData["Title"] = "Select training options";
     ViewBag.GaData.Vpv = "/accounts/employerrequests/entertrainingoptions";
 }
-<a asp-route="@EmployerRequestController.EnterSingleLocationRouteGet"
-   asp-route-hashedAccountId="@Model.HashedAccountId"
-   asp-route-requestType="@Model.RequestType"
-   asp-route-standardId="@Model.StandardId"
-   asp-route-location="@Model.Location" 
-   class="govuk-back-link">Back</a>
+@if(Model.BackToCheckAnswers)
+{
+    <a asp-route="@EmployerRequestController.CheckYourAnswersRouteGet"
+       asp-route-hashedAccountId="@Model.HashedAccountId"
+       asp-route-requestType="@Model.RequestType"
+       asp-route-standardId="@Model.StandardId"
+       asp-route-location="@Model.Location"
+       class="govuk-back-link">Back</a>
+}
+else
+{
+    <a asp-route="@EmployerRequestController.EnterSingleLocationRouteGet"
+       asp-route-hashedAccountId="@Model.HashedAccountId"
+       asp-route-requestType="@Model.RequestType"
+       asp-route-standardId="@Model.StandardId"
+       asp-route-location="@Model.Location" 
+       class="govuk-back-link">Back</a>
+}
 <main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
     <partial name="_ValidationSummary" />
     <div class="govuk-grid-row">
@@ -23,6 +36,7 @@
                 @Html.HiddenFor(model => model.StandardId)
                 @Html.HiddenFor(model => model.RequestType)
                 @Html.HiddenFor(model => model.Location)
+                @Html.HiddenFor(model => model.BackToCheckAnswers)
 
                 <div class="govuk-form-group" das-highlight-error-for="AtApprenticesWorkplace" error-class="govuk-form-group--error">
                     <fieldset class="govuk-fieldset" aria-describedby="nationality-hint nationality-error">
@@ -41,7 +55,7 @@
                             <div class="govuk-checkboxes__item">
                                 <input class="govuk-checkboxes__input" id="at-apprentices-workplace" asp-for="AtApprenticesWorkplace" error-class="govuk-input--error" type="checkbox" aria-describedby="TrainingOptions-error TrainingOptions-hint">
                                 <label class="govuk-label govuk-checkboxes__label" for="at-apprentices-workplace">
-                                    At apprentice-s workplace
+                                   @TrainingOptions.AtApprenticesWorkplace
                                 </label>
                                 <div id="at-apprentices-workplace-hint" class="govuk-hint govuk-checkboxes__hint">
                                     The training provider will send an assessor to the business to deliver training
@@ -50,7 +64,7 @@
                             <div class="govuk-checkboxes__item">
                                 <input class="govuk-checkboxes__input" id="day-release" asp-for="DayRelease" error-class="govuk-input--error" type="checkbox" aria-describedby="TrainingOptions-error TrainingOptions-hint">
                                 <label class="govuk-label govuk-checkboxes__label" for="day-release">
-                                    Day release
+                                    @TrainingOptions.DayRelease
                                 </label>
                                 <div id="day-release-hint" class="govuk-hint govuk-checkboxes__hint">
                                     One day a week the apprentice goes to the training provider
@@ -59,7 +73,7 @@
                             <div class="govuk-checkboxes__item">
                                 <input class="govuk-checkboxes__input" id="block-release" asp-for="BlockRelease" error-class="govuk-input--error" type="checkbox" aria-describedby="TrainingOptions-error TrainingOptions-hint">
                                 <label class="govuk-label govuk-checkboxes__label" for="block-release">
-                                    Block release
+                                    @TrainingOptions.BlockRelease
                                 </label>
                                 <div id="block-release-hint" class="govuk-hint govuk-checkboxes__hint">
                                     The apprentice goes to the training provider for 1 or 2 weeks each month

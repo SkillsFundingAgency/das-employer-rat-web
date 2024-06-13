@@ -16,7 +16,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
             {
                 foreach (var error in result.Errors)
                 {
-                    modelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                    if (!modelState.ContainsKey(error.PropertyName) || modelState[error.PropertyName].Errors.Count == 0)
+                        modelState.AddModelError(error.PropertyName, error.ErrorMessage);
                 }
             }
 
