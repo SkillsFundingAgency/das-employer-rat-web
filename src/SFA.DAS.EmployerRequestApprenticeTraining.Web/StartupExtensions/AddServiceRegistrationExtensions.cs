@@ -15,6 +15,9 @@ using System.Diagnostics.CodeAnalysis;
 using SFA.DAS.GovUK.Auth.Authentication;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
+using FluentValidation;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
@@ -36,8 +39,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 
             services.AddTransient<ISessionStorageService, SessionStorageService>();
             services.AddTransient<ICacheStorageService, CacheStorageService>();
-            services.AddTransient<IEmployerRequestOrchestrator, EmployerRequestOrchestrator>();
             services.AddTransient<ICustomClaims, PostAuthenticationClaimsHandler>();
+
+            services.AddTransient<IEmployerRequestOrchestrator, EmployerRequestOrchestrator>();
+            services.AddTransient<ILocationService, LocationService>();
 
             services.AddScoped<ValidateRequiredQueryParametersAttribute>();
 
