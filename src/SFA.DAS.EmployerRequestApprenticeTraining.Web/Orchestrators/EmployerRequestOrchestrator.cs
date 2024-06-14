@@ -25,11 +25,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         private readonly ILocationService _locationService;
         private readonly IValidator<EnterApprenticesEmployerRequestViewModel> _enterApprenticesEmployerRequestViewModelValidator;
         private readonly IValidator<EnterSingleLocationEmployerRequestViewModel> _enterSingleLocationEmployerRequestViewModelValidator;
+        private readonly IValidator<EnterTrainingOptionsEmployerRequestViewModel> _enterTrainingOptionsEmployerRequestViewModelValidator;
         private readonly EmployerRequestApprenticeTrainingWebConfiguration _config;
 
         public EmployerRequestOrchestrator(IMediator mediator, ISessionStorageService sessionStorage, ILocationService locationService,
             IValidator<EnterApprenticesEmployerRequestViewModel> enterApprenticesEmployerRequestViewModelValidator,
             IValidator<EnterSingleLocationEmployerRequestViewModel> enterSingleLocationEmployerRequestViewModelValidator,
+            IValidator<EnterTrainingOptionsEmployerRequestViewModel> enterTrainingOptionsEmployerRequestViewModelValidator,
             IOptions<EmployerRequestApprenticeTrainingWebConfiguration> options)
         {
             _mediator = mediator;
@@ -37,6 +39,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             _locationService = locationService;
             _enterApprenticesEmployerRequestViewModelValidator = enterApprenticesEmployerRequestViewModelValidator;
             _enterSingleLocationEmployerRequestViewModelValidator = enterSingleLocationEmployerRequestViewModelValidator;
+            _enterTrainingOptionsEmployerRequestViewModelValidator = enterTrainingOptionsEmployerRequestViewModelValidator;
             _config = options?.Value;
         }
 
@@ -115,6 +118,35 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             UpdateEmployerRequest((employerRequest) => 
             { 
                 employerRequest.SingleLocation = viewModel.SingleLocation;
+            });
+        }
+
+        public EnterTrainingOptionsEmployerRequestViewModel GetEnterTrainingOptionsEmployerRequestViewModel(CreateEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        {
+            return new EnterTrainingOptionsEmployerRequestViewModel
+            {
+                HashedAccountId = parameters.HashedAccountId,
+                StandardId = parameters.StandardId,
+                RequestType = parameters.RequestType,
+                Location = parameters.Location,
+                AtApprenticesWorkplace = EmployerRequest.AtApprenticesWorkplace,
+                DayRelease = EmployerRequest.DayRelease,
+                BlockRelease = EmployerRequest.BlockRelease
+            };
+        }
+
+        public async Task<bool> ValidateEnterTrainingOptionsEmployerRequestViewModel(EnterTrainingOptionsEmployerRequestViewModel viewModel, ModelStateDictionary modelState)
+        {
+            return await ValidateViewModel(_enterTrainingOptionsEmployerRequestViewModelValidator, viewModel, modelState);
+        }
+
+        public void UpdateTrainingOptionsForEmployerRequest(EnterTrainingOptionsEmployerRequestViewModel viewModel)
+        {
+            UpdateEmployerRequest((employerRequest) =>
+            {
+                employerRequest.AtApprenticesWorkplace = viewModel.AtApprenticesWorkplace;
+                employerRequest.DayRelease = viewModel.DayRelease;
+                employerRequest.BlockRelease = viewModel.BlockRelease;
             });
         }
 

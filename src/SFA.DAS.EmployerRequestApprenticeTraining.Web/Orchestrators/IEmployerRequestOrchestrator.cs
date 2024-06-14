@@ -16,6 +16,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         EnterSingleLocationEmployerRequestViewModel GetEnterSingleLocationEmployerRequestViewModel(CreateEmployerRequestParameters parameters, ModelStateDictionary modelState);
         Task<bool> ValidateEnterSingleLocationEmployerRequestViewModel(EnterSingleLocationEmployerRequestViewModel viewModel, ModelStateDictionary modelState);
         void UpdateSingleLocationForEmployerRequest(EnterSingleLocationEmployerRequestViewModel viewModel);
+        EnterTrainingOptionsEmployerRequestViewModel GetEnterTrainingOptionsEmployerRequestViewModel(CreateEmployerRequestParameters parameters, ModelStateDictionary modelState);
+        Task<bool> ValidateEnterTrainingOptionsEmployerRequestViewModel(EnterTrainingOptionsEmployerRequestViewModel viewModel, ModelStateDictionary modelState);
+        void UpdateTrainingOptionsForEmployerRequest(EnterTrainingOptionsEmployerRequestViewModel viewModel);
         Task<Guid> CreateEmployerRequest(CreateEmployerRequestViewModel request);
         Task<ViewEmployerRequestsViewModel> GetViewEmployerRequestsViewModel(long accountId);
         Task<ViewEmployerRequestViewModel> GetViewEmployerRequestViewModel(Guid employerRequestId);
