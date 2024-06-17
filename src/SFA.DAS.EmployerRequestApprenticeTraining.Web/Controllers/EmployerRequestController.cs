@@ -39,7 +39,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("overview", Name = OverviewEmployerRequestRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public async Task<IActionResult> Overview(CreateEmployerRequestParameters parameters)
+        public async Task<IActionResult> Overview(SubmitEmployerRequestParameters parameters)
         {
             var viewModel = await _orchestrator.GetOverviewEmployerRequestViewModel(parameters);
             return View(viewModel);
@@ -48,7 +48,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("start", Name = StartEmployerRequestRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public async Task<IActionResult> Start(CreateEmployerRequestParameters parameters)
+        public async Task<IActionResult> Start(SubmitEmployerRequestParameters parameters)
         {
             await _orchestrator.StartEmployerRequest(parameters.Location);
             return RedirectToRoute(EnterApprenticesRouteGet, new { parameters.HashedAccountId, parameters.RequestType, parameters.StandardId, parameters.Location, BackToCheckAnswers=false });
@@ -57,7 +57,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("cancel", Name = CancelEmployerRequestRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public async Task<IActionResult> Cancel(CreateEmployerRequestParameters parameters)
+        public async Task<IActionResult> Cancel(SubmitEmployerRequestParameters parameters)
         {
             await _orchestrator.StartEmployerRequest(parameters.Location);
             return RedirectToRoute(OverviewEmployerRequestRouteGet, new { parameters.HashedAccountId, parameters.RequestType, parameters.StandardId, parameters.Location, BackToCheckAnswers = false });
@@ -66,7 +66,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("apprentices", Name = EnterApprenticesRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public IActionResult EnterApprentices(CreateEmployerRequestParameters parameters)
+        public IActionResult EnterApprentices(SubmitEmployerRequestParameters parameters)
         {
             return View(_orchestrator.GetEnterApprenticesEmployerRequestViewModel(parameters, ModelState));
         }
@@ -96,7 +96,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("location", Name = EnterSingleLocationRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public IActionResult EnterSingleLocation(CreateEmployerRequestParameters parameters)
+        public IActionResult EnterSingleLocation(SubmitEmployerRequestParameters parameters)
         {
             return View(_orchestrator.GetEnterSingleLocationEmployerRequestViewModel(parameters, ModelState));
         }
@@ -126,7 +126,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("training-options", Name = EnterTrainingOptionsRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public IActionResult EnterTrainingOptions(CreateEmployerRequestParameters parameters)
+        public IActionResult EnterTrainingOptions(SubmitEmployerRequestParameters parameters)
         {
             return View(_orchestrator.GetEnterTrainingOptionsEmployerRequestViewModel(parameters, ModelState));
         }
@@ -149,7 +149,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("check-your-answers", Name = CheckYourAnswersRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public async Task<IActionResult> CheckYourAnswers(CreateEmployerRequestParameters parameters)
+        public async Task<IActionResult> CheckYourAnswers(SubmitEmployerRequestParameters parameters)
         {
             return View(await _orchestrator.GetCheckYourAnswersEmployerRequestViewModel(parameters, ModelState));
         }

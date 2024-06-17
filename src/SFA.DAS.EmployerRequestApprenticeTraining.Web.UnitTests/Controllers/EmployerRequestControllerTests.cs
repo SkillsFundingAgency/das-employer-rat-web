@@ -36,7 +36,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public async Task Overview_ShouldReturnViewWithViewModel()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -66,7 +66,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public async Task Start_ShouldCallStartEmployerRequest()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -85,7 +85,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public async Task Start_ShouldRedirectToOverview()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -109,7 +109,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public async Task Cancel_ShouldCallStartEmployerRequest()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -128,7 +128,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public async Task Cancel_ShouldRedirectToOverview()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -152,7 +152,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public void EnterApprentices_ShouldReturnViewWithViewModel()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -277,7 +277,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public void EnterSingleLocation_ShouldReturnViewWithViewModel()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -403,7 +403,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public void EnterTrainingOptions_Get_ShouldReturnViewWithViewModel()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -486,7 +486,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public async Task CheckYourAnswers_Get_ShouldReturnViewWithViewModel()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,

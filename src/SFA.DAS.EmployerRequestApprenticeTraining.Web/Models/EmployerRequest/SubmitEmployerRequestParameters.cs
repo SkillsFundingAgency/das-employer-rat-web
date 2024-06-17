@@ -3,7 +3,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
 {
-    public class CreateEmployerRequestParameters : Parameters
+    public class SubmitEmployerRequestParameters : Parameters
     {
         [FromQuery]
         public RequestType RequestType { get; set; }

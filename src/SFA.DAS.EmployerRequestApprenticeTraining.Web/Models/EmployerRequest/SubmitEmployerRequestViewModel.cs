@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
 {
-    public class CreateEmployerRequestViewModel
+    public class SubmitEmployerRequestViewModel
     {
         public string HashedAccountId { get; set; }
         public RequestType RequestType { get; set; }

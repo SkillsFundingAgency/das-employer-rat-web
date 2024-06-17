@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CreateEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
@@ -14,7 +14,6 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
@@ -38,7 +37,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             _config = options?.Value;
         }
 
-        public async Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(CreateEmployerRequestParameters parameters)
+        public async Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(SubmitEmployerRequestParameters parameters)
         {
             var standard = await _mediator.Send(new GetStandardQuery(parameters.StandardId));
             if (standard == null)
@@ -67,7 +66,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             };
         }
 
-        public EnterApprenticesEmployerRequestViewModel GetEnterApprenticesEmployerRequestViewModel(CreateEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        public EnterApprenticesEmployerRequestViewModel GetEnterApprenticesEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
         {
             return new EnterApprenticesEmployerRequestViewModel
             {
@@ -90,7 +89,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             UpdateEmployerRequest((employerRequest) => { employerRequest.NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices); });
         }
 
-        public EnterSingleLocationEmployerRequestViewModel GetEnterSingleLocationEmployerRequestViewModel(CreateEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        public EnterSingleLocationEmployerRequestViewModel GetEnterSingleLocationEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
         {
             return new EnterSingleLocationEmployerRequestViewModel
             {
@@ -118,7 +117,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             });
         }
 
-        public EnterTrainingOptionsEmployerRequestViewModel GetEnterTrainingOptionsEmployerRequestViewModel(CreateEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        public EnterTrainingOptionsEmployerRequestViewModel GetEnterTrainingOptionsEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
         {
             return new EnterTrainingOptionsEmployerRequestViewModel
             {
@@ -148,7 +147,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             });
         }
 
-        public async Task<CheckYourAnswersEmployerRequestViewModel> GetCheckYourAnswersEmployerRequestViewModel(CreateEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        public async Task<CheckYourAnswersEmployerRequestViewModel> GetCheckYourAnswersEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
         {
             var standard = await _mediator.Send(new GetStandardQuery(parameters.StandardId));
             if (standard == null)
@@ -179,9 +178,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return await ValidateViewModel(_employerRequestOrchestratorValidators.CheckYourAnswersEmployerRequestViewModelValidator, viewModel, modelState);
         }
 
-        public async Task<Guid> CreateEmployerRequest(CreateEmployerRequestViewModel request)
+        public async Task<Guid> SubmitEmployerRequest(SubmitEmployerRequestViewModel request)
         {
-            var employerRequestId = await _mediator.Send(new CreateEmployerRequestCommand(
+            var employerRequestId = await _mediator.Send(new SubmitEmployerRequestCommand(
                 request.HashedAccountId, request.RequestType
             ));
 

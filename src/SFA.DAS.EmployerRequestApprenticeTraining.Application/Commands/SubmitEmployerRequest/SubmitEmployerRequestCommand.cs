@@ -1,11 +1,11 @@
 ﻿using MediatR;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 
-namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CreateEmployerRequest
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest
 {
-    public class CreateEmployerRequestCommand : IRequest<Guid>
+    public class SubmitEmployerRequestCommand : IRequest<Guid>
     {
-        public CreateEmployerRequestCommand(string hashedAccountId, RequestType requestType) 
+        public SubmitEmployerRequestCommand(string hashedAccountId, RequestType requestType) 
         {
             HashedAccountId = hashedAccountId;
             RequestType = requestType;

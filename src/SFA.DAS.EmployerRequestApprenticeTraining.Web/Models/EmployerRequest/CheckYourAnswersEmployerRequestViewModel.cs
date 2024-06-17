@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
 {
-    public class CheckYourAnswersEmployerRequestViewModel : CreateEmployerRequestViewModel, IEnterTrainingOptionsEmployerRequestViewModel
+    public class CheckYourAnswersEmployerRequestViewModel : SubmitEmployerRequestViewModel, IEnterTrainingOptionsEmployerRequestViewModel
     {
         public string StandardTitle { get; set; }
         public int StandardLevel { get; set; }

@@ -22,21 +22,21 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Validators
         public void Validate_Should_Have_Error_When_StandardId_Is_Empty()
         {
             // Arrange
-            var model = new CreateEmployerRequestParameters { StandardId = string.Empty };
+            var model = new SubmitEmployerRequestParameters { StandardId = string.Empty };
 
             // Act
             var result = _sut.TestValidate(model);
 
             // Assert
             result.ShouldHaveValidationErrorFor(x => x.StandardId)
-                .WithErrorMessage($"{ValidateRequiredQueryParametersAttribute.MissingRequireQueryParameterMessage}{nameof(CreateEmployerRequestParameters.StandardId)}");
+                .WithErrorMessage($"{ValidateRequiredQueryParametersAttribute.MissingRequireQueryParameterMessage}{nameof(SubmitEmployerRequestParameters.StandardId)}");
         }
 
         [Test]
         public void Validate_Should_Not_Have_Error_When_StandardId_Is_Not_Empty()
         {
             // Arrange
-            var model = new CreateEmployerRequestParameters { StandardId = "SomeStandardId" };
+            var model = new SubmitEmployerRequestParameters { StandardId = "SomeStandardId" };
 
             // Act
             var result = _sut.TestValidate(model);
@@ -49,7 +49,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Validators
         public void Validate_Should_Not_Have_Error_When_RequestType_Is_Not_Empty()
         {
             // Arrange
-            var model = new CreateEmployerRequestParameters { RequestType = Domain.Types.RequestType.Providers };
+            var model = new SubmitEmployerRequestParameters { RequestType = Domain.Types.RequestType.Providers };
 
             // Act
             var result = _sut.TestValidate(model);

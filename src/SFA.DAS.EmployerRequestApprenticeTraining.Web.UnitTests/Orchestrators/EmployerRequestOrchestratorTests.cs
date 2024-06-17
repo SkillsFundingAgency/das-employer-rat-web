@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CreateEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
@@ -70,7 +70,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public async Task GetOverviewEmployerRequestViewModel_ShouldReturnViewModel_WhenStandardExists()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -101,7 +101,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public void GetOverviewEmployerRequestViewModel_ShouldThrowArgumentException_WhenStandardDoesNotExist()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -169,7 +169,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public void GetEnterApprenticesEmployerRequestViewModel_ShouldReturnViewModel_WhenSessionHasEmployerRequest()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -198,7 +198,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public void GetEnterApprenticesEmployerRequestViewModel_ShouldReturnViewModel_WhenSessionIsEmpty()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -305,20 +305,20 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         }
 
         [Test]
-        public async Task CreateEmployerRequest_ShouldReturnEmployerRequestId_WhenRequestIsCreated()
+        public async Task SubmitEmployerRequest_ShouldReturnEmployerRequestId_WhenRequestIsCreated()
         {
             // Arrange
-            var request = new CreateEmployerRequestViewModel
+            var request = new SubmitEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist
             };
             var employerRequestId = Guid.NewGuid();
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<CreateEmployerRequestCommand>(), default)).ReturnsAsync(employerRequestId);
+            _mediatorMock.Setup(m => m.Send(It.IsAny<SubmitEmployerRequestCommand>(), default)).ReturnsAsync(employerRequestId);
 
             // Act
-            var result = await _sut.CreateEmployerRequest(request);
+            var result = await _sut.SubmitEmployerRequest(request);
 
             // Assert
             result.Should().Be(employerRequestId);
@@ -364,7 +364,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public void GetEnterSingleLocationEmployerRequestViewModel_ShouldReturnViewModel_WhenSessionHasEmployerRequest()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -392,7 +392,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public void GetEnterSingleLocationEmployerRequestViewModel_ShouldReturnViewModel_WhenSessionIsEmpty()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -504,7 +504,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public void GetEnterTrainingOptionsEmployerRequestViewModel_ShouldReturnViewModel_WithCorrectValues()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
@@ -599,7 +599,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public async Task GetCheckYourAnswersEmployerRequestViewModel_ShouldReturnViewModel_WhenStandardExists()
         {
             // Arrange
-            var parameters = new CreateEmployerRequestParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
