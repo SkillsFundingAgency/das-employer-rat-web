@@ -21,6 +21,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Options;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
@@ -54,6 +55,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 
             services.AddTransient<IEmployerRequestOrchestrator, EmployerRequestOrchestrator>();
             services.AddTransient<ILocationService, LocationService>();
+            services.AddTransient<IUserService, UserService>();
 
             services.AddTransient<ValidateRequiredQueryParametersAttribute>();
 

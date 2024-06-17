@@ -3,6 +3,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.Encoding;
 using System.Linq;
 
@@ -23,7 +24,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Attributes
         public void AutoDecodeAttribute_Should_Be_Applied_To_AccountId_Property()
         {
             // Arrange
-            var type = typeof(Parameters);
+            var type = typeof(CheckYourAnswersEmployerRequestViewModel);
             var property = type.GetProperty("AccountId");
 
             // Act
@@ -43,13 +44,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Attributes
             var expectedAccountId = 12345;
             _encodingServiceMock.Setup(x => x.Decode(hashedAccountId, EncodingType.AccountId)).Returns(expectedAccountId);
 
-            var parameters = new Parameters
+            var parameters = new SubmitEmployerRequestViewModel
             {
                 HashedAccountId = hashedAccountId
             };
 
             // Act
-            var type = typeof(Parameters);
+            var type = typeof(CheckYourAnswersEmployerRequestViewModel);
             var property = type.GetProperty("AccountId");
             var attribute = property.GetCustomAttributes(typeof(AutoDecodeAttribute), false).FirstOrDefault() as AutoDecodeAttribute;
 

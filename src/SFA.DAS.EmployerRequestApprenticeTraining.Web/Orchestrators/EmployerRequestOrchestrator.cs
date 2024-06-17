@@ -9,6 +9,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
@@ -18,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 {
-    public class EmployerRequestOrchestrator : IEmployerRequestOrchestrator
+    public class EmployerRequestOrchestrator : BaseOrchestrator, IEmployerRequestOrchestrator
     {
         private readonly IMediator _mediator;
         private readonly ISessionStorageService _sessionStorage;
@@ -26,9 +27,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         private readonly EmployerRequestOrchestratorValidators _employerRequestOrchestratorValidators;
         private readonly EmployerRequestApprenticeTrainingWebConfiguration _config;
 
-        public EmployerRequestOrchestrator(IMediator mediator, ISessionStorageService sessionStorage, ILocationService locationService,
+        public EmployerRequestOrchestrator(IMediator mediator, ISessionStorageService sessionStorage, 
+            ILocationService locationService, IUserService userService,
             EmployerRequestOrchestratorValidators employerRequestOrchestratorValidators,
             IOptions<EmployerRequestApprenticeTrainingWebConfiguration> options)
+            : base(userService)
         {
             _mediator = mediator;
             _sessionStorage = sessionStorage;
@@ -178,11 +181,24 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return await ValidateViewModel(_employerRequestOrchestratorValidators.CheckYourAnswersEmployerRequestViewModelValidator, viewModel, modelState);
         }
 
-        public async Task<Guid> SubmitEmployerRequest(SubmitEmployerRequestViewModel request)
+        public async Task<Guid> SubmitEmployerRequest(CheckYourAnswersEmployerRequestViewModel viewModel)
         {
-            var employerRequestId = await _mediator.Send(new SubmitEmployerRequestCommand(
-                request.HashedAccountId, request.RequestType
-            ));
+            var standard = await _mediator.Send(new GetStandardQuery(viewModel.StandardId));
+
+            var employerRequestId = await _mediator.Send(new SubmitEmployerRequestCommand
+            {
+                OriginalLocation = viewModel.Location,
+                RequestType = viewModel.RequestType,
+                AccountId = viewModel.AccountId,
+                StandardReference = standard.IfateReferenceNumber,
+                NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices),
+                SingleLocation = viewModel.SingleLocation,
+                AtApprenticesWorkplace = viewModel.AtApprenticesWorkplace,
+                DayRelease = viewModel.DayRelease,
+                BlockRelease = viewModel.BlockRelease,
+                RequestedBy = GetCurrentUserId,
+                ModifiedBy = GetCurrentUserId
+            });
 
             return employerRequestId;
         }

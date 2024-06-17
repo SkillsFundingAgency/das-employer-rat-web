@@ -20,7 +20,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Comman
         {
             _mockOuterApi = new Mock<IEmployerRequestApprenticeTrainingOuterApi>();
             _handler = new SubmitEmployerRequestCommandHandler(_mockOuterApi.Object);
-            _command = new SubmitEmployerRequestCommand("ABC123", RequestType.Shortlist);
+            _command = new SubmitEmployerRequestCommand
+            {
+                RequestType = RequestType.Shortlist,
+                AccountId = 12345
+            };
         }
 
         [Test]
@@ -29,7 +33,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Comman
             // Arrange
             var expectedGuid = Guid.NewGuid();
             _mockOuterApi.Setup(x => x.SubmitEmployerRequest(It.Is<SubmitEmployerRequestRequest>(req =>
-                req.HashedAccountId == "ABC123" && req.RequestType == RequestType.Shortlist)))
+                req.AccountId == 12345 && req.RequestType == RequestType.Shortlist)))
                 .ReturnsAsync(expectedGuid);
 
             // Act

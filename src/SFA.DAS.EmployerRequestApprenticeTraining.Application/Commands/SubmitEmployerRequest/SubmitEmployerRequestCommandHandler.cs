@@ -16,9 +16,18 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitE
         public async Task<Guid> Handle(SubmitEmployerRequestCommand command, CancellationToken cancellationToken)
         {
             var employerRequestId = await _outerApi.SubmitEmployerRequest(new SubmitEmployerRequestRequest
-            { 
-                HashedAccountId = command.HashedAccountId,
-                RequestType = command.RequestType
+            {
+                OriginalLocation = command.OriginalLocation,
+                RequestType = command.RequestType,
+                AccountId = command.AccountId,
+                StandardReference = command.StandardReference,
+                NumberOfApprentices = command.NumberOfApprentices,
+                SingleLocation = command.SingleLocation,
+                AtApprenticesWorkplace = command.AtApprenticesWorkplace,
+                DayRelease = command.DayRelease,
+                BlockRelease = command.BlockRelease,
+                RequestedBy = command.RequestedBy,
+                ModifiedBy = command.ModifiedBy
             });
 
             return employerRequestId;

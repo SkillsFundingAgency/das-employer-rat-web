@@ -19,7 +19,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetLocat
         public async Task<List<LocationSearchResponse>> Handle(GetLocationsQuery request, CancellationToken cancellationToken)
         {
             await _validator.ValidateAsync(request, cancellationToken);
-            var results = await _locationService.GetLocations(request.SearchTerm);
+            var results = await _locationService.GetLocations(request.SearchTerm, false);
             return results;
         }
     }

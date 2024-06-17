@@ -164,6 +164,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
                 return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
             }
 
+            await _orchestrator.SubmitEmployerRequest(viewModel);
+
             return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
         }
     }

@@ -13,6 +13,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators;
 using System;
@@ -27,6 +28,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         private Mock<IMediator> _mediatorMock;
         private Mock<ISessionStorageService> _sessionStorageMock;
         private Mock<ILocationService> _locationServiceMock;
+        private Mock<IUserService> _userServiceMock;
         private Mock<IValidator<EnterApprenticesEmployerRequestViewModel>> _enterApprenticesEmployerRequestViewModelValidatorMock;
         private Mock<IValidator<EnterSingleLocationEmployerRequestViewModel>> _enterSingleLocationEmployerRequestViewModelValidatorMock;
         private Mock<IValidator<EnterTrainingOptionsEmployerRequestViewModel>> _enterTrainingOptionsEmployerRequestViewModelValidatorMock;
@@ -41,7 +43,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _mediatorMock = new Mock<IMediator>();
             _sessionStorageMock = new Mock<ISessionStorageService>();
             _locationServiceMock = new Mock<ILocationService>();
-            
+            _userServiceMock = new Mock<IUserService>();
+
             _enterApprenticesEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterApprenticesEmployerRequestViewModel>>();
             _enterSingleLocationEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterSingleLocationEmployerRequestViewModel>>();
             _enterTrainingOptionsEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterTrainingOptionsEmployerRequestViewModel>>();
@@ -62,7 +65,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _optionsMock = new Mock<IOptions<EmployerRequestApprenticeTrainingWebConfiguration>>();
             _optionsMock.Setup(o => o.Value).Returns(_config);
 
-            _sut = new EmployerRequestOrchestrator(_mediatorMock.Object, _sessionStorageMock.Object, _locationServiceMock.Object,
+            _sut = new EmployerRequestOrchestrator(_mediatorMock.Object, _sessionStorageMock.Object, 
+                _locationServiceMock.Object,  _userServiceMock.Object, 
                 employerRequestOrchestratorValidators, _optionsMock.Object);
         }
 
@@ -308,14 +312,35 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public async Task SubmitEmployerRequest_ShouldReturnEmployerRequestId_WhenRequestIsCreated()
         {
             // Arrange
-            var request = new SubmitEmployerRequestViewModel
+            var request = new CheckYourAnswersEmployerRequestViewModel
             {
+                Location = string.Empty,
+                RequestType = RequestType.Shortlist,
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist
+                AccountId = 12345,
+                StandardTitle = "Title",
+                StandardId = "123",
+                StandardLevel = 3,
+                NumberOfApprentices = "1",
+                AtApprenticesWorkplace = true,
+                DayRelease = false,
+                BlockRelease = false,
+                SingleLocation = "Telford, Shropshire"
             };
             var employerRequestId = Guid.NewGuid();
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<SubmitEmployerRequestCommand>(), default)).ReturnsAsync(employerRequestId);
+            var standard = new Standard { Title = "Title", Level = 3, LarsCode = 123, IfateReferenceNumber = "ST0222" };
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default))
+                .ReturnsAsync(standard);
+
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<SubmitEmployerRequestCommand>(), default))
+                .ReturnsAsync(employerRequestId);
+
+            _userServiceMock
+                .Setup(m => m.GetUserId())
+                .Returns(Guid.NewGuid().ToString());
 
             // Act
             var result = await _sut.SubmitEmployerRequest(request);

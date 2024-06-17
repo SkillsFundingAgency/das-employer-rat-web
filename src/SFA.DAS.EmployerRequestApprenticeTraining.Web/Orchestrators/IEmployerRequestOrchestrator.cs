@@ -21,7 +21,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         void UpdateTrainingOptionsForEmployerRequest(EnterTrainingOptionsEmployerRequestViewModel viewModel);
         Task<CheckYourAnswersEmployerRequestViewModel> GetCheckYourAnswersEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState);
         Task<bool> ValidateCheckYourAnswersEmployerRequestViewModel(CheckYourAnswersEmployerRequestViewModel viewModel, ModelStateDictionary modelState);
-        Task<Guid> SubmitEmployerRequest(SubmitEmployerRequestViewModel request);
+        Task<Guid> SubmitEmployerRequest(CheckYourAnswersEmployerRequestViewModel viewModel);
         Task<ViewEmployerRequestsViewModel> GetViewEmployerRequestsViewModel(long accountId);
         Task<ViewEmployerRequestViewModel> GetViewEmployerRequestViewModel(Guid employerRequestId);
     }

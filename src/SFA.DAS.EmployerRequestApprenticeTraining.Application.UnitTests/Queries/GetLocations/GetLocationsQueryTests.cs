@@ -50,7 +50,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
             };
             
             
-            _mockLocationsService.Setup(x => x.GetLocations(_query.SearchTerm))
+            _mockLocationsService.Setup(x => x.GetLocations(_query.SearchTerm, false))
                 .ReturnsAsync(expectedLocations);
 
             // Act
@@ -58,14 +58,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
 
             // Assert
             result.Should().BeEquivalentTo(expectedLocations);
-            _mockLocationsService.Verify(x => x.GetLocations(_query.SearchTerm), Times.Once);
+            _mockLocationsService.Verify(x => x.GetLocations(_query.SearchTerm, false), Times.Once);
         }
 
         [Test]
         public void Handle_WhenApiThrowsException_ShouldRethrowIt()
         {
             // Arrange
-            _mockLocationsService.Setup(x => x.GetLocations(It.IsAny<string>()))
+            _mockLocationsService.Setup(x => x.GetLocations(It.IsAny<string>(), It.IsAny<bool>()))
                 .ThrowsAsync(new Exception("API failure"));
 
             // Act
