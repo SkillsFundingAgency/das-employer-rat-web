@@ -223,7 +223,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             result.RequestType.Should().Be(parameters.RequestType);
             result.Location.Should().Be(parameters.Location);
             result.BackToCheckAnswers.Should().BeTrue();
-            result.NumberOfApprentices.Should().Be("0");
+            result.NumberOfApprentices.Should().Be(string.Empty);
         }
 
         [Test]

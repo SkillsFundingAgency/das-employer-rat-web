@@ -62,7 +62,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
 
             // Assert
             result.Should().BeEquivalentTo(new List<LocationSearchResponse>());
-            _loggerMock.VerifyLogError($"Unable to get locations for searchTerm:{searchTerm}", Times.Once);
+            _loggerMock.VerifyLogError($"Unable to get locations for searchTerm: {searchTerm}", Times.Once);
         }
 
         [Test]
