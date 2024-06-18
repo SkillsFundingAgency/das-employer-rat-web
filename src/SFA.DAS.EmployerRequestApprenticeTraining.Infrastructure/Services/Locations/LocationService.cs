@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using RestEase;
+using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Loca
             }
             catch (ApiException ex)
             {
-                _logger.LogError(ex, $"Unable to get locations for searchTerm:{searchTerm}");
+                _logger.LogError(ex, $"Unable to get locations for searchTerm: {searchTerm.SanitizeLogData()}");
                 return new List<LocationSearchResponse>();
             }
         }
