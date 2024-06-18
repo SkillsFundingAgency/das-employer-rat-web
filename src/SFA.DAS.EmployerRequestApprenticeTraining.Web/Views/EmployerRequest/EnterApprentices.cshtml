@@ -38,7 +38,7 @@ else
                 @Html.HiddenFor(model => model.Location)
                 @Html.HiddenFor(model => model.BackToCheckAnswers)
 
-                <div class="govuk-form-group" das-highlight-error-for="NumberOfApprentices" error-class="govuk-form-group--error" id="NumberOfApprentices">
+                <div class="govuk-form-group" das-highlight-error-for="NumberOfApprentices" error-class="govuk-form-group--error">
                     <h1 class="govuk-label-wrapper">
                         <label class="govuk-label govuk-label--l" for="NumberOfApprentices">
                             @ViewData["Title"]
@@ -50,7 +50,7 @@ else
                     <p das-validation-for="NumberOfApprentices" class="govuk-error-message">
                         <span class="govuk-visually-hidden">Error: </span>
                     </p>
-                    <input class="govuk-input govuk-input--width-4" id="number-of-apprentices" asp-for="NumberOfApprentices" das-highlight-error-for="NumberOfApprentices" error-class="govuk-input--error" type="text" aria-describedby="NumberOfApprentices-hint NumberOfApprentices-error">
+                    <input class="govuk-input govuk-input--width-4" asp-for="NumberOfApprentices" das-highlight-error-for="NumberOfApprentices" error-class="govuk-input--error" type="text" aria-describedby="NumberOfApprentices-hint NumberOfApprentices-error">
                 </div>
                 <div class="govuk-button-group">
                     <button type="submit" class="govuk-button" data-module="govuk-button">

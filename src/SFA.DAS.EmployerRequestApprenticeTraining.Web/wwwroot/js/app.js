@@ -1,7 +1,12 @@
 ﻿// AUTOCOMPLETE
 
-let $id = 'search-location'
-let $input = $('#' + $id);
+let role = 'search-location';
+let $input = $('input[data-role="' + role + '"]');
+
+let additionalInputClasses = '';
+if ($input.hasClass('govuk-input--error')) {
+    additionalInputClasses = 'autocomplete__input--error';
+}
 
 let $submitOnConfirm = $input.data('submit-on-selection');
 let $defaultValue = $input.data('default-value');
@@ -44,7 +49,7 @@ if ($input.length > 0) {
     // Initialize accessibleAutocomplete with the custom input template
     accessibleAutocomplete({
         element: container,
-        id: $id,
+        id: $input.attr('id'),
         name: $name,
         displayMenu: 'overlay',
         showNoOptionsFound: false,
@@ -54,6 +59,7 @@ if ($input.length > 0) {
         onConfirm: onConfirm,
         defaultValue: $defaultValue,
         confirmOnBlur: false,
+        inputClasses: additionalInputClasses,
         autoselect: true,
         templates: {
             inputValue: function (suggestion) {

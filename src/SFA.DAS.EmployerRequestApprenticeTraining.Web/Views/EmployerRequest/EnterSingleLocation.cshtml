@@ -37,19 +37,19 @@ else
                 @Html.HiddenFor(model => model.Location)
                 @Html.HiddenFor(model => model.BackToCheckAnswers)
 
-                <div class="govuk-form-group" das-highlight-error-for="SingleLocation" error-class="govuk-form-group--error" id="EnteredLocation">
+                <div class="govuk-form-group" das-highlight-error-for="SingleLocation" error-class="govuk-form-group--error">
                     <h1 class="govuk-label-wrapper">
-                        <label class="govuk-label govuk-label--l" for="EnteredLocation">
+                        <label class="govuk-label govuk-label--l" for="SingleLocation">
                             @ViewData["Title"]
                         </label>
                     </h1>
-                    <div id="EnteredLocation-hint" class="govuk-hint">
+                    <div id="SingleLocation-hint" class="govuk-hint">
                         Town, city or postcode
                     </div>
                     <p das-validation-for="SingleLocation" class="govuk-error-message">
                         <span class="govuk-visually-hidden">Error: </span>
                     </p>
-                    <input class="govuk-input" id="search-location" asp-for="SingleLocation" das-highlight-error-for="SingleLocation" error-class="govuk-input--error" type="search" title="Search" data-submit-on-selection="false" data-default-value="@Model.SingleLocation" aria-describedby="EnteredLocation-hint EnteredLocation-error">
+                    <input class="govuk-input" asp-for="SingleLocation" das-highlight-error-for="SingleLocation" error-class="govuk-input--error" type="search" title="Search" data-role="search-location" data-submit-on-selection="false" data-default-value="@Model.SingleLocation" aria-describedby="SingleLocation-hint SingleLocation-error">
                 </div>
                 <div class="govuk-button-group">
                     <button type="submit" class="govuk-button" data-module="govuk-button">

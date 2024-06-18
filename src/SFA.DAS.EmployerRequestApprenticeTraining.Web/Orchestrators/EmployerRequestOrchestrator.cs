@@ -78,7 +78,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 RequestType = parameters.RequestType,
                 Location = parameters.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
-                NumberOfApprentices = EmployerRequest.NumberOfApprentices.ToString()
+                NumberOfApprentices = EmployerRequest.NumberOfApprentices != 0 
+                    ? EmployerRequest.NumberOfApprentices.ToString() 
+                    : string.Empty
             };
         }
 
