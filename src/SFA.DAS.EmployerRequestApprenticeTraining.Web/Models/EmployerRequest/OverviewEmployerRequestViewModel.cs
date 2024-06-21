@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
 {
-    public class OverviewEmployerRequestViewModel : CreateEmployerRequestViewModel
+    public class OverviewEmployerRequestViewModel : SubmitEmployerRequestViewModel
     {
         public string FindApprenticeshipTrainingBaseUrl { get; set; }
         public string StandardTitle { get; set; }

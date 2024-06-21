@@ -8,13 +8,23 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators
         public EnterTrainingOptionsEmployerRequestViewModelValidator()
         {
             RuleFor(x => x.AtApprenticesWorkplace)
-                .Must((model, value) => AtLeastOneOptionSelected(model))
-                .WithMessage("Select a training option");
+                .ValidateTrainingOptions();
         }
+    }
 
-        private bool AtLeastOneOptionSelected(EnterTrainingOptionsEmployerRequestViewModel model)
+    public static class EnterTrainingOptionsEmployerRequestViewModelValidatorRules
+    {
+        public static IRuleBuilderOptionsConditions<T, bool> ValidateTrainingOptions<T>(this IRuleBuilder<T, bool> ruleBuilder)
+            where T : IEnterTrainingOptionsEmployerRequestViewModel
         {
-            return model.AtApprenticesWorkplace || model.DayRelease || model.BlockRelease;
+            return ruleBuilder.Custom((value, context) =>
+            {
+                var model = context.InstanceToValidate;
+                if (!model.AtApprenticesWorkplace && !model.DayRelease && !model.BlockRelease)
+                {
+                    context.AddFailure("AtApprenticesWorkplace", "Select a training option");
+                }
+            });
         }
     }
 }

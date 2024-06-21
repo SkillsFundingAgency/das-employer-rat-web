@@ -39,10 +39,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
                 new LocationSearchResponse { Name = "London Fields " }
             };
 
-            _outerApiMock.Setup(x => x.GetLocations(searchTerm)).ReturnsAsync(locations);
+            _outerApiMock.Setup(x => x.GetLocations(searchTerm, false)).ReturnsAsync(locations);
 
             // Act
-            var result = await _locationService.GetLocations(searchTerm);
+            var result = await _locationService.GetLocations(searchTerm, false);
 
             // Assert
             result.Should().BeEquivalentTo(locations);
@@ -54,15 +54,15 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             // Arrange
             var searchTerm = "London";
 
-            _outerApiMock.Setup(p => p.GetLocations(searchTerm))
+            _outerApiMock.Setup(p => p.GetLocations(searchTerm, false))
                 .Throws(new ApiException(new HttpRequestMessage(), new HttpResponseMessage(), string.Empty));
 
             // Act
-            var result = await _locationService.GetLocations(searchTerm);
+            var result = await _locationService.GetLocations(searchTerm, false);
 
             // Assert
             result.Should().BeEquivalentTo(new List<LocationSearchResponse>());
-            _loggerMock.VerifyLogError($"Unable to get locations for searchTerm:{searchTerm}", Times.Once);
+            _loggerMock.VerifyLogError($"Unable to get locations for searchTerm: {searchTerm}", Times.Once);
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
                 new LocationSearchResponse { Name = "London" }
             };
 
-            _outerApiMock.Setup(x => x.GetLocations("Lon")).ReturnsAsync(locations);
+            _outerApiMock.Setup(x => x.GetLocations("London", true)).ReturnsAsync(locations);
 
             // Act
             var result = await _locationService.CheckLocationExists(searchTerm);
@@ -108,12 +108,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         public async Task CheckLocationExists_ShouldReturnFalse_WhenLocationDoesNotExist()
         {
             // Arrange
-            var searchTerm = "Lon";
+            var searchTerm = "London";
             var locations = new List<LocationSearchResponse>
             {
             };
 
-            _outerApiMock.Setup(x => x.GetLocations("Lon")).ReturnsAsync(locations);
+            _outerApiMock.Setup(x => x.GetLocations("London", true)).ReturnsAsync(locations);
 
             // Act
             var result = await _locationService.CheckLocationExists(searchTerm);

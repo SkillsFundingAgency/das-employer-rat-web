@@ -12,6 +12,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
     [HtmlTargetElement("div", Attributes = HighlightErrorForAttributeName + "," + ErrorCssClass)]
     [HtmlTargetElement("textarea", Attributes = HighlightErrorForAttributeName + "," + ErrorCssClass)]
     [HtmlTargetElement("input", Attributes = HighlightErrorForAttributeName + "," + ErrorCssClass)]
+    [HtmlTargetElement("dt", Attributes = HighlightErrorForAttributeName + "," + ErrorCssClass)]
     public class DasHighlightErrorsTagHelper : TagHelper
     {
         private const string HighlightErrorForAttributeName = "das-highlight-error-for";

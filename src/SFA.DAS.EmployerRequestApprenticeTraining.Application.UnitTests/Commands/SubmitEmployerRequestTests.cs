@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CreateEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Requests;
@@ -9,18 +9,22 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Requests;
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Commands
 {
     [TestFixture]
-    public class CreateEmployerRequestCommandHandlerTests
+    public class SubmitEmployerRequestCommandHandlerTests
     {
         private Mock<IEmployerRequestApprenticeTrainingOuterApi> _mockOuterApi;
-        private CreateEmployerRequestCommandHandler _handler;
-        private CreateEmployerRequestCommand _command;
+        private SubmitEmployerRequestCommandHandler _handler;
+        private SubmitEmployerRequestCommand _command;
 
         [SetUp]
         public void Setup()
         {
             _mockOuterApi = new Mock<IEmployerRequestApprenticeTrainingOuterApi>();
-            _handler = new CreateEmployerRequestCommandHandler(_mockOuterApi.Object);
-            _command = new CreateEmployerRequestCommand("ABC123", RequestType.Shortlist);
+            _handler = new SubmitEmployerRequestCommandHandler(_mockOuterApi.Object);
+            _command = new SubmitEmployerRequestCommand
+            {
+                RequestType = RequestType.Shortlist,
+                AccountId = 12345
+            };
         }
 
         [Test]
@@ -28,8 +32,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Comman
         {
             // Arrange
             var expectedGuid = Guid.NewGuid();
-            _mockOuterApi.Setup(x => x.CreateEmployerRequest(It.Is<PostEmployerRequest>(req =>
-                req.HashedAccountId == "ABC123" && req.RequestType == RequestType.Shortlist)))
+            _mockOuterApi.Setup(x => x.SubmitEmployerRequest(It.Is<SubmitEmployerRequestRequest>(req =>
+                req.AccountId == 12345 && req.RequestType == RequestType.Shortlist)))
                 .ReturnsAsync(expectedGuid);
 
             // Act
@@ -37,14 +41,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Comman
 
             // Assert
             result.Should().Be(expectedGuid);
-            _mockOuterApi.Verify(x => x.CreateEmployerRequest(It.IsAny<PostEmployerRequest>()), Times.Once);
+            _mockOuterApi.Verify(x => x.SubmitEmployerRequest(It.IsAny<SubmitEmployerRequestRequest>()), Times.Once);
         }
 
         [Test]
         public void Handle_WhenApiThrowsException_ShouldRethrowIt()
         {
             // Arrange
-            _mockOuterApi.Setup(x => x.CreateEmployerRequest(It.IsAny<PostEmployerRequest>()))
+            _mockOuterApi.Setup(x => x.SubmitEmployerRequest(It.IsAny<SubmitEmployerRequestRequest>()))
                 .ThrowsAsync(new Exception("API error"));
 
             // Act

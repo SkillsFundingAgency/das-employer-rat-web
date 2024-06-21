@@ -8,28 +8,29 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators
         public EnterApprenticesEmployerRequestViewModelValidator()
         {
             RuleFor(x => x.NumberOfApprentices)
+                .ValidateNumberOfApprentices();
+        }
+    }
+
+    public static class EnterApprenticesEmployerRequestViewModelValidatorRules
+    {
+        public static IRuleBuilderOptions<T, string> ValidateNumberOfApprentices<T>(this IRuleBuilder<T, string> ruleBuilder)
+        {
+            return ruleBuilder
                 .NotEmpty()
-                .WithMessage("Enter the number of apprentices")
-                .DependentRules(() =>
-                {
-                    RuleFor(x => x.NumberOfApprentices)
-                        .Must(BeValidNumber)
-                        .WithMessage("Enter a number")
-                        .DependentRules(() =>
-                        {
-                            RuleFor(x => x.NumberOfApprentices)
-                                .Must(BeWithinValidRange)
-                                .WithMessage("Enter a number between 1 and 9999");
-                        });
-                });
+                    .WithMessage("Enter the number of apprentices")
+                .Must(BeValidNumber)
+                    .WithMessage("Enter a number")
+                .Must(BeWithinValidRange)
+                    .WithMessage("Enter a number between 1 and 9999");
         }
 
-        private bool BeValidNumber(string numberOfApprentices)
+        private static bool BeValidNumber(string numberOfApprentices)
         {
             return int.TryParse(numberOfApprentices, out _);
         }
 
-        private bool BeWithinValidRange(string numberOfApprentices)
+        private static bool BeWithinValidRange(string numberOfApprentices)
         {
             if (int.TryParse(numberOfApprentices, out int number))
             {
