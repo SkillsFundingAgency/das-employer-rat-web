@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetLocations

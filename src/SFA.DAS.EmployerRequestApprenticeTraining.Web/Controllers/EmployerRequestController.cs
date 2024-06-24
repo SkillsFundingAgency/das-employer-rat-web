@@ -6,6 +6,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Authorization;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators;
+using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
@@ -29,6 +30,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         public const string EnterTrainingOptionsRoutePost = nameof(EnterTrainingOptionsRoutePost);
         public const string CheckYourAnswersRouteGet = nameof(CheckYourAnswersRouteGet);
         public const string CheckYourAnswersRoutePost = nameof(CheckYourAnswersRoutePost);
+        public const string SubmitConfirmationRouteGet = nameof(SubmitConfirmationRouteGet);
         #endregion Routes
 
         public EmployerRequestController(IEmployerRequestOrchestrator orchestrator)
@@ -164,9 +166,17 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
                 return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
             }
 
-            await _orchestrator.SubmitEmployerRequest(viewModel);
+            var employerRequestId = await _orchestrator.SubmitEmployerRequest(viewModel);
 
-            return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+            return RedirectToRoute(SubmitConfirmationRouteGet, new { viewModel.HashedAccountId, employerRequestId });
         }
+
+        [HttpGet]
+        [Route("submit-confirmation/{employerRequestId}", Name = SubmitConfirmationRouteGet)]
+        public async Task<IActionResult> SubmitConfirmation(Guid employerRequestId)
+        {
+            return View(await _orchestrator.GetSubmitConfirmationEmployerRequestViewModel(employerRequestId));
+        }
+
     }
 }

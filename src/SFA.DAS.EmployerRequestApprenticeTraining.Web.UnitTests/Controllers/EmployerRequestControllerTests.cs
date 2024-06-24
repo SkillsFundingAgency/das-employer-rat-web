@@ -8,6 +8,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators;
+using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
@@ -536,31 +537,56 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public async Task CheckYourAnswers_Post_ShouldRedirect_WhenModelStateIsValid()
+        public async Task CheckYourAnswers_Post_ShouldRedirectToSubmitConfirmation_WhenModelStateIsValid()
         {
             // Arrange
             var viewModel = new CheckYourAnswersEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             _orchestratorMock
                 .Setup(o => o.ValidateCheckYourAnswersEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>()))
                 .ReturnsAsync(true);
 
+            var employerRequestId = Guid.NewGuid();
+            _orchestratorMock
+                .Setup(o => o.SubmitEmployerRequest(viewModel))
+                .ReturnsAsync(employerRequestId);
+
             // Act
             var result = await _sut.CheckYourAnswers(viewModel) as RedirectToRouteResult;
 
             // Assert
             result.Should().NotBeNull();
-            result.RouteName.Should().Be(EmployerRequestController.CheckYourAnswersRouteGet);
-            result.RouteValues["HashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["RequestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["StandardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["Location"].Should().Be(viewModel.Location);
+            result.RouteName.Should().Be(EmployerRequestController.SubmitConfirmationRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
+            result.RouteValues["employerRequestId"].Should().Be(employerRequestId);
         }
+
+        [Test]
+        public async Task SubmitConfirmation_Get_ShouldReturnViewWithViewModel()
+        {
+            // Arrange
+            var employerRequestId = Guid.NewGuid();
+            var viewModel = new SubmitConfirmationEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                FindApprenticeshipTrainingBaseUrl = "https://example.com/",
+                RequestedByEmail = "test@example.com"
+            };
+
+            _orchestratorMock
+                .Setup(o => o.GetSubmitConfirmationEmployerRequestViewModel(employerRequestId))
+                .ReturnsAsync(viewModel);
+
+            // Act
+            var result = await _sut.SubmitConfirmation(employerRequestId) as ViewResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Model.Should().BeEquivalentTo(viewModel);
+        }
+
     }
 }

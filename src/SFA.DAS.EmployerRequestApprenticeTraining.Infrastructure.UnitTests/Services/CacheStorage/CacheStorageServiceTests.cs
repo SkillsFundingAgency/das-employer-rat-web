@@ -4,10 +4,10 @@ using NUnit.Framework;
 using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.CacheStorage;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Services.CacheStorage
 {
@@ -29,7 +29,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         {
             // Arrange
             var key = "testKey";
-            var item = new Standard
+            var item = new StandardResponse
             {
                 StandardUId = "StandardUId",
                 IfateReferenceNumber = "IfateRef123",
@@ -60,7 +60,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         {
             // Arrange
             var key = "testKey";
-            var expectedItem = new Standard
+            var expectedItem = new StandardResponse
             {
                 StandardUId = "StandardUId",
                 IfateReferenceNumber = "IfateRef123",
@@ -75,7 +75,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             _distributedCacheMock.Setup(c => c.GetAsync(key, It.IsAny<CancellationToken>())).ReturnsAsync(byteArray);
 
             // Act
-            var result = await _cacheStorageService.RetrieveFromCache<Standard>(key);
+            var result = await _cacheStorageService.RetrieveFromCache<StandardResponse>(key);
 
             // Assert
             result.Should().BeEquivalentTo(expectedItem);
@@ -90,7 +90,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             _distributedCacheMock.Setup(c => c.GetAsync(key, It.IsAny<CancellationToken>())).ReturnsAsync((byte[])null);
 
             // Act
-            var result = await _cacheStorageService.RetrieveFromCache<Standard>(key);
+            var result = await _cacheStorageService.RetrieveFromCache<StandardResponse>(key);
 
             // Assert
             result.Should().BeNull();

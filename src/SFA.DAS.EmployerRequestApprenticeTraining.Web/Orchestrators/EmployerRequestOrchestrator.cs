@@ -1,10 +1,12 @@
 ﻿using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
@@ -202,6 +204,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 ModifiedBy = GetCurrentUserId
             });
 
+            ClearEmployerRequest();
+
             return employerRequestId;
         }
 
@@ -238,10 +242,37 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             _sessionStorage.EmployerRequest = employerRequest;
         }
 
+        private void ClearEmployerRequest()
+        {
+            _sessionStorage.EmployerRequest = null;
+        }
+
         private async Task<bool> ValidateViewModel<T>(IValidator<T> validator, T viewModel, ModelStateDictionary modelState)
         {
             await validator.ValidateAndAddModelErrorsAsync(viewModel, modelState);
             return modelState.IsValid;
+        }
+
+        public async Task<SubmitConfirmationEmployerRequestViewModel> GetSubmitConfirmationEmployerRequestViewModel(Guid employerRequestId)
+        {
+            var result = await _mediator.Send(new GetSubmitEmployerRequestConfirmationQuery { EmployerRequestId = employerRequestId });
+            if(result == null)
+            {
+                throw new ArgumentException($"The employer request {employerRequestId} was not found");
+            }
+
+            return new SubmitConfirmationEmployerRequestViewModel
+            {
+                StandardTitle = result.StandardTitle,
+                StandardLevel = result.StandardLevel,
+                NumberOfApprentices = result.NumberOfApprentices.ToString(),
+                SingleLocation = result.SingleLocation,
+                AtApprenticesWorkplace = result.AtApprenticesWorkplace,
+                DayRelease = result.DayRelease,
+                BlockRelease = result.BlockRelease,
+                RequestedByEmail = result.RequestedByEmail,
+                FindApprenticeshipTrainingBaseUrl = _config?.FindApprenticeshipTrainingBaseUrl
+            };
         }
     }
 }
