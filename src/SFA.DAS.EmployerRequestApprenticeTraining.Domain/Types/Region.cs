@@ -1,5 +1,8 @@
-﻿namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
 {
+    [ExcludeFromCodeCoverage]
     public class Region
     {
         public int Id { get; set; }
