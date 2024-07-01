@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetLocations;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Location;
 using System.Collections.Generic;

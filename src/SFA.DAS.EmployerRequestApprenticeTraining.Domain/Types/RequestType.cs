@@ -6,4 +6,9 @@
         CourseDetail = 1,
         Providers = 2
     }
+
+    public enum Status : byte
+    { 
+        Active = 0
+    }
 }

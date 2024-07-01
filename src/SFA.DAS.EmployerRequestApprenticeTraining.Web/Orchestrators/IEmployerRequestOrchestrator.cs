@@ -24,5 +24,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         Task<Guid> SubmitEmployerRequest(CheckYourAnswersEmployerRequestViewModel viewModel);
         Task<ViewEmployerRequestsViewModel> GetViewEmployerRequestsViewModel(long accountId);
         Task<ViewEmployerRequestViewModel> GetViewEmployerRequestViewModel(Guid employerRequestId);
+        Task<SubmitConfirmationEmployerRequestViewModel> GetSubmitConfirmationEmployerRequestViewModel(Guid employerRequestId);
     }
 }

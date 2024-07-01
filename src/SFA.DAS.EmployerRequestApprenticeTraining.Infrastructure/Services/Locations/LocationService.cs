@@ -2,7 +2,7 @@
 using RestEase;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

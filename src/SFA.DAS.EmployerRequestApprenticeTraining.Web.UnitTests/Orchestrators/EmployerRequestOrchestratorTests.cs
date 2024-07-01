@@ -9,7 +9,9 @@ using NUnit.Framework;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
@@ -82,7 +84,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
                 Location = "London"
             };
             
-            var standard = new Standard { Title = "Title", Level = 3, LarsCode = 123 };
+            var standard = new StandardResponse { Title = "Title", Level = 3, LarsCode = 123 };
 
             _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync(standard);
 
@@ -113,7 +115,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
                 Location = "London"
             };
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync((Standard)null);
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync((StandardResponse)null);
 
             // Act
             var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetOverviewEmployerRequestViewModel(parameters));
@@ -309,7 +311,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         }
 
         [Test]
-        public async Task SubmitEmployerRequest_ShouldReturnEmployerRequestId_WhenRequestIsCreated()
+        public async Task SubmitEmployerRequest_ShouldReturnEmployerRequestId_And_ClearSession_WhenRequestIsCreated()
         {
             // Arrange
             var request = new CheckYourAnswersEmployerRequestViewModel
@@ -329,7 +331,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             };
             var employerRequestId = Guid.NewGuid();
 
-            var standard = new Standard { Title = "Title", Level = 3, LarsCode = 123, IfateReferenceNumber = "ST0222" };
+            var standard = new StandardResponse { Title = "Title", Level = 3, LarsCode = 123, IfateReferenceNumber = "ST0222" };
             _mediatorMock
                 .Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default))
                 .ReturnsAsync(standard);
@@ -347,7 +349,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
 
             // Assert
             result.Should().Be(employerRequestId);
+            _sessionStorageMock.VerifySet(s => s.EmployerRequest = null, Times.Once);
         }
+
 
         [Test]
         public void BackLink_Should_Return_Shortlist_Url_When_RequestType_Is_Shortlist()
@@ -632,7 +636,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
                 Location = "London"
             };
 
-            var standard = new Standard { Title = "Title", Level = 3, LarsCode = 123 };
+            var standard = new StandardResponse { Title = "Title", Level = 3, LarsCode = 123 };
             _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync(standard);
             var employerRequest = new EmployerRequest
             {
@@ -704,6 +708,56 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             result.Should().BeFalse();
             modelState.IsValid.Should().BeFalse();
             modelState["PropertyName"].Errors[0].ErrorMessage.Should().Be("Error message");
+        }
+
+        [Test]
+        public async Task GetSubmitConfirmationEmployerRequestViewModel_ShouldReturnViewModel_WhenRequestExists()
+        {
+            // Arrange
+            var employerRequestId = Guid.NewGuid();
+            var confirmation = new SubmitEmployerRequestConfirmationResponse
+            {
+                StandardTitle = "StandardTitle",
+                StandardLevel = 3,
+                NumberOfApprentices = 5,
+                SingleLocation = "Location",
+                AtApprenticesWorkplace = true,
+                DayRelease = true,
+                BlockRelease = false,
+                RequestedByEmail = "test@example.com"
+            };
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetSubmitEmployerRequestConfirmationQuery>(), default)).ReturnsAsync(confirmation);
+
+            // Act
+            var result = await _sut.GetSubmitConfirmationEmployerRequestViewModel(employerRequestId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.StandardTitle.Should().Be(confirmation.StandardTitle);
+            result.StandardLevel.Should().Be(confirmation.StandardLevel);
+            result.NumberOfApprentices.Should().Be(confirmation.NumberOfApprentices.ToString());
+            result.SingleLocation.Should().Be(confirmation.SingleLocation);
+            result.AtApprenticesWorkplace.Should().Be(confirmation.AtApprenticesWorkplace);
+            result.DayRelease.Should().Be(confirmation.DayRelease);
+            result.BlockRelease.Should().Be(confirmation.BlockRelease);
+            result.RequestedByEmail.Should().Be(confirmation.RequestedByEmail);
+            result.FindApprenticeshipTrainingBaseUrl.Should().Be(_config.FindApprenticeshipTrainingBaseUrl);
+        }
+
+        [Test]
+        public void GetSubmitConfirmationEmployerRequestViewModel_ShouldThrowArgumentException_WhenRequestDoesNotExist()
+        {
+            // Arrange
+            var employerRequestId = Guid.NewGuid();
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetSubmitEmployerRequestConfirmationQuery>(), default)).ReturnsAsync((SubmitEmployerRequestConfirmationResponse)null);
+
+            // Act
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetSubmitConfirmationEmployerRequestViewModel(employerRequestId));
+
+            // Assert
+            ex.Message.Should().Be($"The employer request {employerRequestId} was not found");
         }
     }
 }
