@@ -2,9 +2,9 @@
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
 {
-    public class EnterApprenticesEmployerRequestViewModel : SubmitEmployerRequestViewModel
+    public class EnterSameLocationEmployerRequestViewModel : SubmitEmployerRequestViewModel
     {
-        public string NumberOfApprentices { get; set; }
+        public string SameLocation { get; set; }
 
         public string BackRoute
         {

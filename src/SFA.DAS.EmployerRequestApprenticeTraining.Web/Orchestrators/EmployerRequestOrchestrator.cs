@@ -93,7 +93,37 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
         public void UpdateNumberOfApprenticesForEmployerRequest(EnterApprenticesEmployerRequestViewModel viewModel)
         {
-            UpdateEmployerRequest((employerRequest) => { employerRequest.NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices); });
+            UpdateEmployerRequest((employerRequest) => 
+            { 
+                employerRequest.NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
+                if(employerRequest.NumberOfApprentices == 1)
+                {
+                    employerRequest.SameLocation = null;
+                }
+            });
+        }
+
+        public EnterSameLocationEmployerRequestViewModel GetEnterSameLocationEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        {
+            return new EnterSameLocationEmployerRequestViewModel
+            {
+                HashedAccountId = parameters.HashedAccountId,
+                StandardId = parameters.StandardId,
+                RequestType = parameters.RequestType,
+                Location = parameters.Location,
+                BackToCheckAnswers = parameters.BackToCheckAnswers,
+                SameLocation = EmployerRequest.SameLocation
+            };
+        }
+
+        public async Task<bool> ValidateEnterSameLocationEmployerRequestViewModel(EnterSameLocationEmployerRequestViewModel viewModel, ModelStateDictionary modelState)
+        {
+            return await ValidateViewModel(_employerRequestOrchestratorValidators.EnterSameLocationEmployerRequestViewModelValidator, viewModel, modelState);
+        }
+
+        public void UpdateSameLocationForEmployerRequest(EnterSameLocationEmployerRequestViewModel viewModel)
+        {
+            UpdateEmployerRequest((employerRequest) => { employerRequest.SameLocation = viewModel.SameLocation; });
         }
 
         public EnterSingleLocationEmployerRequestViewModel GetEnterSingleLocationEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
@@ -107,7 +137,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
                 // this is a special case where the attempted value will not automatically populate the
                 // input element as the input element is being replaced with an autocomplete using javascript
-                SingleLocation = modelState.GetAttemptedValueWhenInvalid(nameof(EmployerRequest.SingleLocation), EmployerRequest.SingleLocation)
+                SingleLocation = modelState.GetAttemptedValueWhenInvalid(nameof(EmployerRequest.SingleLocation), EmployerRequest.SingleLocation),
+                SameLocation = EmployerRequest.SameLocation
             };
         }
 

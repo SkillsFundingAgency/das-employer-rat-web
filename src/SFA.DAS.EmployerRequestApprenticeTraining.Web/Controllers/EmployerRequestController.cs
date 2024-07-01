@@ -24,6 +24,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         public const string CancelEmployerRequestRouteGet = nameof(CancelEmployerRequestRouteGet);
         public const string EnterApprenticesRouteGet = nameof(EnterApprenticesRouteGet);
         public const string EnterApprenticesRoutePost = nameof(EnterApprenticesRoutePost);
+        public const string EnterSameLocationRouteGet = nameof(EnterSameLocationRouteGet);
+        public const string EnterSameLocationRoutePost = nameof(EnterSameLocationRoutePost);
         public const string EnterSingleLocationRouteGet = nameof(EnterSingleLocationRouteGet);
         public const string EnterSingleLocationRoutePost = nameof(EnterSingleLocationRoutePost);
         public const string EnterTrainingOptionsRouteGet = nameof(EnterTrainingOptionsRouteGet);
@@ -91,7 +93,51 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
             }
             else
             {
-                return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                if (viewModel.NumberOfApprentices == 1.ToString())
+                {
+                    return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                }
+                else
+                {
+                    return RedirectToRoute(EnterSameLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                }
+            }
+        }
+
+        [HttpGet]
+        [Route("same-location", Name = EnterSameLocationRouteGet)]
+        [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        public IActionResult EnterSameLocation(SubmitEmployerRequestParameters parameters)
+        {
+            return View(_orchestrator.GetEnterSameLocationEmployerRequestViewModel(parameters, ModelState));
+        }
+
+        [HttpPost]
+        [Route("same-location", Name = EnterSameLocationRoutePost)]
+        [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        public async Task<ActionResult> EnterSameLocation(EnterSameLocationEmployerRequestViewModel viewModel)
+        {
+            if (!await _orchestrator.ValidateEnterSameLocationEmployerRequestViewModel(viewModel, ModelState))
+            {
+                return RedirectToRoute(EnterSameLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location, viewModel.BackToCheckAnswers });
+            }
+
+            _orchestrator.UpdateSameLocationForEmployerRequest(viewModel);
+
+            if (viewModel.BackToCheckAnswers)
+            {
+                return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+            }
+            else
+            {
+                if (viewModel.SameLocation == "Yes")
+                {
+                    return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                }
+                else
+                {
+                    return RedirectToRoute(EnterSameLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                }
             }
         }
 
