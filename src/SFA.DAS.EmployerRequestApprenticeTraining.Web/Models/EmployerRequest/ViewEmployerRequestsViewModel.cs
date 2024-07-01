@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 
-namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
 {
     public class ViewEmployerRequestsViewModel
     {
-        public List<EmployerRequest> EmployerRequests { get; set; }
+        public List<Domain.Types.EmployerRequest> EmployerRequests { get; set; }
     }
 }

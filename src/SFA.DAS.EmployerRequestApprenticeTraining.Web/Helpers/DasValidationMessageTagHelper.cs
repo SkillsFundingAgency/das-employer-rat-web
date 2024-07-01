@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions;
 using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
 {
     [ExcludeFromCodeCoverage]
-    [HtmlTargetElement("span", Attributes = ValidationForAttributeName)]
+    [HtmlTargetElement("p", Attributes = ValidationForAttributeName)]
     public class DasValidationMessageTagHelper : TagHelper
     {
         private const string ValidationForAttributeName = "das-validation-for";
@@ -27,7 +28,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            output.Attributes.Add("id", $"{Property.Name}-error");
+            if (!ViewContext.ModelState.ContainsKey(Property.Name)) return;
 
             var tagBuilder = Generator.GenerateValidationMessage(
                 ViewContext,
@@ -37,7 +38,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
                 tag: null,
                 htmlAttributes: null);
 
-            output.Content.SetHtmlContent(tagBuilder.InnerHtml);
+            if (tagBuilder.InnerHtml.IsNullOrEmpty())
+                return;
+
+            output.Attributes.Add("id", $"{Property.Name}-error");
+
+            output.Content.AppendHtml(tagBuilder.InnerHtml);
         }
     }
 }

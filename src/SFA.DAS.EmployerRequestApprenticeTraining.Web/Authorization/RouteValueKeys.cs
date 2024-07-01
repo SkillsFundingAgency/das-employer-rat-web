@@ -5,6 +5,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Authorization
     [ExcludeFromCodeCoverage]
     public static class RouteValueKeys
     {
-        public const string EncodedAccountId = nameof(EncodedAccountId);
+        public const string HashedAccountId = nameof(HashedAccountId);
     }
 }

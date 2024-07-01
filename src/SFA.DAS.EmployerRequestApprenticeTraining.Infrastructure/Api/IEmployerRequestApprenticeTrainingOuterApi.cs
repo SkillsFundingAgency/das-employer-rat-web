@@ -10,17 +10,26 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
 {
     public interface IEmployerRequestApprenticeTrainingOuterApi
     {
-        [Get("/employerrequest/{employerRequestId}")]
+        [Get("/employerrequests/{employerRequestId}")]
         Task<EmployerRequest> GetEmployerRequest([Path] Guid employerRequestId);
 
-        [Get("/employerrequest/account/{accountId}")]
+        [Get("/employerrequests/account/{accountId}")]
         Task<List<EmployerRequest>> GetEmployerRequests([Path] long accountId);
 
-        [Post("/employerrequest")]
-        Task<Guid> CreateEmployerRequest([Body] PostEmployerRequest request);
+        [Post("/employerrequests")]
+        Task<Guid> SubmitEmployerRequest([Body] SubmitEmployerRequestRequest request);
+
+        [Get("/employerrequests/{employerRequestId}/submit-confirmation")]
+        Task<SubmitEmployerRequestConfirmationResponse> GetSubmitEmployerRequestConfirmation([Path] Guid employerRequestId);
 
         [Get("/accountusers/{userId}/accounts")]
         Task<UserAccountsResponse> GetUserAccounts([Path] string userId, [Query] string email);
+
+        [Get("/locations")]
+        Task<List<LocationSearchResponse>> GetLocations([Query] string searchTerm, [Query] bool exactMatch);
+
+        [Get("/standards/{standardId}")]
+        Task<StandardResponse> GetStandard([Path] string standardId);
 
         [Get("/ping")]
         Task Ping();

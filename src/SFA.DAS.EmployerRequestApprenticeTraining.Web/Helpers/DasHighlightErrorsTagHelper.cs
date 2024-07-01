@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
-using System;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
 using System.Text.Encodings.Web;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
@@ -14,6 +12,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
     [HtmlTargetElement("div", Attributes = HighlightErrorForAttributeName + "," + ErrorCssClass)]
     [HtmlTargetElement("textarea", Attributes = HighlightErrorForAttributeName + "," + ErrorCssClass)]
     [HtmlTargetElement("input", Attributes = HighlightErrorForAttributeName + "," + ErrorCssClass)]
+    [HtmlTargetElement("dt", Attributes = HighlightErrorForAttributeName + "," + ErrorCssClass)]
     public class DasHighlightErrorsTagHelper : TagHelper
     {
         private const string HighlightErrorForAttributeName = "das-highlight-error-for";
@@ -29,39 +28,27 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
         [HtmlAttributeNotBound]
         public ViewContext ViewContext { get; set; }
 
+        protected IHtmlGenerator Generator { get; }
+
+        public DasHighlightErrorsTagHelper(IHtmlGenerator generator)
+        {
+            Generator = generator;
+        }
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            if (!ViewContext.ModelState.ContainsKey(Property.Name)) return;
+            var tagBuilder = Generator.GenerateValidationMessage(
+                ViewContext,
+                Property.ModelExplorer,
+                Property.Name,
+                message: string.Empty,
+                tag: null,
+                htmlAttributes: null);
 
-            var modelState = ViewContext.ModelState[Property.Name];
+            if (tagBuilder.InnerHtml.IsNullOrEmpty())
+                return;
 
-            if (modelState.Errors.Count == 0) return;
             output.AddClass(CssClass, HtmlEncoder.Default);
-        }
-    }
-
-    [ExcludeFromCodeCoverage]
-    public static class HtmlHelperExtensions
-    {
-        public static HtmlString AddClassIfPropertyInError<TModel, TProperty>(
-            this IHtmlHelper<TModel> htmlHelper,
-            Expression<Func<TModel, TProperty>> expression,
-            string errorClass)
-        {
-            var expressionProvider = htmlHelper.ViewContext.HttpContext.RequestServices
-                .GetService(typeof(ModelExpressionProvider)) as ModelExpressionProvider;
-
-            var expressionText = expressionProvider?.GetExpressionText(expression);
-            var fullHtmlFieldName = htmlHelper.ViewContext.ViewData.TemplateInfo.GetFullHtmlFieldName(expressionText);
-            var state = htmlHelper.ViewData.ModelState[fullHtmlFieldName];
-
-            if (state?.Errors == null || state.Errors.Count == 0)
-            {
-                return HtmlString.Empty;
-            }
-
-            return new HtmlString(errorClass);
         }
     }
 }

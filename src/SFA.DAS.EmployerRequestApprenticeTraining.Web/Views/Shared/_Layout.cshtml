@@ -1,10 +1,12 @@
-﻿@using SFA.DAS.Employer.Shared.UI.Models
+﻿@using Microsoft.Extensions.Configuration
+@using SFA.DAS.Employer.Shared.UI.Models
 @using SFA.DAS.EmployerRequestApprenticeTraining.Web.Authorization
 @using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
 @using SFA.DAS.EmployerRequestApprenticeTraining.Web.ViewDataKeys
+@inject IConfiguration Configuration
 
 @{
-    var accountId = ViewContext.RouteData.Values[RouteValueKeys.EncodedAccountId] as string;
+    var accountId = ViewContext.RouteData.Values[RouteValueKeys.HashedAccountId] as string;
     ViewBag.HideHeaderBorder = true;
     var footerModel = new FooterModel { AccountId = accountId, UsePrivacyV2 = true };
 
@@ -66,16 +68,19 @@
     <div class="govuk-width-container">
         @RenderBody()
     </div>
-
     <partial name="_Footer" model="@footerModel" />
     <partial name="_GoogleAnalyticsInfo" />
 
-    <script src="libs/govuk-frontend/all.js"></script>
+    @* These javascripts are not included in the project they are loaded from the cdn *@
+    <script type="module" src="/libs/govuk-frontend/govuk-frontend.min.js"></script>
+    <script src="libs/accessible-autocomplete/accessible-autocomplete.min.js"></script>
     <script src="libs/jquery/jquery.min.js"></script>
     <script src="js/das-all.js"></script>
-    <script src="libs/accessible-autocomplete/accessible-autocomplete.min.js"></script>
     <script src="js/app.min.js"></script>
+
+    @* This javascript is included in the project it is not loaded from the cdn *@
     <script src="/js/app.js" no-cdn></script>
+
     <script>
         window.GOVUKFrontend.initAll();
         window.DASFrontend.initAll();

@@ -1,22 +1,28 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Employer.Shared.UI;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Filters;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.ModelBinders;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions;
 using SFA.DAS.Validation.Mvc.Extensions;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Policy;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
 {
@@ -66,12 +72,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
                 .SetDefaultNavigationSection(NavigationSection.AccountsFinance);
 
             services
-                .AddFluentValidationAutoValidation()
-                .AddValidatorsFromAssemblyContaining<Startup>();
+                .AddValidatorsFromAssemblyContaining<Startup>()
+                .AddValidatorsFromAssemblyContaining<GetEmployerRequestQueryValidator>();
 
             services
                 .AddEmployerAuthentication(_configuration)
                 .AddAuthorizationPolicies()
+                .AddSession()
                 .AddCache(_environment, configurationWeb)
                 .AddMemoryCache()
                 .AddCookieTempDataProvider()
@@ -89,7 +96,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
 #endif
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, LinkGenerator linkGenerator)
         {
             if (env.IsDevelopment())
             {
@@ -97,8 +104,23 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseExceptionHandler(errorApp =>
+                {
+                    errorApp.Run(async context =>
+                    {
+                        var exceptionFeature = context.Features.Get<IExceptionHandlerFeature>();
+                        var exception = exceptionFeature?.Error;
+                        var errorMessage = exception?.Message ?? "An unexpected error occurred";
+
+                        var query = new RouteValueDictionary(new { errorMessage = errorMessage });
+                        var url = linkGenerator.GetPathByName(HomeController.ErrorRouteGet, query);
+
+                        context.Response.Redirect(url);
+                        await Task.CompletedTask;
+                    });
+                });
+                
+                // The default HSTS value is 30 days.
                 app.UseHsts();
             }
 
@@ -109,6 +131,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseMiddleware<SecurityHeadersMiddleware>();
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

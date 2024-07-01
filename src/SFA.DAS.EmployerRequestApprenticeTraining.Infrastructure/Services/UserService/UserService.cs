@@ -19,8 +19,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.User
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public string UserId => GetUserClaimAsString(EmployerClaims.UserIdClaimTypeIdentifier);
-
         public string GetUserId()
         {
             return GetUserClaimAsString(EmployerClaims.UserIdClaimTypeIdentifier);

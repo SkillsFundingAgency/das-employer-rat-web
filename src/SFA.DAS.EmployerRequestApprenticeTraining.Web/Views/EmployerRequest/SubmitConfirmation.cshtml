@@ -1,0 +1,71 @@
+﻿@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
+@using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
+@using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
+@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.SubmitConfirmationEmployerRequestViewModel
+
+@{
+    ViewData["Title"] = "We've shared this with training providers";
+    ViewBag.GaData.Vpv = "/accounts/employerrequests/submitconfirmation";
+}
+<main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
+    <partial name="_ValidationSummary" />
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-panel govuk-panel--confirmation">
+                <h1 class="govuk-panel__title">
+                    @ViewData["Title"]
+                </h1>
+            </div>
+            <p class="govuk-body">We've sent a confirmation email to <strong>@Model.RequestedByEmail</strong></p>
+            <h2 class="govuk-heading-m">
+                Request for @Model.StandardTitle (level @Model.StandardLevel)
+            </h2>
+            <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        How many apprentices
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.NumberOfApprentices
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Apprenticeship locations
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.SingleLocation
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Training options
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <partial name="_TrainingOptions" />
+                    </dd>
+                </div>
+            </dl>
+            <h2 class="govuk-heading-m">What happens next</h2>
+            <p class="govuk-body">
+                We will not share the organisation name or email address with the training providers.
+            </p>
+            <p class="govuk-body">
+                When you have responses from training providers, we'll let you know on your manage requests page. We'll send a weekly email to  @Model.RequestedByEmail when you have not viewed new responses.
+            </p>
+            <p class="govuk-body">
+                Your request will expire after 3 months.
+            </p>
+            <p class="govuk-body">
+                <a href="#" class="govuk-link">Manage your training requests.</a>
+            </p>
+            <p class="govuk-body">
+                <a href="@Model.FindApprenticeTrainingCoursesUrl" class="govuk-button">Search for another course</a>
+            </p>
+            <p class="govuk-body">
+                <a href="https://dferesearch.fra1.qualtrics.com/jfe/form/SV_4SCNJixibnF1oCG" class="govuk-link" rel="noreferrer noopener" target="_blank">What did you think of this service?<span class="govuk-visually-hidden"> (opens in new tab)</span></a>
+            </p>
+        </div>
+    </div>
+</main>

@@ -2,6 +2,13 @@
 {
     public enum RequestType : byte
     {
-        Shortlist = 1
+        Shortlist = 0,
+        CourseDetail = 1,
+        Providers = 2
+    }
+
+    public enum Status : byte
+    { 
+        Active = 0
     }
 }

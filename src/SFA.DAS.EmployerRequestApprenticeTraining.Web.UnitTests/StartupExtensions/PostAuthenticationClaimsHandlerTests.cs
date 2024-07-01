@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -311,6 +312,60 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.StartupExtensi
             // Assert
             claims.Should().BeEmpty();
         }
+
+        [Test, MoqAutoData]
+        public async Task Given_IsStubAuthEnabledIsTrueAndHasAssociatedAccountsClaimIsTrue_Then_ReturnsEmptyClaims(
+            [Frozen] Mock<IConfiguration> config,
+            PostAuthenticationClaimsHandler handler)
+        {
+            // Arrange
+            config.Setup(c => c["StubAuth"]).Returns("true");
+            var tokenValidatedContext = CreateTokenValidatedContext(_userId, _userId, _email);
+            tokenValidatedContext.Principal.AddIdentity(new ClaimsIdentity(new Claim[] {
+                new Claim(EmployerClaims.UserAssociatedAccountsClaimsTypeIdentifier, "ContainsValue")
+            }));
+
+            // Act
+            var claims = await handler.GetClaims(tokenValidatedContext);
+
+            // Assert
+            claims.Should().BeEmpty();
+        }
+
+        [Test, MoqAutoData]
+        public async Task Given_IsStubAuthEnabledIsFalseAndHasAssociatedAccountsClaimIsFalse_Then_ContinuesProcessing(
+            [Frozen] Mock<IUserAccountsService> userAccountsService,
+            [Frozen] Mock<IConfiguration> config,
+            PostAuthenticationClaimsHandler handler)
+        {
+            // Arrange
+            config.Setup(c => c["StubAuth"]).Returns("false");
+            var tokenValidatedContext = CreateTokenValidatedContext(_userId, _userId, _email);
+
+            var employerUserAccounts = new List<EmployerUserAccount>
+            {
+                new EmployerUserAccount
+                {
+                    AccountId = "ABC123",
+                    EmployerName = "First",
+                    Role = "Owner"
+                }
+            };
+
+            userAccountsService.Setup(x => x.GetUserAccounts(_userId, _email))
+                .ReturnsAsync(new EmployerUser
+                {
+                    EmployerUserAccounts = employerUserAccounts,
+                    EmployerUserId = _userId
+                });
+
+            // Act
+            var claims = await handler.GetClaims(tokenValidatedContext);
+
+            // Assert
+            claims.Should().NotBeEmpty();
+        }
+
 
         private static TokenValidatedContext CreateTokenValidatedContext(string userIdClaimTypeIdentifier, string nameIdentifier, string email)
         {

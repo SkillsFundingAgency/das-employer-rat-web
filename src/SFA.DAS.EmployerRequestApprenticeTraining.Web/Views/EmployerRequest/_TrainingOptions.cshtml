@@ -1,0 +1,14 @@
+﻿@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.CheckYourAnswersEmployerRequestViewModel
+@if (Model.GetTrainingOptions().Count == 1)
+{
+    @Model.GetTrainingOptions()[0]
+}
+else
+{
+    <ul class="govuk-list govuk-list--bullet">
+        @foreach (var trainingOption in Model.GetTrainingOptions())
+        {
+            <li>@trainingOption</li>
+        }
+    </ul>
+}

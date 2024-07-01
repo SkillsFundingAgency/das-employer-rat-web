@@ -335,3 +335,8 @@
     padding: .5em .5em .5em 2.4em;
     display: inline-block;
 }
+
+/* Additional autocomplete */
+.autocomplete__input--error {
+    border-color: #d4351c; /* Same color as .govuk-input--error */
+}

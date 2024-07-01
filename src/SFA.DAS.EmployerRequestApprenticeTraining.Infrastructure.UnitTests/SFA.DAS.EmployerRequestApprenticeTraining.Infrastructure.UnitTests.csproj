@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure\SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EmployerRequestApprenticeTraining.TestHelper\SFA.DAS.EmployerRequestApprenticeTraining.TestHelper.csproj" />
   </ItemGroup>
 
 </Project>
