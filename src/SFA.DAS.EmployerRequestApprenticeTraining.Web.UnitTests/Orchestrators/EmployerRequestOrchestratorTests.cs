@@ -18,6 +18,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionS
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -32,6 +33,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         private Mock<ILocationService> _locationServiceMock;
         private Mock<IUserService> _userServiceMock;
         private Mock<IValidator<EnterApprenticesEmployerRequestViewModel>> _enterApprenticesEmployerRequestViewModelValidatorMock;
+        private Mock<IValidator<EnterSameLocationEmployerRequestViewModel>> _enterSameLocationEmployerRequestViewModelValidatorMock;
         private Mock<IValidator<EnterSingleLocationEmployerRequestViewModel>> _enterSingleLocationEmployerRequestViewModelValidatorMock;
         private Mock<IValidator<EnterTrainingOptionsEmployerRequestViewModel>> _enterTrainingOptionsEmployerRequestViewModelValidatorMock;
         private Mock<IValidator<CheckYourAnswersEmployerRequestViewModel>> _checkYourAnswersEmployerRequestViewModelValidatorMock;
@@ -48,6 +50,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _userServiceMock = new Mock<IUserService>();
 
             _enterApprenticesEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterApprenticesEmployerRequestViewModel>>();
+            _enterSameLocationEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterSameLocationEmployerRequestViewModel>>();
             _enterSingleLocationEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterSingleLocationEmployerRequestViewModel>>();
             _enterTrainingOptionsEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterTrainingOptionsEmployerRequestViewModel>>();
             _checkYourAnswersEmployerRequestViewModelValidatorMock = new Mock<IValidator<CheckYourAnswersEmployerRequestViewModel>>();
@@ -55,6 +58,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             var employerRequestOrchestratorValidators = new EmployerRequestOrchestratorValidators
             {
                 EnterApprenticesEmployerRequestViewModelValidator = _enterApprenticesEmployerRequestViewModelValidatorMock.Object,
+                EnterSameLocationEmployerRequestViewModelValidator = _enterSameLocationEmployerRequestViewModelValidatorMock.Object,
                 EnterSingleLocationEmployerRequestViewModelValidator = _enterSingleLocationEmployerRequestViewModelValidatorMock.Object,
                 EnterTrainingOptionsEmployerRequestViewModelValidator = _enterTrainingOptionsEmployerRequestViewModelValidatorMock.Object,
                 CheckYourAnswersEmployerRequestViewModelValidator = _checkYourAnswersEmployerRequestViewModelValidatorMock.Object
@@ -278,9 +282,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var viewModel = new EnterApprenticesEmployerRequestViewModel
             {
-                NumberOfApprentices = "10"
+                NumberOfApprentices = "1"
             };
-            var employerRequest = new EmployerRequest();
+            var employerRequest = new EmployerRequest { SameLocation = "Yes" };
 
             _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
 
@@ -288,7 +292,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _sut.UpdateNumberOfApprenticesForEmployerRequest(viewModel);
 
             // Assert
-            employerRequest.NumberOfApprentices.Should().Be(10);
+            employerRequest.NumberOfApprentices.Should().Be(1);
+            employerRequest.SameLocation.Should().BeNull();
             _sessionStorageMock.VerifySet(s => s.EmployerRequest = employerRequest, Times.Once);
         }
 
@@ -298,7 +303,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var viewModel = new EnterApprenticesEmployerRequestViewModel
             {
-                NumberOfApprentices = "10"
+                NumberOfApprentices = "1"
             };
 
             _sessionStorageMock.Setup(s => s.EmployerRequest).Returns((EmployerRequest)null);
@@ -307,8 +312,120 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _sut.UpdateNumberOfApprenticesForEmployerRequest(viewModel);
 
             // Assert
-            _sessionStorageMock.VerifySet(s => s.EmployerRequest = It.Is<EmployerRequest>(er => er.NumberOfApprentices == 10), Times.Once);
+            _sessionStorageMock.VerifySet(s => s.EmployerRequest = It.Is<EmployerRequest>(er => er.NumberOfApprentices == 1 && er.SameLocation == null), Times.Once);
         }
+
+
+        [Test]
+        public void GetEnterSameLocationEmployerRequestViewModel_ShouldReturnViewModel_WhenSessionHasEmployerRequest()
+        {
+            // Arrange
+            var parameters = new SubmitEmployerRequestParameters
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+            var employerRequest = new EmployerRequest { SameLocation = "Yes" };
+            var modelState = new ModelStateDictionary();
+
+            _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
+
+            // Act
+            var result = _sut.GetEnterSameLocationEmployerRequestViewModel(parameters, modelState);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.HashedAccountId.Should().Be(parameters.HashedAccountId);
+            result.StandardId.Should().Be(parameters.StandardId);
+            result.RequestType.Should().Be(parameters.RequestType);
+            result.Location.Should().Be(parameters.Location);
+            result.SameLocation.Should().Be(employerRequest.SameLocation);
+        }
+
+        [Test]
+        public async Task ValidateEnterSameLocationEmployerRequestViewModel_ShouldReturnTrue_WhenModelIsValid()
+        {
+            // Arrange
+            var viewModel = new EnterSameLocationEmployerRequestViewModel();
+            var modelState = new ModelStateDictionary();
+            var validationResult = new ValidationResult(); // No errors
+
+            _enterSameLocationEmployerRequestViewModelValidatorMock
+                .Setup(v => v.ValidateAsync(viewModel, default))
+                .ReturnsAsync(validationResult);
+
+            // Act
+            var result = await _sut.ValidateEnterSameLocationEmployerRequestViewModel(viewModel, modelState);
+
+            // Assert
+            result.Should().BeTrue();
+            modelState.IsValid.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task ValidateEnterSameLocationEmployerRequestViewModel_ShouldReturnFalse_WhenModelIsInvalid()
+        {
+            // Arrange
+            var viewModel = new EnterSameLocationEmployerRequestViewModel();
+            var modelState = new ModelStateDictionary();
+            var validationResult = new ValidationResult(new List<ValidationFailure>
+            {
+                new ValidationFailure("PropertyName", "Error message")
+            });
+
+            _enterSameLocationEmployerRequestViewModelValidatorMock
+                .Setup(v => v.ValidateAsync(viewModel, default))
+                .ReturnsAsync(validationResult);
+
+            // Act
+            var result = await _sut.ValidateEnterSameLocationEmployerRequestViewModel(viewModel, modelState);
+
+            // Assert
+            result.Should().BeFalse();
+            modelState.IsValid.Should().BeFalse();
+            modelState["PropertyName"].Errors[0].ErrorMessage.Should().Be("Error message");
+        }
+
+        [Test]
+        public void UpdateSameLocationForEmployerRequest_ShouldUpdateSameLocation_WhenSessionHasEmployerRequest()
+        {
+            // Arrange
+            var viewModel = new EnterSameLocationEmployerRequestViewModel
+            {
+                SameLocation = "Yes"
+            };
+            var employerRequest = new EmployerRequest();
+
+            _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
+
+            // Act
+            _sut.UpdateSameLocationForEmployerRequest(viewModel);
+
+            // Assert
+            employerRequest.SameLocation.Should().Be("Yes");
+            _sessionStorageMock.VerifySet(s => s.EmployerRequest = employerRequest, Times.Once);
+        }
+
+        [Test]
+        public void UpdateSameLocationForEmployerRequest_ShouldSetNewEmployerRequest_WhenSessionIsEmpty()
+        {
+            // Arrange
+            var viewModel = new EnterSameLocationEmployerRequestViewModel
+            {
+                SameLocation = "Yes"
+            };
+
+            _sessionStorageMock.Setup(s => s.EmployerRequest).Returns((EmployerRequest)null);
+
+            // Act
+            _sut.UpdateSameLocationForEmployerRequest(viewModel);
+
+            // Assert
+            _sessionStorageMock.VerifySet(s => s.EmployerRequest = It.Is<EmployerRequest>(er => er.SameLocation == "Yes"), Times.Once);
+        }
+
 
         [Test]
         public async Task SubmitEmployerRequest_ShouldReturnEmployerRequestId_And_ClearSession_WhenRequestIsCreated()

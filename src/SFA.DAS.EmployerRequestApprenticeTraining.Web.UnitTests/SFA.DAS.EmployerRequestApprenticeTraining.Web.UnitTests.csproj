@@ -10,17 +10,14 @@
 
   <ItemGroup>
     <Compile Remove="Extensions\**" />
-    <Compile Remove="Models\**" />
     <Compile Remove="StartupExtensions\**" />
     <Compile Remove="TagHelpers\**" />
     <Compile Remove="ValidatorInteceptors\**" />
     <EmbeddedResource Remove="Extensions\**" />
-    <EmbeddedResource Remove="Models\**" />
     <EmbeddedResource Remove="StartupExtensions\**" />
     <EmbeddedResource Remove="TagHelpers\**" />
     <EmbeddedResource Remove="ValidatorInteceptors\**" />
     <None Remove="Extensions\**" />
-    <None Remove="Models\**" />
     <None Remove="StartupExtensions\**" />
     <None Remove="TagHelpers\**" />
     <None Remove="ValidatorInteceptors\**" />

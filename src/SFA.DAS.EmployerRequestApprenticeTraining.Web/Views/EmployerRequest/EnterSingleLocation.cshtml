@@ -8,24 +8,13 @@
     ViewData["Title"] = "Where is the apprenticeship location?";
     ViewBag.GaData.Vpv = "/accounts/employerrequests/entersinglelocation";
 }
-@if(Model.BackToCheckAnswers)
-{
-    <a asp-route="@EmployerRequestController.CheckYourAnswersRouteGet"
-       asp-route-hashedAccountId="@Model.HashedAccountId"
-       asp-route-requestType="@Model.RequestType"
-       asp-route-standardId="@Model.StandardId"
-       asp-route-location="@Model.Location"
-       class="govuk-back-link">Back</a>
-}
-else
-{
-    <a asp-route="@EmployerRequestController.EnterApprenticesRouteGet"
-       asp-route-hashedAccountId="@Model.HashedAccountId"
-       asp-route-requestType="@Model.RequestType"
-       asp-route-standardId="@Model.StandardId"
-       asp-route-location="@Model.Location" 
-       class="govuk-back-link">Back</a>
-}
+<a asp-route="@Model.BackRoute"
+   asp-route-hashedAccountId="@Model.HashedAccountId"
+   asp-route-requestType="@Model.RequestType"
+   asp-route-standardId="@Model.StandardId"
+   asp-route-location="@Model.Location"
+   class="govuk-back-link">Back</a>
+
 <main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
     <partial name="_ValidationSummary" />
     <div class="govuk-grid-row">

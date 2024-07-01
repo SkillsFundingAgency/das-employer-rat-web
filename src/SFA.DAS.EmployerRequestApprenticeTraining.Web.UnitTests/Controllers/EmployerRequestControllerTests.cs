@@ -221,7 +221,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public async Task EnterApprenticesPost_ShouldRedirectToEnterSingleLocationWhenModelStateIsValidAndBackToCheckAnswersIsFalse()
+        public async Task EnterApprenticesPost_ShouldRedirectToEnterSingleLocationWhenModelStateIsValidAndBackToCheckAnswersIsFalseAndOneApprentice()
         {
             // Arrange
             var viewModel = new EnterApprenticesEmployerRequestViewModel
@@ -230,7 +230,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
                 RequestType = RequestType.Shortlist,
                 StandardId = "ST0123",
                 Location = "London",
-                BackToCheckAnswers = false
+                BackToCheckAnswers = false,
+                NumberOfApprentices = "1"
             };
 
             _orchestratorMock.Setup(o => o.ValidateEnterApprenticesEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(true);
@@ -241,6 +242,34 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Assert
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterSingleLocationRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
+            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
+            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
+            result.RouteValues["location"].Should().Be(viewModel.Location);
+        }
+
+        [Test]
+        public async Task EnterApprenticesPost_ShouldRedirectToEnterSameLocationWhenModelStateIsValidAndBackToCheckAnswersIsFalseAndMultipleApprentices()
+        {
+            // Arrange
+            var viewModel = new EnterApprenticesEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London",
+                BackToCheckAnswers = false,
+                NumberOfApprentices = "2"
+            };
+
+            _orchestratorMock.Setup(o => o.ValidateEnterApprenticesEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(true);
+
+            // Act
+            var result = await _sut.EnterApprentices(viewModel) as RedirectToRouteResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.EnterSameLocationRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
             result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
             result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
@@ -264,6 +293,160 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
 
             // Act
             var result = await _sut.EnterApprentices(viewModel) as RedirectToRouteResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.CheckYourAnswersRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
+            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
+            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
+            result.RouteValues["location"].Should().Be(viewModel.Location);
+        }
+
+        [Test]
+        public void EnterSameLocation_ShouldReturnViewWithViewModel()
+        {
+            // Arrange
+            var parameters = new SubmitEmployerRequestParameters
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+
+            var viewModel = new EnterSameLocationEmployerRequestViewModel();
+
+            _orchestratorMock.Setup(o => o.GetEnterSameLocationEmployerRequestViewModel(parameters, It.IsAny<ModelStateDictionary>())).Returns(viewModel);
+
+            // Act
+            var result = _sut.EnterSameLocation(parameters) as ViewResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Model.Should().BeEquivalentTo(viewModel);
+        }
+
+        [Test]
+        public async Task EnterSameLocationPost_ShouldRedirectToEnterSameLocationWhenModelStateIsInvalid()
+        {
+            // Arrange
+            var viewModel = new EnterSameLocationEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+
+            _orchestratorMock.Setup(o => o.ValidateEnterSameLocationEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(false);
+
+            // Act
+            var result = await _sut.EnterSameLocation(viewModel) as RedirectToRouteResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.EnterSameLocationRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
+            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
+            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
+            result.RouteValues["location"].Should().Be(viewModel.Location);
+        }
+
+        [Test]
+        public async Task EnterSameLocationPost_ShouldCallUpdateSameLocationForEmployerRequestWhenModelStateIsValid()
+        {
+            // Arrange
+            var viewModel = new EnterSameLocationEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+
+            _orchestratorMock.Setup(o => o.ValidateEnterSameLocationEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(true);
+
+            // Act
+            await _sut.EnterSameLocation(viewModel);
+
+            // Assert
+            _orchestratorMock.Verify(o => o.UpdateSameLocationForEmployerRequest(viewModel), Times.Once);
+        }
+
+        [Test]
+        public async Task EnterSameLocationPost_ShouldRedirectToEnterSingleLocationWhenModelStateIsValidAndBackToCheckAnswersIsFalseAndSameLocationIsYes()
+        {
+            // Arrange
+            var viewModel = new EnterSameLocationEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London",
+                BackToCheckAnswers = false,
+                SameLocation = "Yes"
+            };
+
+            _orchestratorMock.Setup(o => o.ValidateEnterSameLocationEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(true);
+
+            // Act
+            var result = await _sut.EnterSameLocation(viewModel) as RedirectToRouteResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.EnterSingleLocationRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
+            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
+            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
+            result.RouteValues["location"].Should().Be(viewModel.Location);
+        }
+
+        [Test]
+        public async Task EnterSameLocationPost_ShouldRedirectToEnterSameLocationWhenModelStateIsValidAndBackToCheckAnswersIsFalseAndSameLocationIsNo()
+        {
+            // Arrange
+            var viewModel = new EnterSameLocationEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London",
+                BackToCheckAnswers = false,
+                SameLocation = "No"
+            };
+
+            _orchestratorMock.Setup(o => o.ValidateEnterSameLocationEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(true);
+
+            // Act
+            var result = await _sut.EnterSameLocation(viewModel) as RedirectToRouteResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.EnterSameLocationRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
+            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
+            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
+            result.RouteValues["location"].Should().Be(viewModel.Location);
+        }
+
+        [Test]
+        public async Task EnterSameLocationPost_ShouldRedirectToCheckYourAnswersWhenModelStateIsValidAndBackToCheckAnswersIsTrue()
+        {
+            // Arrange
+            var viewModel = new EnterSameLocationEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London",
+                BackToCheckAnswers = true
+            };
+
+            _orchestratorMock.Setup(o => o.ValidateEnterSameLocationEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(true);
+
+            // Act
+            var result = await _sut.EnterSameLocation(viewModel) as RedirectToRouteResult;
 
             // Assert
             result.Should().NotBeNull();
@@ -398,7 +581,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
             result.RouteValues["location"].Should().Be(viewModel.Location);
         }
-
 
         [Test]
         public void EnterTrainingOptions_Get_ShouldReturnViewWithViewModel()
@@ -587,6 +769,5 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.Model.Should().BeEquivalentTo(viewModel);
         }
-
     }
 }
