@@ -43,19 +43,7 @@
                         Training options
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        @if (Model.GetTrainingOptions().Count == 1)
-                        {
-                            @Model.GetTrainingOptions()[0]
-                        }
-                        else
-                        {
-                            <ul class="govuk-list govuk-list--bullet">
-                                @foreach (var trainingOption in Model.GetTrainingOptions())
-                                {
-                                    <li>@trainingOption</li>
-                                }
-                            </ul>
-                        }
+                        <partial name="_TrainingOptions" />
                     </dd>
                 </div>
             </dl>
