@@ -28,6 +28,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         public const string EnterSameLocationRoutePost = nameof(EnterSameLocationRoutePost);
         public const string EnterSingleLocationRouteGet = nameof(EnterSingleLocationRouteGet);
         public const string EnterSingleLocationRoutePost = nameof(EnterSingleLocationRoutePost);
+        public const string EnterMultipleLocationsRouteGet = nameof(EnterMultipleLocationsRouteGet);
+        public const string EnterMultipleLocationsRoutePost = nameof(EnterMultipleLocationsRoutePost);
         public const string EnterTrainingOptionsRouteGet = nameof(EnterTrainingOptionsRouteGet);
         public const string EnterTrainingOptionsRoutePost = nameof(EnterTrainingOptionsRoutePost);
         public const string CheckYourAnswersRouteGet = nameof(CheckYourAnswersRouteGet);
@@ -136,13 +138,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
                 }
                 else
                 {
-                    return RedirectToRoute(EnterSameLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                    return RedirectToRoute(EnterMultipleLocationsRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
                 }
             }
         }
 
         [HttpGet]
-        [Route("location", Name = EnterSingleLocationRouteGet)]
+        [Route("location-single", Name = EnterSingleLocationRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
         public IActionResult EnterSingleLocation(SubmitEmployerRequestParameters parameters)
         {
@@ -150,7 +152,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         }
 
         [HttpPost]
-        [Route("location", Name = EnterSingleLocationRoutePost)]
+        [Route("location-single", Name = EnterSingleLocationRoutePost)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
         public async Task<ActionResult> EnterSingleLocation(EnterSingleLocationEmployerRequestViewModel viewModel)
         {
@@ -160,6 +162,36 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
             }
 
             _orchestrator.UpdateSingleLocationForEmployerRequest(viewModel);
+
+            if (viewModel.BackToCheckAnswers)
+            {
+                return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+            }
+            else
+            {
+                return RedirectToRoute(EnterTrainingOptionsRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+            }
+        }
+
+        [HttpGet]
+        [Route("location-multiple", Name = EnterMultipleLocationsRouteGet)]
+        [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        public async Task<IActionResult> EnterMultipleLocations(SubmitEmployerRequestParameters parameters)
+        {
+            return View(await _orchestrator.GetEnterMultipleLocationsEmployerRequestViewModel(parameters, ModelState));
+        }
+
+        [HttpPost]
+        [Route("location-multiple", Name = EnterMultipleLocationsRoutePost)]
+        [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        public async Task<ActionResult> EnterMultipleLocations(EnterMultipleLocationsEmployerRequestViewModel viewModel)
+        {
+            if (!await _orchestrator.ValidateEnterMultipleLocationsEmployerRequestViewModel(viewModel, ModelState))
+            {
+                return RedirectToRoute(EnterMultipleLocationsRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location, viewModel.BackToCheckAnswers });
+            }
+
+            _orchestrator.UpdateMultipleLocationsForEmployerRequest(viewModel);
 
             if (viewModel.BackToCheckAnswers)
             {

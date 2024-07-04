@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+﻿namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses
 {
     public enum RequestType : byte
     {
@@ -8,7 +8,7 @@
     }
 
     public enum Status : byte
-    { 
+    {
         Active = 0
     }
 }

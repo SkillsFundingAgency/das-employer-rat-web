@@ -27,7 +27,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.User
             catch (ApiException ex)
             {
                 _logger.LogError(ex, $"Unable to get user accounts for userId:{userId} and email:{email}");
-                return new UserAccountsResponse();
+                return new UserAccountsDetails();
             }
         }
     }

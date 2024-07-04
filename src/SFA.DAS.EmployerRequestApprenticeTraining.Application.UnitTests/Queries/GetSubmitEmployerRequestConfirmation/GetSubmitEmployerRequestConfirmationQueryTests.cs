@@ -39,7 +39,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
         public async Task Handle_ShouldReturnEmployerRequest_WhenCalledWithValidId()
         {
             // Arrange
-            var expectedRequest = new SubmitEmployerRequestConfirmationResponse
+            var expectedRequest = new SubmitEmployerRequestConfirmation
             {
                 EmployerRequestId = _query.EmployerRequestId,
                 StandardTitle = "Title",

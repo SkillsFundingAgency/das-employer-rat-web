@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators;
@@ -403,7 +403,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public async Task EnterSameLocationPost_ShouldRedirectToEnterSameLocationWhenModelStateIsValidAndBackToCheckAnswersIsFalseAndSameLocationIsNo()
+        public async Task EnterSameLocationPost_ShouldRedirectToEnterMultipleLocationsWhenModelStateIsValidAndBackToCheckAnswersIsFalseAndSameLocationIsNo()
         {
             // Arrange
             var viewModel = new EnterSameLocationEmployerRequestViewModel
@@ -423,7 +423,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
 
             // Assert
             result.Should().NotBeNull();
-            result.RouteName.Should().Be(EmployerRequestController.EnterSameLocationRouteGet);
+            result.RouteName.Should().Be(EmployerRequestController.EnterMultipleLocationsRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
             result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
             result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
@@ -451,6 +451,111 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Assert
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.CheckYourAnswersRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
+            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
+            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
+            result.RouteValues["location"].Should().Be(viewModel.Location);
+        }
+
+        [Test]
+        public async Task EnterMultipleLocations_Get_ShouldReturnViewWithViewModel()
+        {
+            // Arrange
+            var parameters = new SubmitEmployerRequestParameters
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+            var viewModel = new EnterMultipleLocationsEmployerRequestViewModel();
+
+            _orchestratorMock
+                .Setup(o => o.GetEnterMultipleLocationsEmployerRequestViewModel(parameters, It.IsAny<ModelStateDictionary>()))
+                .ReturnsAsync(viewModel);
+
+            // Act
+            var result = await _sut.EnterMultipleLocations(parameters) as ViewResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Model.Should().BeEquivalentTo(viewModel);
+        }
+
+        [Test]
+        public async Task EnterMultipleLocations_Post_ShouldRedirectToEnterMultipleLocations_WhenModelStateIsInvalid()
+        {
+            // Arrange
+            var viewModel = new EnterMultipleLocationsEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+
+            _orchestratorMock
+                .Setup(o => o.ValidateEnterMultipleLocationsEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>()))
+                .ReturnsAsync(false);
+
+            // Act
+            var result = await _sut.EnterMultipleLocations(viewModel) as RedirectToRouteResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.EnterMultipleLocationsRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
+            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
+            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
+            result.RouteValues["location"].Should().Be(viewModel.Location);
+        }
+
+        [Test]
+        public async Task EnterMultipleLocations_Post_ShouldCallUpdateMultipleLocationsForEmployerRequestWhenModelStateIsValid()
+        {
+            // Arrange
+            var viewModel = new EnterMultipleLocationsEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+
+            _orchestratorMock
+                .Setup(o => o.ValidateEnterMultipleLocationsEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>()))
+                .ReturnsAsync(true);
+
+            // Act
+            await _sut.EnterMultipleLocations(viewModel);
+
+            // Assert
+            _orchestratorMock.Verify(o => o.UpdateMultipleLocationsForEmployerRequest(viewModel), Times.Once);
+        }
+
+        [Test]
+        public async Task EnterMultipleLocations_Post_ShouldRedirectToEnterTrainingOptionsWhenModelStateIsValidAndBackToCheckAnswersIsFalse()
+        {
+            // Arrange
+            var viewModel = new EnterMultipleLocationsEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London",
+                BackToCheckAnswers = false
+            };
+
+            _orchestratorMock
+                .Setup(o => o.ValidateEnterMultipleLocationsEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>()))
+                .ReturnsAsync(true);
+
+            // Act
+            var result = await _sut.EnterMultipleLocations(viewModel) as RedirectToRouteResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.EnterTrainingOptionsRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
             result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
             result.RouteValues["standardId"].Should().Be(viewModel.StandardId);

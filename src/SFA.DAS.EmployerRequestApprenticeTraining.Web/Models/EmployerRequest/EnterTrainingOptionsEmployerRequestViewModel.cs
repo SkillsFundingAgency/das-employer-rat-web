@@ -7,6 +7,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
         public bool AtApprenticesWorkplace { get; set; }
         public bool DayRelease { get; set; }
         public bool BlockRelease { get; set; }
+        public string SameLocation { get; set; }
 
         public string BackRoute
         {
@@ -15,6 +16,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
                 if (BackToCheckAnswers)
                     return EmployerRequestController.CheckYourAnswersRouteGet;
 
+                if (SameLocation == "No")
+                    return EmployerRequestController.EnterMultipleLocationsRouteGet;
+                
                 return EmployerRequestController.EnterSingleLocationRouteGet;
             }
         }

@@ -5,7 +5,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Location
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetLocations
 {
-    public class GetLocationsQueryHandler : IRequestHandler<GetLocationsQuery, List<LocationSearchResponse>>
+    public class GetLocationsQueryHandler : IRequestHandler<GetLocationsQuery, List<LocationSearchResult>>
     {
         private readonly ILocationService _locationService;
         private readonly IValidator<GetLocationsQuery> _validator;
@@ -16,7 +16,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetLocat
             _validator = validator;
         }
 
-        public async Task<List<LocationSearchResponse>> Handle(GetLocationsQuery request, CancellationToken cancellationToken)
+        public async Task<List<LocationSearchResult>> Handle(GetLocationsQuery request, CancellationToken cancellationToken)
         {
             await _validator.ValidateAsync(request, cancellationToken);
             var results = await _locationService.GetLocations(request.SearchTerm, false);

@@ -3,9 +3,9 @@ using Moq;
 using NUnit.Framework;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
 using System;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Services.SessionStorage
 {

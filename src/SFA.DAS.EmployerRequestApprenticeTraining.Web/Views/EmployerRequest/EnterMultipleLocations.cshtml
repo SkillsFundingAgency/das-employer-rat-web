@@ -1,0 +1,73 @@
+﻿@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
+@using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
+@using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
+@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.EnterMultipleLocationsEmployerRequestViewModel
+
+@{
+    ViewData["Title"] = "Where is the apprenticeship location?";
+    ViewBag.GaData.Vpv = "/accounts/employerrequests/entermultiplelocations";
+}
+<a asp-route="@Model.BackRoute"
+   asp-route-hashedAccountId="@Model.HashedAccountId"
+   asp-route-requestType="@Model.RequestType"
+   asp-route-standardId="@Model.StandardId"
+   asp-route-location="@Model.Location"
+   class="govuk-back-link">Back</a>
+
+<main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
+    <partial name="_ValidationSummary" />
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-label-wrapper">
+                <label class="govuk-label govuk-label--l" for="SelectedSubRegions">
+                    @ViewData["Title"]
+                </label>
+            </h1>
+            <p class="govuk-body">You have told us you have more than one apprentice in different locations.</p>
+            <p class="govuk-body">Choose the regions where you require the apprentice training.</p>
+            <form asp-route="@EmployerRequestController.EnterMultipleLocationsRoutePost" method="post">
+                @Html.HiddenFor(model => model.HashedAccountId)
+                @Html.HiddenFor(model => model.StandardId)
+                @Html.HiddenFor(model => model.RequestType)
+                @Html.HiddenFor(model => model.Location)
+                @Html.HiddenFor(model => model.BackToCheckAnswers)
+
+                <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                <div class="govuk-form-group" esfa-validation-marker-for="SelectedSubRegions">
+                    <span class="govuk-error-message" asp-validation-for="SelectedSubRegions"></span>
+                </div>
+                @foreach (var region in Model.SubregionsGroupedByRegions)
+                {
+                    <h3 class="govuk-heading-m">@region.Key</h3>
+                    <ul class="govuk-list govuk-grid-row">
+                        @foreach (var location in region.OrderBy(x => x.RegionName))
+                        {
+                            <li class="govuk-grid-column-one-half">
+                                <div class="govuk-checkboxes__item  govuk-checkboxes--small">
+                                    <input class="govuk-checkboxes__input" id="SelectedSubRegions" name="SelectedSubRegions" type="checkbox" value="@location.Id" asp-for="@location.IsSelected">
+                                    <label class="govuk-label govuk-checkboxes__label" for="SubRegions" asp-for="@location.SubregionName">
+                                        @location.SubregionName
+                                    </label>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+                }
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button">
+                        Continue
+                    </button>
+                    <a class="govuk-link" id="cancel" asp-route="@EmployerRequestController.CancelEmployerRequestRouteGet"
+                       asp-route-hashedAccountId="@Model.HashedAccountId"
+                       asp-route-requestType="@Model.RequestType"
+                       asp-route-standardId="@Model.StandardId"
+                       asp-route-location="@Model.Location">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>

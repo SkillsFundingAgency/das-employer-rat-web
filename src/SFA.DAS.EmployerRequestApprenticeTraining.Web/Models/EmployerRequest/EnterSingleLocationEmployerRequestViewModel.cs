@@ -14,7 +14,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
                 if (BackToCheckAnswers)
                     return EmployerRequestController.CheckYourAnswersRouteGet;
 
-                if (SameLocation != null)
+                if (SameLocation == "Yes")
                     return EmployerRequestController.EnterSameLocationRouteGet;
 
                 return EmployerRequestController.EnterApprenticesRouteGet;

@@ -1,4 +1,4 @@
-﻿using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+﻿using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using System;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models

@@ -19,7 +19,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Loca
             _logger = logger;
         }
 
-        public async Task<List<LocationSearchResponse>> GetLocations(string searchTerm, bool exactMatch)
+        public async Task<List<LocationSearchResult>> GetLocations(string searchTerm, bool exactMatch)
         {
             try
             {
@@ -29,7 +29,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Loca
             catch (ApiException ex)
             {
                 _logger.LogError(ex, $"Unable to get locations for searchTerm: {searchTerm.SanitizeLogData()}");
-                return new List<LocationSearchResponse>();
+                return new List<LocationSearchResult>();
             }
         }
 

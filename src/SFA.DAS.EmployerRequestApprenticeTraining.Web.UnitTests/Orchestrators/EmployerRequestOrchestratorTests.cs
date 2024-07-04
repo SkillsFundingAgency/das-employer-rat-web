@@ -7,8 +7,10 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetClosestRegion;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetRegions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
@@ -35,6 +37,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         private Mock<IValidator<EnterApprenticesEmployerRequestViewModel>> _enterApprenticesEmployerRequestViewModelValidatorMock;
         private Mock<IValidator<EnterSameLocationEmployerRequestViewModel>> _enterSameLocationEmployerRequestViewModelValidatorMock;
         private Mock<IValidator<EnterSingleLocationEmployerRequestViewModel>> _enterSingleLocationEmployerRequestViewModelValidatorMock;
+        private Mock<IValidator<EnterMultipleLocationsEmployerRequestViewModel>> _enterMultipleLocationsEmployerRequestViewModelValidatorMock;
         private Mock<IValidator<EnterTrainingOptionsEmployerRequestViewModel>> _enterTrainingOptionsEmployerRequestViewModelValidatorMock;
         private Mock<IValidator<CheckYourAnswersEmployerRequestViewModel>> _checkYourAnswersEmployerRequestViewModelValidatorMock;
         private Mock<IOptions<EmployerRequestApprenticeTrainingWebConfiguration>> _optionsMock;
@@ -52,6 +55,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _enterApprenticesEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterApprenticesEmployerRequestViewModel>>();
             _enterSameLocationEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterSameLocationEmployerRequestViewModel>>();
             _enterSingleLocationEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterSingleLocationEmployerRequestViewModel>>();
+            _enterMultipleLocationsEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterMultipleLocationsEmployerRequestViewModel>>();
             _enterTrainingOptionsEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterTrainingOptionsEmployerRequestViewModel>>();
             _checkYourAnswersEmployerRequestViewModelValidatorMock = new Mock<IValidator<CheckYourAnswersEmployerRequestViewModel>>();
 
@@ -60,6 +64,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
                 EnterApprenticesEmployerRequestViewModelValidator = _enterApprenticesEmployerRequestViewModelValidatorMock.Object,
                 EnterSameLocationEmployerRequestViewModelValidator = _enterSameLocationEmployerRequestViewModelValidatorMock.Object,
                 EnterSingleLocationEmployerRequestViewModelValidator = _enterSingleLocationEmployerRequestViewModelValidatorMock.Object,
+                EnterMultipleLocationsEmployerRequestViewModelValidator = _enterMultipleLocationsEmployerRequestViewModelValidatorMock.Object,
                 EnterTrainingOptionsEmployerRequestViewModelValidator = _enterTrainingOptionsEmployerRequestViewModelValidatorMock.Object,
                 CheckYourAnswersEmployerRequestViewModelValidator = _checkYourAnswersEmployerRequestViewModelValidatorMock.Object
             };
@@ -88,7 +93,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
                 Location = "London"
             };
             
-            var standard = new StandardResponse { Title = "Title", Level = 3, LarsCode = 123 };
+            var standard = new Standard { Title = "Title", Level = 3, LarsCode = 123 };
 
             _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync(standard);
 
@@ -119,7 +124,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
                 Location = "London"
             };
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync((StandardResponse)null);
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync((Standard)null);
 
             // Act
             var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetOverviewEmployerRequestViewModel(parameters));
@@ -426,6 +431,165 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _sessionStorageMock.VerifySet(s => s.EmployerRequest = It.Is<EmployerRequest>(er => er.SameLocation == "Yes"), Times.Once);
         }
 
+        [Test]
+        public async Task GetEnterMultipleLocationsEmployerRequestViewModel_ShouldReturnViewModel_WithClosestRegion_WhenLocationIsProvided()
+        {
+            // Arrange
+            var parameters = new SubmitEmployerRequestParameters
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+
+            var regions = new List<Region>
+            {
+                new Region { Id = 1, RegionName = "Region1", SubregionName = "SubregionName1" },
+                new Region { Id = 2, RegionName = "Region1", SubregionName = "SubregionName2" }
+            };
+
+            var closestRegion = new Region { Id = 1, RegionName = "Region1", SubregionName = "SubregionName1" };
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetRegionsQuery>(), default)).ReturnsAsync(regions);
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetClosestRegionQuery>(), default)).ReturnsAsync(closestRegion);
+
+            var employerRequest = new EmployerRequest();
+
+            _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
+
+            // Act
+            var result = await _sut.GetEnterMultipleLocationsEmployerRequestViewModel(parameters, new ModelStateDictionary());
+
+            // Assert
+            result.Should().NotBeNull();
+            result.HashedAccountId.Should().Be(parameters.HashedAccountId);
+            result.StandardId.Should().Be(parameters.StandardId);
+            result.RequestType.Should().Be(parameters.RequestType);
+            result.Location.Should().Be(parameters.Location);
+            result.SubregionsGroupedByRegions.Should().HaveCount(1);
+            result.SelectedSubRegions.Should().Contain(closestRegion.Id.ToString());
+        }
+
+        [Test]
+        public async Task ValidateEnterMultipleLocationsEmployerRequestViewModel_ShouldReturnTrue_WhenModelIsValid()
+        {
+            // Arrange
+            var viewModel = new EnterMultipleLocationsEmployerRequestViewModel();
+            var modelState = new ModelStateDictionary();
+            var validationResult = new ValidationResult(); // No errors
+
+            _enterMultipleLocationsEmployerRequestViewModelValidatorMock
+                .Setup(v => v.ValidateAsync(viewModel, default))
+                .ReturnsAsync(validationResult);
+
+            // Act
+            var result = await _sut.ValidateEnterMultipleLocationsEmployerRequestViewModel(viewModel, modelState);
+
+            // Assert
+            result.Should().BeTrue();
+            modelState.IsValid.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task ValidateEnterMultipleLocationsEmployerRequestViewModel_ShouldReturnFalse_WhenModelIsInvalid()
+        {
+            // Arrange
+            var viewModel = new EnterMultipleLocationsEmployerRequestViewModel();
+            var modelState = new ModelStateDictionary();
+            var validationResult = new ValidationResult(new List<ValidationFailure>
+            {
+                new ValidationFailure("PropertyName", "Error message")
+            });
+
+            _enterMultipleLocationsEmployerRequestViewModelValidatorMock
+                .Setup(v => v.ValidateAsync(viewModel, default))
+                .ReturnsAsync(validationResult);
+
+            // Act
+            var result = await _sut.ValidateEnterMultipleLocationsEmployerRequestViewModel(viewModel, modelState);
+
+            // Assert
+            result.Should().BeFalse();
+            modelState.IsValid.Should().BeFalse();
+            modelState["PropertyName"].Errors[0].ErrorMessage.Should().Be("Error message");
+        }
+
+
+        [Test]
+        public async Task GetEnterMultipleLocationsEmployerRequestViewModel_ShouldReturnViewModel_WithoutClosestRegion_WhenLocationIsNotProvided()
+        {
+            // Arrange
+            var parameters = new SubmitEmployerRequestParameters
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123"
+            };
+
+            var regions = new List<Region>
+            {
+                new Region { Id = 1, RegionName = "Region1", SubregionName = "SubregionName1" },
+                new Region { Id = 2, RegionName = "Region1", SubregionName = "SubregionName2" }
+            };
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetRegionsQuery>(), default)).ReturnsAsync(regions);
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetClosestRegionQuery>(), default)).ReturnsAsync((Region)null);
+
+            // Act
+            var result = await _sut.GetEnterMultipleLocationsEmployerRequestViewModel(parameters, new ModelStateDictionary());
+
+            // Assert
+            result.Should().NotBeNull();
+            result.HashedAccountId.Should().Be(parameters.HashedAccountId);
+            result.StandardId.Should().Be(parameters.StandardId);
+            result.RequestType.Should().Be(parameters.RequestType);
+            result.Location.Should().Be(parameters.Location);
+            result.SubregionsGroupedByRegions.Should().HaveCount(1);
+            result.SelectedSubRegions.Should().HaveCount(0);
+        }
+
+        [Test]
+        public void UpdateMultipleLocationsForEmployerRequest_ShouldUpdateMultipleLocations_WhenSessionHasEmployerRequest()
+        {
+            // Arrange
+            var viewModel = new EnterMultipleLocationsEmployerRequestViewModel
+            {
+                SelectedSubRegions = new[] { "1", "2" }
+            };
+            var employerRequest = new EmployerRequest();
+
+            _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
+
+            // Act
+            _sut.UpdateMultipleLocationsForEmployerRequest(viewModel);
+
+            // Assert
+            employerRequest.Regions.Should().NotBeNull();
+            employerRequest.Regions.Count.Should().Be(2);
+            employerRequest.Regions[0].Id.Should().Be(1);
+            employerRequest.Regions[1].Id.Should().Be(2);
+            _sessionStorageMock.VerifySet(s => s.EmployerRequest = employerRequest, Times.Once);
+        }
+
+        [Test]
+        public void UpdateMultipleLocationsForEmployerRequest_ShouldSetNewEmployerRequest_WhenSessionIsEmpty()
+        {
+            // Arrange
+            var viewModel = new EnterMultipleLocationsEmployerRequestViewModel
+            {
+                SelectedSubRegions = new[] { "1", "2" }
+            };
+
+            _sessionStorageMock.Setup(s => s.EmployerRequest).Returns((EmployerRequest)null);
+
+            // Act
+            _sut.UpdateMultipleLocationsForEmployerRequest(viewModel);
+
+            // Assert
+            _sessionStorageMock.VerifySet(s => s.EmployerRequest = It.Is<EmployerRequest>(er => er.Regions.Count == 2 && er.Regions[0].Id == 1 && er.Regions[1].Id == 2), Times.Once);
+        }
+
 
         [Test]
         public async Task SubmitEmployerRequest_ShouldReturnEmployerRequestId_And_ClearSession_WhenRequestIsCreated()
@@ -448,7 +612,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             };
             var employerRequestId = Guid.NewGuid();
 
-            var standard = new StandardResponse { Title = "Title", Level = 3, LarsCode = 123, IfateReferenceNumber = "ST0222" };
+            var standard = new Standard { Title = "Title", Level = 3, LarsCode = 123, IfateReferenceNumber = "ST0222" };
             _mediatorMock
                 .Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default))
                 .ReturnsAsync(standard);
@@ -753,7 +917,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
                 Location = "London"
             };
 
-            var standard = new StandardResponse { Title = "Title", Level = 3, LarsCode = 123 };
+            var standard = new Standard { Title = "Title", Level = 3, LarsCode = 123 };
             _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync(standard);
             var employerRequest = new EmployerRequest
             {
@@ -832,7 +996,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         {
             // Arrange
             var employerRequestId = Guid.NewGuid();
-            var confirmation = new SubmitEmployerRequestConfirmationResponse
+            var confirmation = new SubmitEmployerRequestConfirmation
             {
                 StandardTitle = "StandardTitle",
                 StandardLevel = 3,
@@ -868,7 +1032,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var employerRequestId = Guid.NewGuid();
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetSubmitEmployerRequestConfirmationQuery>(), default)).ReturnsAsync((SubmitEmployerRequestConfirmationResponse)null);
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetSubmitEmployerRequestConfirmationQuery>(), default)).ReturnsAsync((SubmitEmployerRequestConfirmation)null);
 
             // Act
             var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetSubmitConfirmationEmployerRequestViewModel(employerRequestId));
