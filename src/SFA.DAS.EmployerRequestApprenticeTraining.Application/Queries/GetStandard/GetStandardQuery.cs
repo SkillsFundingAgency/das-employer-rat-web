@@ -3,7 +3,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest
 {
-    public class GetStandardQuery : IRequest<StandardResponse>
+    public class GetStandardQuery : IRequest<Standard>
     {
         public GetStandardQuery(string standardId)
         {

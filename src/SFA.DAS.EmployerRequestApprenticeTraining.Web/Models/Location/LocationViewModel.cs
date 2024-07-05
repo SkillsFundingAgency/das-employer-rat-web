@@ -6,7 +6,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Location
     {
         public string Name { get; set; }
         
-        public static implicit operator LocationViewModel(LocationSearchResponse source)
+        public static implicit operator LocationViewModel(LocationSearchResult source)
         {
             return new LocationViewModel
             {

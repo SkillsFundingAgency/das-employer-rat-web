@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses
 {
-    public class UserAccountsResponse
+    public class UserAccountsDetails
     {
         [JsonProperty("isSuspended")]
         public bool IsSuspended { get; set; }

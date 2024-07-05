@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using FluentValidation.TestHelper;
 using NUnit.Framework;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators;
@@ -49,7 +50,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Validators
         public void Validate_Should_Not_Have_Error_When_RequestType_Is_Not_Empty()
         {
             // Arrange
-            var model = new SubmitEmployerRequestParameters { RequestType = Domain.Types.RequestType.Providers };
+            var model = new SubmitEmployerRequestParameters { RequestType = RequestType.Providers };
 
             // Act
             var result = _sut.TestValidate(model);

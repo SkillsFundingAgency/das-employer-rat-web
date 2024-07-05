@@ -29,7 +29,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         {
             // Arrange
             var key = "testKey";
-            var item = new StandardResponse
+            var item = new Standard
             {
                 StandardUId = "StandardUId",
                 IfateReferenceNumber = "IfateRef123",
@@ -60,7 +60,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         {
             // Arrange
             var key = "testKey";
-            var expectedItem = new StandardResponse
+            var expectedItem = new Standard
             {
                 StandardUId = "StandardUId",
                 IfateReferenceNumber = "IfateRef123",
@@ -75,7 +75,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             _distributedCacheMock.Setup(c => c.GetAsync(key, It.IsAny<CancellationToken>())).ReturnsAsync(byteArray);
 
             // Act
-            var result = await _cacheStorageService.RetrieveFromCache<StandardResponse>(key);
+            var result = await _cacheStorageService.RetrieveFromCache<Standard>(key);
 
             // Assert
             result.Should().BeEquivalentTo(expectedItem);
@@ -90,7 +90,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             _distributedCacheMock.Setup(c => c.GetAsync(key, It.IsAny<CancellationToken>())).ReturnsAsync((byte[])null);
 
             // Act
-            var result = await _cacheStorageService.RetrieveFromCache<StandardResponse>(key);
+            var result = await _cacheStorageService.RetrieveFromCache<Standard>(key);
 
             // Assert
             result.Should().BeNull();

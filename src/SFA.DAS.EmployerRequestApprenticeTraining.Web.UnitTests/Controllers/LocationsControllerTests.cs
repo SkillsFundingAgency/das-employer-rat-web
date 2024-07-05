@@ -38,10 +38,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         {
             // Arrange
             var searchTerm = "London";
-            var locationList = new List<LocationSearchResponse>
+            var locationList = new List<LocationSearchResult>
             {
-                new LocationSearchResponse { Name = "London" },
-                new LocationSearchResponse { Name = "London Fields" }
+                new LocationSearchResult { Name = "London" },
+                new LocationSearchResult { Name = "London Fields" }
             };
 
             _mediatorMock
@@ -70,7 +70,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
 
             _mediatorMock
                 .Setup(m => m.Send(It.IsAny<GetLocationsQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((List<LocationSearchResponse>)null);
+                .ReturnsAsync((List<LocationSearchResult>)null);
 
             // Act
             var result = await _sut.Locations(searchTerm) as JsonResult;
@@ -89,7 +89,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         {
             // Arrange
             var searchTerm = "NonExistentLocation";
-            var locationList = new List<LocationSearchResponse>();
+            var locationList = new List<LocationSearchResult>();
 
             _mediatorMock
                 .Setup(m => m.Send(It.IsAny<GetLocationsQuery>(), It.IsAny<CancellationToken>()))

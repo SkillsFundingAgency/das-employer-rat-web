@@ -6,7 +6,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Loca
 {
     public interface ILocationService
     {
-        Task<List<LocationSearchResponse>> GetLocations(string searchTerm, bool exactMatch);
+        Task<List<LocationSearchResult>> GetLocations(string searchTerm, bool exactMatch);
 
         Task<bool> CheckLocationExists(string searchTerm);
     }

@@ -4,7 +4,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Queries.GetEmployerRequest
 {

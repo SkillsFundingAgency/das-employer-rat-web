@@ -50,6 +50,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
                 EnterApprenticesEmployerRequestViewModelValidator = sp.GetRequiredService<IValidator<EnterApprenticesEmployerRequestViewModel>>(),
                 EnterSameLocationEmployerRequestViewModelValidator = sp.GetRequiredService<IValidator<EnterSameLocationEmployerRequestViewModel>>(),
                 EnterSingleLocationEmployerRequestViewModelValidator = sp.GetRequiredService<IValidator<EnterSingleLocationEmployerRequestViewModel>>(),
+                EnterMultipleLocationsEmployerRequestViewModelValidator = sp.GetRequiredService<IValidator<EnterMultipleLocationsEmployerRequestViewModel>>(),
                 EnterTrainingOptionsEmployerRequestViewModelValidator = sp.GetRequiredService<IValidator<EnterTrainingOptionsEmployerRequestViewModel>>(),
                 CheckYourAnswersEmployerRequestViewModelValidator = sp.GetRequiredService<IValidator<CheckYourAnswersEmployerRequestViewModel>>()
             });

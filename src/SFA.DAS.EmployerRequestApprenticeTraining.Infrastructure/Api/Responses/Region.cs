@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses
 {
     [ExcludeFromCodeCoverage]
     public class Region

@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses
 {
-    public class LocationSearchResponse
+    public class LocationSearchResult
     {
         public string Name { get; set; }
     }

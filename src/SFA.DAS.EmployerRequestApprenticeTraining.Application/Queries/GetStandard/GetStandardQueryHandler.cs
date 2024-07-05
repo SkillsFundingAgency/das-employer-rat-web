@@ -6,7 +6,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.CacheSto
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest
 {
-    public class GetStandardQueryHandler : IRequestHandler<GetStandardQuery, StandardResponse>
+    public class GetStandardQueryHandler : IRequestHandler<GetStandardQuery, Standard>
     {
         private readonly IEmployerRequestApprenticeTrainingOuterApi _outerApi;
         private readonly ICacheStorageService _cacheStorageService;
@@ -19,12 +19,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmplo
             _validator = validator;
         }
 
-        public async Task<StandardResponse> Handle(GetStandardQuery request, CancellationToken cancellationToken)
+        public async Task<Standard> Handle(GetStandardQuery request, CancellationToken cancellationToken)
         {
             await _validator.ValidateAsync(request, cancellationToken);
 
             var standardCacheKey = $"GetStandard:{request.StandardId}";
-            var standard = await _cacheStorageService.RetrieveFromCache<StandardResponse?>(standardCacheKey);
+            var standard = await _cacheStorageService.RetrieveFromCache<Standard?>(standardCacheKey);
             
             if (standard == null)
             {

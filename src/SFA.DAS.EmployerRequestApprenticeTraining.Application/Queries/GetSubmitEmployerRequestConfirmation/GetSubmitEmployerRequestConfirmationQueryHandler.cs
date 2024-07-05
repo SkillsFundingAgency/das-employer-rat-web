@@ -5,7 +5,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation
 {
-    public class GetSubmitEmployerRequestConfirmationQueryHandler : IRequestHandler<GetSubmitEmployerRequestConfirmationQuery, SubmitEmployerRequestConfirmationResponse>
+    public class GetSubmitEmployerRequestConfirmationQueryHandler : IRequestHandler<GetSubmitEmployerRequestConfirmationQuery, SubmitEmployerRequestConfirmation>
     {
         private readonly IEmployerRequestApprenticeTrainingOuterApi _outerApi;
         private readonly IValidator<GetSubmitEmployerRequestConfirmationQuery> _validator;
@@ -16,7 +16,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmi
             _validator = validator;
         }
 
-        public async Task<SubmitEmployerRequestConfirmationResponse> Handle(GetSubmitEmployerRequestConfirmationQuery request, CancellationToken cancellationToken)
+        public async Task<SubmitEmployerRequestConfirmation> Handle(GetSubmitEmployerRequestConfirmationQuery request, CancellationToken cancellationToken)
         {
             await _validator.ValidateAsync(request, cancellationToken);
             var confirmation = await _outerApi.GetSubmitEmployerRequestConfirmation(request.EmployerRequestId);

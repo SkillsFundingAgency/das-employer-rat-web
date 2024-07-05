@@ -37,7 +37,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Models.Employe
             var backRoute = viewModel.BackRoute;
 
             // Assert
-            backRoute.Should().Be(EmployerRequestController.EnterApprenticesRouteGet);
+            backRoute.Should().Be(EmployerRequestController.OverviewEmployerRequestRouteGet);
         }
     }
 }

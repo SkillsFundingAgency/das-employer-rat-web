@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest
 {

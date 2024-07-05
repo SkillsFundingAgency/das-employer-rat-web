@@ -1,13 +1,16 @@
 ﻿using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetClosestRegion;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetRegions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
@@ -17,6 +20,8 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
@@ -80,8 +85,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 RequestType = parameters.RequestType,
                 Location = parameters.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
-                NumberOfApprentices = EmployerRequest.NumberOfApprentices != 0 
-                    ? EmployerRequest.NumberOfApprentices.ToString() 
+                NumberOfApprentices = SessionEmployerRequest.NumberOfApprentices != 0 
+                    ? SessionEmployerRequest.NumberOfApprentices.ToString() 
                     : string.Empty
             };
         }
@@ -93,12 +98,19 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
         public void UpdateNumberOfApprenticesForEmployerRequest(EnterApprenticesEmployerRequestViewModel viewModel)
         {
-            UpdateEmployerRequest((employerRequest) => 
-            { 
+            UpdateSessionEmployerRequest((employerRequest) => 
+            {
                 employerRequest.NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
+                
                 if(employerRequest.NumberOfApprentices == 1)
                 {
                     employerRequest.SameLocation = null;
+                    employerRequest.Regions = null;
+                }
+
+                if(employerRequest.NumberOfApprentices > 1)
+                {
+                    employerRequest.SingleLocation = null;
                 }
             });
         }
@@ -112,7 +124,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 RequestType = parameters.RequestType,
                 Location = parameters.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
-                SameLocation = EmployerRequest.SameLocation
+                SameLocation = SessionEmployerRequest.SameLocation
             };
         }
 
@@ -123,7 +135,19 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
         public void UpdateSameLocationForEmployerRequest(EnterSameLocationEmployerRequestViewModel viewModel)
         {
-            UpdateEmployerRequest((employerRequest) => { employerRequest.SameLocation = viewModel.SameLocation; });
+            UpdateSessionEmployerRequest((employerRequest) => 
+            { 
+                employerRequest.SameLocation = viewModel.SameLocation; 
+                if(employerRequest.SameLocation == "Yes")
+                {
+                    employerRequest.Regions = null;
+                }
+
+                if(employerRequest.SameLocation == "No")
+                {
+                    employerRequest.SingleLocation = null;
+                }
+            });
         }
 
         public EnterSingleLocationEmployerRequestViewModel GetEnterSingleLocationEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
@@ -137,8 +161,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
                 // this is a special case where the attempted value will not automatically populate the
                 // input element as the input element is being replaced with an autocomplete using javascript
-                SingleLocation = modelState.GetAttemptedValueWhenInvalid(nameof(EmployerRequest.SingleLocation), EmployerRequest.SingleLocation),
-                SameLocation = EmployerRequest.SameLocation
+                SingleLocation = modelState.GetAttemptedValueWhenInvalid(nameof(SessionEmployerRequest.SingleLocation), SessionEmployerRequest.SingleLocation),
+                SameLocation = SessionEmployerRequest.SameLocation
             };
         }
 
@@ -149,9 +173,49 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
         public void UpdateSingleLocationForEmployerRequest(EnterSingleLocationEmployerRequestViewModel viewModel)
         {
-            UpdateEmployerRequest((employerRequest) =>
+            UpdateSessionEmployerRequest((employerRequest) =>
             {
                 employerRequest.SingleLocation = viewModel.SingleLocation;
+            });
+        }
+
+        public async Task<EnterMultipleLocationsEmployerRequestViewModel> GetEnterMultipleLocationsEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        {
+            var regions = await _mediator.Send(new GetRegionsQuery());
+
+            if(!string.IsNullOrEmpty(parameters.Location) && !(SessionEmployerRequest.Regions?.Any() ?? false)) 
+            {
+                var closestRegion = await _mediator.Send(new GetClosestRegionQuery {  Location = parameters.Location });
+                if (closestRegion != null)
+                {
+                    UpdateSessionEmployerRequest((employerRequest) =>
+                    {
+                        employerRequest.Regions = new List<Region> { closestRegion };
+                    });
+                }
+            }
+
+            return new EnterMultipleLocationsEmployerRequestViewModel(regions.Select(r => (RegionViewModel)r).ToList())
+            {
+                HashedAccountId = parameters.HashedAccountId,
+                StandardId = parameters.StandardId,
+                RequestType = parameters.RequestType,
+                Location = parameters.Location,
+                BackToCheckAnswers = parameters.BackToCheckAnswers,
+                SelectedSubRegions = SessionEmployerRequest.Regions?.Select(r => r.Id.ToString()).ToArray() ?? []
+        };
+        }
+
+        public async Task<bool> ValidateEnterMultipleLocationsEmployerRequestViewModel(EnterMultipleLocationsEmployerRequestViewModel viewModel, ModelStateDictionary modelState)
+        {
+            return await ValidateViewModel(_employerRequestOrchestratorValidators.EnterMultipleLocationsEmployerRequestViewModelValidator, viewModel, modelState);
+        }
+
+        public void UpdateMultipleLocationsForEmployerRequest(EnterMultipleLocationsEmployerRequestViewModel viewModel)
+        {
+            UpdateSessionEmployerRequest((employerRequest) =>
+            {
+                employerRequest.Regions = viewModel.SelectedSubRegions.Select(s => new Region { Id = int.Parse(s) }).ToList();
             });
         }
 
@@ -164,9 +228,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 RequestType = parameters.RequestType,
                 Location = parameters.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
-                AtApprenticesWorkplace = EmployerRequest.AtApprenticesWorkplace,
-                DayRelease = EmployerRequest.DayRelease,
-                BlockRelease = EmployerRequest.BlockRelease
+                AtApprenticesWorkplace = SessionEmployerRequest.AtApprenticesWorkplace,
+                DayRelease = SessionEmployerRequest.DayRelease,
+                BlockRelease = SessionEmployerRequest.BlockRelease,
+                SameLocation = SessionEmployerRequest.SameLocation
             };
         }
 
@@ -177,7 +242,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
         public void UpdateTrainingOptionsForEmployerRequest(EnterTrainingOptionsEmployerRequestViewModel viewModel)
         {
-            UpdateEmployerRequest((employerRequest) =>
+            UpdateSessionEmployerRequest((employerRequest) =>
             {
                 employerRequest.AtApprenticesWorkplace = viewModel.AtApprenticesWorkplace;
                 employerRequest.DayRelease = viewModel.DayRelease;
@@ -193,7 +258,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 throw new ArgumentException($"The standard {parameters.StandardId} was not found");
             }
 
-            var employerRequest = EmployerRequest;
+            var employerRequest = SessionEmployerRequest;
 
             return new CheckYourAnswersEmployerRequestViewModel
             {
@@ -235,7 +300,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 ModifiedBy = GetCurrentUserId
             });
 
-            ClearEmployerRequest();
+            ClearSessionEmployerRequest();
 
             return employerRequestId;
         }
@@ -261,19 +326,19 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             };
         }
 
-        private EmployerRequest EmployerRequest
+        private EmployerRequest SessionEmployerRequest
         {
             get => _sessionStorage.EmployerRequest ?? new EmployerRequest();
         }
 
-        private void UpdateEmployerRequest(Action<EmployerRequest> action)
+        private void UpdateSessionEmployerRequest(Action<EmployerRequest> action)
         {
-            var employerRequest = EmployerRequest;
+            var employerRequest = SessionEmployerRequest;
             action(employerRequest);
             _sessionStorage.EmployerRequest = employerRequest;
         }
 
-        private void ClearEmployerRequest()
+        private void ClearSessionEmployerRequest()
         {
             _sessionStorage.EmployerRequest = null;
         }

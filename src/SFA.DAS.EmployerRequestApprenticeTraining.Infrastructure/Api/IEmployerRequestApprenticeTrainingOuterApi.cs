@@ -20,16 +20,22 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
         Task<Guid> SubmitEmployerRequest([Body] SubmitEmployerRequestRequest request);
 
         [Get("/employerrequests/{employerRequestId}/submit-confirmation")]
-        Task<SubmitEmployerRequestConfirmationResponse> GetSubmitEmployerRequestConfirmation([Path] Guid employerRequestId);
+        Task<SubmitEmployerRequestConfirmation> GetSubmitEmployerRequestConfirmation([Path] Guid employerRequestId);
 
         [Get("/accountusers/{userId}/accounts")]
-        Task<UserAccountsResponse> GetUserAccounts([Path] string userId, [Query] string email);
+        Task<UserAccountsDetails> GetUserAccounts([Path] string userId, [Query] string email);
 
         [Get("/locations")]
-        Task<List<LocationSearchResponse>> GetLocations([Query] string searchTerm, [Query] bool exactMatch);
+        Task<List<LocationSearchResult>> GetLocations([Query] string searchTerm, [Query] bool exactMatch);
 
         [Get("/standards/{standardId}")]
-        Task<StandardResponse> GetStandard([Path] string standardId);
+        Task<Standard> GetStandard([Path] string standardId);
+
+        [Get("/regions")]
+        Task<List<Region>> GetRegions();
+
+        [Get("/regions/closest")]
+        Task<Region> GetClosestRegion([Query] string locationName);
 
         [Get("/ping")]
         Task Ping();

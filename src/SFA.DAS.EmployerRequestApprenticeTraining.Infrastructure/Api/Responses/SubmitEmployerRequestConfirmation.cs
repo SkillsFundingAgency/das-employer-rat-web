@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
 {
-    public class SubmitEmployerRequestConfirmationResponse
+    public class SubmitEmployerRequestConfirmation
     {
         public Guid EmployerRequestId { get; set; }
         public string StandardTitle { get; set; }

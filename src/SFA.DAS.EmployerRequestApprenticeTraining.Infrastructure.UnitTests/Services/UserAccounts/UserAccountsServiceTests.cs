@@ -23,7 +23,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             UserAccountsService userAccountsService)
         {
             // Arrange
-            var userAccountsResponse = new UserAccountsResponse
+            var userAccountsResponse = new UserAccountsDetails
             {
                 EmployerUserId = userId,
                 FirstName = "First",
@@ -58,7 +58,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             UserAccountsService userAccountsService)
         {
             // Arrange
-            var userAccountsResponse = new UserAccountsResponse();
+            var userAccountsResponse = new UserAccountsDetails();
 
             outerApiMock.Setup(p => p.GetUserAccounts(userId, email))
                 .Throws(new ApiException(new HttpRequestMessage(), new HttpResponseMessage(), string.Empty));

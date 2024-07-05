@@ -14,7 +14,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.User
         public string LastName { get; set; }
 
         public string FirstName { get; set; }
-        public static implicit operator EmployerUser(UserAccountsResponse source)
+        public static implicit operator EmployerUser(UserAccountsDetails source)
         {
             var accounts = source?.UserAccounts == null
                 ? new List<EmployerUserAccount>()

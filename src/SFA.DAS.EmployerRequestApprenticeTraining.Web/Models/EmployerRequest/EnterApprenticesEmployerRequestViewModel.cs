@@ -13,7 +13,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
                 if (BackToCheckAnswers)
                     return EmployerRequestController.CheckYourAnswersRouteGet;
 
-                return EmployerRequestController.EnterApprenticesRouteGet;
+                return EmployerRequestController.OverviewEmployerRequestRouteGet;
             }
         }
     }

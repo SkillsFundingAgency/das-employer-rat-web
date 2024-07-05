@@ -41,9 +41,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
         public async Task Handle_ShouldReturnLocations_WhenCalledWithValidSearchTerm()
         {
             // Arrange
-            var expectedLocations = new List<LocationSearchResponse>
+            var expectedLocations = new List<LocationSearchResult>
             {
-                new LocationSearchResponse
+                new LocationSearchResult
                 {
                     Name = "London"
                 }

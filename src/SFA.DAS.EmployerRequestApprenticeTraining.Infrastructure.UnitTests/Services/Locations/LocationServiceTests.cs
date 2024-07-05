@@ -33,10 +33,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         {
             // Arrange
             var searchTerm = "London";
-            var locations = new List<LocationSearchResponse>
+            var locations = new List<LocationSearchResult>
             {
-                new LocationSearchResponse { Name = "London" },
-                new LocationSearchResponse { Name = "London Fields " }
+                new LocationSearchResult { Name = "London" },
+                new LocationSearchResult { Name = "London Fields " }
             };
 
             _outerApiMock.Setup(x => x.GetLocations(searchTerm, false)).ReturnsAsync(locations);
@@ -61,7 +61,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             var result = await _locationService.GetLocations(searchTerm, false);
 
             // Assert
-            result.Should().BeEquivalentTo(new List<LocationSearchResponse>());
+            result.Should().BeEquivalentTo(new List<LocationSearchResult>());
             _loggerMock.VerifyLogError($"Unable to get locations for searchTerm: {searchTerm}", Times.Once);
         }
 
@@ -90,9 +90,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         {
             // Arrange
             var searchTerm = "London";
-            var locations = new List<LocationSearchResponse>
+            var locations = new List<LocationSearchResult>
             {
-                new LocationSearchResponse { Name = "London" }
+                new LocationSearchResult { Name = "London" }
             };
 
             _outerApiMock.Setup(x => x.GetLocations("London", true)).ReturnsAsync(locations);
@@ -109,7 +109,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         {
             // Arrange
             var searchTerm = "London";
-            var locations = new List<LocationSearchResponse>
+            var locations = new List<LocationSearchResult>
             {
             };
 

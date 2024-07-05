@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home;

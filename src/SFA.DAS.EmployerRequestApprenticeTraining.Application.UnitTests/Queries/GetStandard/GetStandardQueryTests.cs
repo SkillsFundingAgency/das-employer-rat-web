@@ -43,7 +43,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
         public async Task Handle_ShouldCacheAndReturnStandard_WhenCalledWithValidId_ForFirstTime()
         {
             // Arrange
-            var standard = new StandardResponse
+            var standard = new Standard
             {
                 StandardUId = "ST0100_1.0",
                 IfateReferenceNumber = "ST0100",
@@ -57,8 +57,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
                 .ReturnsAsync(standard);
 
             _mockCacheStorageService
-                .Setup(x => x.RetrieveFromCache<StandardResponse?>(It.IsAny<string>()))
-                .ReturnsAsync((StandardResponse?)null);
+                .Setup(x => x.RetrieveFromCache<Standard?>(It.IsAny<string>()))
+                .ReturnsAsync((Standard?)null);
 
             // Act
             var result = await _handler.Handle(_query, CancellationToken.None);
@@ -72,7 +72,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
         public async Task Handle_ShouldReturnStandardFromCache_WhenCalledWithValidId_ForSecondTime()
         {
             // Arrange
-            var standard = new StandardResponse
+            var standard = new Standard
             {
                 StandardUId = "ST0100_1.0",
                 IfateReferenceNumber = "ST0100",
@@ -82,7 +82,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
             };
 
             _mockCacheStorageService
-                .Setup(x => x.RetrieveFromCache<StandardResponse?>($"GetStandard:{_query.StandardId}"))
+                .Setup(x => x.RetrieveFromCache<Standard?>($"GetStandard:{_query.StandardId}"))
                 .ReturnsAsync(standard);
 
             // Act

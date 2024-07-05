@@ -4,6 +4,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
 {
     public class ViewEmployerRequestsViewModel
     {
-        public List<Domain.Types.EmployerRequest> EmployerRequests { get; set; }
+        public List<Infrastructure.Api.Responses.EmployerRequest> EmployerRequests { get; set; }
     }
 }

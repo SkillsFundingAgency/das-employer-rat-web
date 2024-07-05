@@ -1,6 +1,6 @@
 ﻿namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses
 {
-    public class StandardResponse
+    public class Standard
     {
         public string StandardUId { get; set; }
         public string IfateReferenceNumber { get; set; }
