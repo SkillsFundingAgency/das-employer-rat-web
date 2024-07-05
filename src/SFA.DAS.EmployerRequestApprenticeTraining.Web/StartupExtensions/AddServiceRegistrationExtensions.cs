@@ -48,6 +48,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
             services.AddTransient(sp => new EmployerRequestOrchestratorValidators
             {
                 EnterApprenticesEmployerRequestViewModelValidator = sp.GetRequiredService<IValidator<EnterApprenticesEmployerRequestViewModel>>(),
+                EnterSameLocationEmployerRequestViewModelValidator = sp.GetRequiredService<IValidator<EnterSameLocationEmployerRequestViewModel>>(),
                 EnterSingleLocationEmployerRequestViewModelValidator = sp.GetRequiredService<IValidator<EnterSingleLocationEmployerRequestViewModel>>(),
                 EnterTrainingOptionsEmployerRequestViewModelValidator = sp.GetRequiredService<IValidator<EnterTrainingOptionsEmployerRequestViewModel>>(),
                 CheckYourAnswersEmployerRequestViewModelValidator = sp.GetRequiredService<IValidator<CheckYourAnswersEmployerRequestViewModel>>()
