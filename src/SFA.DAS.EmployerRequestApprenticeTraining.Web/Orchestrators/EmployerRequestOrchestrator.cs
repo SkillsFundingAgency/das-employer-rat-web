@@ -100,18 +100,25 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         {
             UpdateSessionEmployerRequest((employerRequest) => 
             {
-                employerRequest.NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
+                var newNumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
                 
-                if(employerRequest.NumberOfApprentices == 1)
+                if(employerRequest.NumberOfApprentices == 1 && newNumberOfApprentices > 1)
+                {
+                    employerRequest.SameLocation = "Yes";
+                    viewModel.BackToCheckAnswers = false;
+                }
+                else if(employerRequest.NumberOfApprentices > 1 && newNumberOfApprentices == 1)
                 {
                     employerRequest.SameLocation = null;
                     employerRequest.Regions = null;
+                    viewModel.BackToCheckAnswers = false;
+                }
+                else if(employerRequest.NumberOfApprentices > 1 && newNumberOfApprentices > 1)
+                {
+                    viewModel.BackToCheckAnswers = false;
                 }
 
-                if(employerRequest.NumberOfApprentices > 1)
-                {
-                    employerRequest.SingleLocation = null;
-                }
+                employerRequest.NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
             });
         }
 
@@ -137,16 +144,23 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         {
             UpdateSessionEmployerRequest((employerRequest) => 
             { 
-                employerRequest.SameLocation = viewModel.SameLocation; 
-                if(employerRequest.SameLocation == "Yes")
+                var newSameLocation = viewModel.SameLocation;
+
+                if (employerRequest.SameLocation != newSameLocation)
                 {
-                    employerRequest.Regions = null;
+                    if (newSameLocation == "No")
+                    {
+                        employerRequest.SingleLocation = null;
+                    }
+                    else if (newSameLocation == "Yes")
+                    {
+                        employerRequest.Regions = null;
+                    }
+
+                    viewModel.BackToCheckAnswers = false;
                 }
 
-                if(employerRequest.SameLocation == "No")
-                {
-                    employerRequest.SingleLocation = null;
-                }
+                employerRequest.SameLocation = viewModel.SameLocation;
             });
         }
 
@@ -202,7 +216,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 RequestType = parameters.RequestType,
                 Location = parameters.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
-                SelectedSubRegions = SessionEmployerRequest.Regions?.Select(r => r.Id.ToString()).ToArray() ?? []
+                MultipleLocations = SessionEmployerRequest.Regions?.Select(r => r.Id.ToString()).ToArray() ?? []
         };
         }
 
@@ -211,13 +225,30 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return await ValidateViewModel(_employerRequestOrchestratorValidators.EnterMultipleLocationsEmployerRequestViewModelValidator, viewModel, modelState);
         }
 
-        public void UpdateMultipleLocationsForEmployerRequest(EnterMultipleLocationsEmployerRequestViewModel viewModel)
+        public async Task UpdateMultipleLocationsForEmployerRequest(EnterMultipleLocationsEmployerRequestViewModel viewModel)
         {
+            var regions = await _mediator.Send(new GetRegionsQuery());
+
             UpdateSessionEmployerRequest((employerRequest) =>
             {
-                employerRequest.Regions = viewModel.SelectedSubRegions.Select(s => new Region { Id = int.Parse(s) }).ToList();
+                employerRequest.Regions = viewModel.MultipleLocations
+                    .Select(s =>
+                    {
+                        var matchingRegion = regions.FirstOrDefault(r => r.Id == int.Parse(s));
+                        return matchingRegion != null
+                            ? new Region
+                            {
+                                Id = matchingRegion.Id,
+                                SubregionName = matchingRegion.SubregionName,
+                                RegionName = matchingRegion.RegionName
+                            }
+                            : null;
+                    })
+                    .Where(r => r != null)
+                    .ToList();
             });
         }
+
 
         public EnterTrainingOptionsEmployerRequestViewModel GetEnterTrainingOptionsEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
         {
@@ -269,10 +300,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 StandardTitle = standard.Title,
                 StandardLevel = standard.Level,
                 NumberOfApprentices = employerRequest.NumberOfApprentices > 0 ? employerRequest.NumberOfApprentices.ToString() : string.Empty,
+                SameLocation = employerRequest.SameLocation,
                 SingleLocation = employerRequest.SingleLocation,
+                MultipleLocations = employerRequest.Regions?.Select(r => r.Id.ToString()).ToArray(),
                 AtApprenticesWorkplace = employerRequest.AtApprenticesWorkplace,
                 DayRelease = employerRequest.DayRelease,
-                BlockRelease = employerRequest.BlockRelease
+                BlockRelease = employerRequest.BlockRelease,
+                Regions = employerRequest.Regions
             };
         }
 
@@ -292,7 +326,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 AccountId = viewModel.AccountId,
                 StandardReference = standard.IfateReferenceNumber,
                 NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices),
+                SameLocation = viewModel.SameLocation,
                 SingleLocation = viewModel.SingleLocation,
+                MultipleLocations = viewModel.MultipleLocations,
                 AtApprenticesWorkplace = viewModel.AtApprenticesWorkplace,
                 DayRelease = viewModel.DayRelease,
                 BlockRelease = viewModel.BlockRelease,
@@ -362,12 +398,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 StandardTitle = result.StandardTitle,
                 StandardLevel = result.StandardLevel,
                 NumberOfApprentices = result.NumberOfApprentices.ToString(),
+                SameLocation = result.SameLocation,
                 SingleLocation = result.SingleLocation,
                 AtApprenticesWorkplace = result.AtApprenticesWorkplace,
                 DayRelease = result.DayRelease,
                 BlockRelease = result.BlockRelease,
                 RequestedByEmail = result.RequestedByEmail,
-                FindApprenticeshipTrainingBaseUrl = _config?.FindApprenticeshipTrainingBaseUrl
+                FindApprenticeshipTrainingBaseUrl = _config?.FindApprenticeshipTrainingBaseUrl,
+                Regions = result.Regions
             };
         }
     }

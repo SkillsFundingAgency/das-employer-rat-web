@@ -20,7 +20,7 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <h1 class="govuk-label-wrapper">
-                <label class="govuk-label govuk-label--l" for="SelectedSubRegions">
+                <label class="govuk-label govuk-label--l" for="MultipleLocations">
                     @ViewData["Title"]
                 </label>
             </h1>
@@ -34,8 +34,8 @@
                 @Html.HiddenFor(model => model.BackToCheckAnswers)
 
                 <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-                <div class="govuk-form-group" esfa-validation-marker-for="SelectedSubRegions">
-                    <span class="govuk-error-message" asp-validation-for="SelectedSubRegions"></span>
+                <div class="govuk-form-group" esfa-validation-marker-for="MultipleLocations">
+                    <span class="govuk-error-message" asp-validation-for="MultipleLocations"></span>
                 </div>
                 @foreach (var region in Model.SubregionsGroupedByRegions)
                 {
@@ -45,7 +45,7 @@
                         {
                             <li class="govuk-grid-column-one-half">
                                 <div class="govuk-checkboxes__item  govuk-checkboxes--small">
-                                    <input class="govuk-checkboxes__input" id="SelectedSubRegions" name="SelectedSubRegions" type="checkbox" value="@location.Id" asp-for="@location.IsSelected">
+                                    <input class="govuk-checkboxes__input" id="MultipleLocations" name="MultipleLocations" type="checkbox" value="@location.Id" asp-for="@location.IsSelected">
                                     <label class="govuk-label govuk-checkboxes__label" for="SubRegions" asp-for="@location.SubregionName">
                                         @location.SubregionName
                                     </label>
