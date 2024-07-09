@@ -101,24 +101,22 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             UpdateSessionEmployerRequest((employerRequest) => 
             {
                 var newNumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
-                
-                if(employerRequest.NumberOfApprentices == 1 && newNumberOfApprentices > 1)
-                {
-                    employerRequest.SameLocation = "Yes";
-                    viewModel.BackToCheckAnswers = false;
-                }
-                else if(employerRequest.NumberOfApprentices > 1 && newNumberOfApprentices == 1)
-                {
-                    employerRequest.SameLocation = null;
-                    employerRequest.Regions = null;
-                    viewModel.BackToCheckAnswers = false;
-                }
-                else if(employerRequest.NumberOfApprentices > 1 && newNumberOfApprentices > 1)
-                {
-                    viewModel.BackToCheckAnswers = false;
-                }
 
-                employerRequest.NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
+                if(employerRequest.NumberOfApprentices != newNumberOfApprentices)
+                {
+                    if (employerRequest.NumberOfApprentices == 1 && newNumberOfApprentices > 1)
+                    {
+                        employerRequest.SameLocation = "Yes";
+                    }
+                    else if (employerRequest.NumberOfApprentices > 1 && newNumberOfApprentices == 1)
+                    {
+                        employerRequest.SameLocation = null;
+                        employerRequest.Regions = null;
+                    }
+
+                    viewModel.BackToCheckAnswers = false;
+                    employerRequest.NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
+                }
             });
         }
 
@@ -158,9 +156,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                     }
 
                     viewModel.BackToCheckAnswers = false;
+                    employerRequest.SameLocation = viewModel.SameLocation;
                 }
-
-                employerRequest.SameLocation = viewModel.SameLocation;
             });
         }
 
