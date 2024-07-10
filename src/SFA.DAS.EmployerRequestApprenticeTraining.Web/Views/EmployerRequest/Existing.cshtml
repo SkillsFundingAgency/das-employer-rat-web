@@ -1,0 +1,35 @@
+﻿@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
+@using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
+@using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
+@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.OverviewEmployerRequestViewModel
+
+@{
+    ViewData["Title"] = "You have an existing request";
+    ViewBag.GaData.Vpv = "/accounts/employerrequests/existing";
+}
+<a href="@Model.BackLink" class="govuk-back-link">Back</a>
+<main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">@ViewData["Title"]</h1>
+
+            <p class="govuk-text">
+                You've already asked if training providers can offer @Model.StandardTitle (level @Model.StandardLevel).
+            </p>
+
+            <p class="govuk-text">
+                If you need to add a location or make a change to your request, you'll need to cancel your request and ask again.
+            </p>
+
+            <a class="govuk-link"
+                asp-route="@EmployerRequestController.ExistingEmployerRequestRouteGet"
+                asp-route-hashedAccountId="@Model.HashedAccountId"
+                asp-route-requestType="@Model.RequestType"
+                asp-route-standardId="@Model.StandardId"
+                asp-route-location="@Model.Location">
+                Manage your @Model.StandardTitle (level @Model.StandardLevel) training request
+            </a>
+        </div>
+    </div>
+</main>

@@ -9,6 +9,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
     public interface IEmployerRequestOrchestrator
     {
         Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(SubmitEmployerRequestParameters parameters);
+        Task<bool> HasExistingEmployerRequest(long accountId, string standardId);
         Task StartEmployerRequest(string location);
         EnterApprenticesEmployerRequestViewModel GetEnterApprenticesEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState);
         Task<bool> ValidateEnterApprenticesEmployerRequestViewModel(EnterApprenticesEmployerRequestViewModel viewModel, ModelStateDictionary modelState);

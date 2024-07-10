@@ -68,6 +68,18 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             };
         }
 
+        public async Task<bool> HasExistingEmployerRequest(long accountId, string standardId)
+        {
+            var standard = await _mediator.Send(new GetStandardQuery(standardId));
+            if (standard == null)
+            {
+                throw new ArgumentException($"The standard {standardId} was not found");
+            }
+
+            var employerRequest = await _mediator.Send(new GetEmployerRequestQuery { AccountId = accountId, StandardReference = standard.IfateReferenceNumber });
+            return employerRequest != null;
+        }
+
         public async Task StartEmployerRequest(string location)
         {
             _sessionStorage.EmployerRequest = new EmployerRequest

@@ -6,7 +6,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmplo
     {
         public GetEmployerRequestQueryValidator()
         {
-            RuleFor(x => x.EmployerRequestId).NotEmpty();
+            RuleFor(x => x.EmployerRequestId)
+                .Must(x => x.HasValue)
+                .When(x => string.IsNullOrEmpty(x.StandardReference) || !x.AccountId.HasValue);
+
+            RuleFor(x => new { x.StandardReference, x.AccountId })
+                .Must(x => !string.IsNullOrEmpty(x.StandardReference) && x.AccountId.HasValue)
+                .When(x => !x.EmployerRequestId.HasValue);
         }
     }
 }
