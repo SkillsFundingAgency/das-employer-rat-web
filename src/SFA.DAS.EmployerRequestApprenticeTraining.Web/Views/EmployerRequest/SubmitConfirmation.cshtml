@@ -30,12 +30,23 @@
                         @Model.NumberOfApprentices
                     </dd>
                 </div>
+                @if(!string.IsNullOrEmpty(Model.SameLocation))
+                {
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">
+                            One apprenticeship location
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                            @Model.SameLocation
+                        </dd>
+                    </div>
+                }
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
                         Apprenticeship locations
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        @Model.SingleLocation
+                        <partial name="_Locations" />
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">

@@ -191,7 +191,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
                 return RedirectToRoute(EnterMultipleLocationsRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location, viewModel.BackToCheckAnswers });
             }
 
-            _orchestrator.UpdateMultipleLocationsForEmployerRequest(viewModel);
+            await _orchestrator.UpdateMultipleLocationsForEmployerRequest(viewModel);
 
             if (viewModel.BackToCheckAnswers)
             {

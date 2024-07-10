@@ -11,8 +11,17 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators
             RuleFor(x => x.NumberOfApprentices)
                 .ValidateNumberOfApprentices();
 
+            RuleFor(x => x.SameLocation)
+                .ValidateSameLocation()
+                .When(x => int.TryParse(x.NumberOfApprentices, out int number) && number > 1);
+
             RuleFor(x => x.SingleLocation)
-                .ValidateSingleLocation(locationService);
+                .ValidateSingleLocation(locationService)
+                .When(x => string.IsNullOrEmpty(x.SameLocation) || x.SameLocation == "Yes");
+
+            RuleFor(x => x.MultipleLocations)
+                .ValidateMultipleLocations()
+                .When(x => x.SameLocation == "No");
 
             RuleFor(x => x.AtApprenticesWorkplace)
                 .ValidateTrainingOptions();

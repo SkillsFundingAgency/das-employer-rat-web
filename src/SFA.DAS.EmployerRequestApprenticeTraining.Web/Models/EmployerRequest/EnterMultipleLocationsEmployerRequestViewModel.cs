@@ -8,7 +8,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
     {
         private readonly List<RegionViewModel> AllRegions;
         
-        public string[] SelectedSubRegions { get; set; }
+        public string[] MultipleLocations { get; set; }
 
         public EnterMultipleLocationsEmployerRequestViewModel()
         {
@@ -26,7 +26,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
             {
                 foreach (var region in AllRegions)
                 {
-                    region.IsSelected = SelectedSubRegions.Contains(region.Id.ToString());
+                    region.IsSelected = MultipleLocations.Contains(region.Id.ToString());
                 }
 
                 return AllRegions.GroupBy(x => x.RegionName).OrderBy(x => x.Key);

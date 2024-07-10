@@ -23,6 +23,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
@@ -298,7 +299,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
 
             // Assert
             employerRequest.NumberOfApprentices.Should().Be(1);
-            employerRequest.SameLocation.Should().BeNull();
+            employerRequest.SameLocation.Should().Be("Yes");
             _sessionStorageMock.VerifySet(s => s.EmployerRequest = employerRequest, Times.Once);
         }
 
@@ -468,7 +469,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             result.RequestType.Should().Be(parameters.RequestType);
             result.Location.Should().Be(parameters.Location);
             result.SubregionsGroupedByRegions.Should().HaveCount(1);
-            result.SelectedSubRegions.Should().Contain(closestRegion.Id.ToString());
+            result.MultipleLocations.Should().Contain(closestRegion.Id.ToString());
         }
 
         [Test]
@@ -546,7 +547,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             result.RequestType.Should().Be(parameters.RequestType);
             result.Location.Should().Be(parameters.Location);
             result.SubregionsGroupedByRegions.Should().HaveCount(1);
-            result.SelectedSubRegions.Should().HaveCount(0);
+            result.MultipleLocations.Should().HaveCount(0);
         }
 
         [Test]
@@ -555,9 +556,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var viewModel = new EnterMultipleLocationsEmployerRequestViewModel
             {
-                SelectedSubRegions = new[] { "1", "2" }
+                MultipleLocations = new[] { "1", "2" }
             };
             var employerRequest = new EmployerRequest();
+
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<GetRegionsQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<Region> { new Region { Id = 1 }, new Region { Id = 2 } });
 
             _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
 
@@ -578,8 +583,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var viewModel = new EnterMultipleLocationsEmployerRequestViewModel
             {
-                SelectedSubRegions = new[] { "1", "2" }
+                MultipleLocations = new[] { "1", "2" }
             };
+
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<GetRegionsQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<Region> { new Region { Id = 1 }, new Region { Id = 2 } });
 
             _sessionStorageMock.Setup(s => s.EmployerRequest).Returns((EmployerRequest)null);
 

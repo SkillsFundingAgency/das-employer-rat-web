@@ -7,7 +7,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators
     {
         public EnterMultipleLocationsEmployerRequestViewModelValidator()
         {
-            RuleFor(x => x.SelectedSubRegions)
+            RuleFor(x => x.MultipleLocations)
                 .ValidateMultipleLocations();
         }
     }

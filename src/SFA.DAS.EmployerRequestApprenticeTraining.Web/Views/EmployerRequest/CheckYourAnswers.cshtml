@@ -2,6 +2,7 @@
 @using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
 @using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
 @using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
 @model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.CheckYourAnswersEmployerRequestViewModel
 
 @{
@@ -46,27 +47,82 @@
                            Change<span class="govuk-visually-hidden"> how many apprentices</span>
                         </a>
                     </dd>
-                    
                 </div>
+                @if(int.TryParse(Model.NumberOfApprentices, out int number) && number > 1)
+                {
                 <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key" das-highlight-error-for="SingleLocation" error-class="govuk-form-group--error">
-                        Apprenticeship locations
+                    <dt class="govuk-summary-list__key" das-highlight-error-for="SameLocation" error-class="govuk-form-group--error">
+                        One apprenticeship location
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        @Model.SingleLocation
-                        <p das-validation-for="SingleLocation" class="govuk-error-message">
+                        @Model.SameLocation
+                        <p das-validation-for="SameLocation" class="govuk-error-message">
                             <span class="govuk-visually-hidden">Error: </span>
                         </p>
                     </dd>
                     <dd class="govuk-summary-list__actions">
-                        <a class="govuk-link" id="how-many-apprentices-change" asp-route="@EmployerRequestController.EnterSingleLocationRouteGet"
+                        <a class="govuk-link" id="same-location-change" asp-route="@EmployerRequestController.EnterSameLocationRouteGet"
                            asp-route-hashedAccountId="@Model.HashedAccountId"
                            asp-route-requestType="@Model.RequestType"
                            asp-route-standardId="@Model.StandardId"
                            asp-route-location="@Model.Location"
                            asp-route-backToCheckAnswers="true">
-                            Change<span class="govuk-visually-hidden"> apprenticeship locations</span>
+                            Change<span class="govuk-visually-hidden"> one apprenticeship location</span>
                         </a>
+                    </dd>
+                </div>
+                }
+                <div class="govuk-summary-list__row">
+                    @if (string.IsNullOrEmpty(Model.SameLocation) || Model.SameLocation == "Yes")
+                    {
+                        <dt class="govuk-summary-list__key" das-highlight-error-for="SingleLocation" error-class="govuk-form-group--error">
+                            Apprenticeship locations
+                        </dt>
+                    }
+                    else
+                    {
+                        <dt class="govuk-summary-list__key" das-highlight-error-for="MultipleLocations" error-class="govuk-form-group--error">
+                            Apprenticeship locations
+                        </dt>
+                    }
+                    <dd class="govuk-summary-list__value">
+                        <partial name="_Locations" />
+                        @if (string.IsNullOrEmpty(Model.SameLocation) || Model.SameLocation == "Yes")
+                        {
+                            <p das-validation-for="SingleLocation" class="govuk-error-message">
+                                <span class="govuk-visually-hidden">Error: </span>
+                            </p>
+                        }
+                        else
+                        {
+                            <p das-validation-for="MultipleLocations" class="govuk-error-message">
+                                <span class="govuk-visually-hidden">Error: </span>
+                            </p>
+                        }
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        @if (string.IsNullOrEmpty(Model.SameLocation) || Model.SameLocation == "Yes")
+                        {
+                            <a class="govuk-link" id="how-many-apprentices-change" asp-route="@EmployerRequestController.EnterSingleLocationRouteGet"
+                            asp-route-hashedAccountId="@Model.HashedAccountId"
+                            asp-route-requestType="@Model.RequestType"
+                            asp-route-standardId="@Model.StandardId"
+                            asp-route-location="@Model.Location"
+                            asp-route-backToCheckAnswers="true">
+                                Change<span class="govuk-visually-hidden"> apprenticeship locations</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="govuk-link" id="how-many-apprentices-change" asp-route="@EmployerRequestController.EnterMultipleLocationsRouteGet"
+                               asp-route-hashedAccountId="@Model.HashedAccountId"
+                               asp-route-requestType="@Model.RequestType"
+                               asp-route-standardId="@Model.StandardId"
+                               asp-route-location="@Model.Location"
+                               asp-route-backToCheckAnswers="true">
+                                Change<span class="govuk-visually-hidden"> apprenticeship locations</span>
+                            </a>
+                        }
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -99,7 +155,9 @@
                 @Html.HiddenFor(model => model.RequestType)
                 @Html.HiddenFor(model => model.Location)
                 @Html.HiddenFor(model => model.NumberOfApprentices)
+                @Html.HiddenFor(model => model.SameLocation)
                 @Html.HiddenFor(model => model.SingleLocation)
+                @Html.HiddenForArray(model => model.MultipleLocations)
                 @Html.HiddenFor(model => model.AtApprenticesWorkplace)
                 @Html.HiddenFor(model => model.DayRelease)
                 @Html.HiddenFor(model => model.BlockRelease)
