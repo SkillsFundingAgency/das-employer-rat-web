@@ -8,5 +8,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models
     {
         [FromRoute]
         public string HashedAccountId { get; set; }
+
+        [AutoDecode(nameof(HashedAccountId), EncodingType.AccountId)]
+        public long AccountId { get; set; }
     }
 }

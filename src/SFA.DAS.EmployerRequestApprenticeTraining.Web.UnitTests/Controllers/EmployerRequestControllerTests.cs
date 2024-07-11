@@ -64,6 +64,34 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
+        public async Task Overview_ShouldRedirectToExisting_WhenEmployerRequestExists()
+        {
+            // Arrange
+            var parameters = new SubmitEmployerRequestParameters
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London",
+                AccountId = 123
+            };
+
+            _orchestratorMock.Setup(o => o.HasExistingEmployerRequest(parameters.AccountId, parameters.StandardId)).ReturnsAsync(true);
+
+            // Act
+            var result = await _sut.Overview(parameters) as RedirectToRouteResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.ExistingEmployerRequestRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(parameters.HashedAccountId);
+            result.RouteValues["requestType"].Should().Be(parameters.RequestType);
+            result.RouteValues["standardId"].Should().Be(parameters.StandardId);
+            result.RouteValues["location"].Should().Be(parameters.Location);
+        }
+
+
+        [Test]
         public async Task Start_ShouldCallStartEmployerRequest()
         {
             // Arrange
@@ -796,6 +824,35 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
+        public async Task CheckYourAnswers_Post_ShouldRedirectToExisting_WhenEmployerRequestExists()
+        {
+            // Arrange
+            var viewModel = new CheckYourAnswersEmployerRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London",
+                AccountId = 123
+            };
+
+            _orchestratorMock.Setup(o => o.HasExistingEmployerRequest(viewModel.AccountId, viewModel.StandardId)).ReturnsAsync(true);
+            _orchestratorMock.Setup(o => o.ValidateCheckYourAnswersEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(true);
+
+            // Act
+            var result = await _sut.CheckYourAnswers(viewModel) as RedirectToRouteResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.ExistingEmployerRequestRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
+            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
+            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
+            result.RouteValues["location"].Should().Be(viewModel.Location);
+        }
+
+
+        [Test]
         public async Task CheckYourAnswers_Post_ShouldRedirectToCheckYourAnswers_WhenModelStateIsInvalid()
         {
             // Arrange
@@ -824,14 +881,19 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public async Task CheckYourAnswers_Post_ShouldRedirectToSubmitConfirmation_WhenModelStateIsValid()
+        public async Task CheckYourAnswers_Post_ShouldRedirectToSubmitConfirmation_WhenEmployerRequestDoesNotExist_AndModelStateIsValid()
         {
             // Arrange
             var viewModel = new CheckYourAnswersEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123"
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London",
+                AccountId = 123
             };
 
+            _orchestratorMock.Setup(o => o.HasExistingEmployerRequest(viewModel.AccountId, viewModel.StandardId)).ReturnsAsync(false);
             _orchestratorMock
                 .Setup(o => o.ValidateCheckYourAnswersEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>()))
                 .ReturnsAsync(true);
@@ -850,6 +912,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
             result.RouteValues["employerRequestId"].Should().Be(employerRequestId);
         }
+
 
         [Test]
         public async Task SubmitConfirmation_Get_ShouldReturnViewWithViewModel()

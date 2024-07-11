@@ -13,6 +13,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
         [Get("/employerrequests/{employerRequestId}")]
         Task<EmployerRequest> GetEmployerRequest([Path] Guid employerRequestId);
 
+        [Get("/employerrequests/account/{accountId}/standard/{standardReference}")]
+        Task<EmployerRequest> GetEmployerRequest([Path] long accountId, [Path] string standardReference);
+
         [Get("/employerrequests/account/{accountId}")]
         Task<List<EmployerRequest>> GetEmployerRequests([Path] long accountId);
 

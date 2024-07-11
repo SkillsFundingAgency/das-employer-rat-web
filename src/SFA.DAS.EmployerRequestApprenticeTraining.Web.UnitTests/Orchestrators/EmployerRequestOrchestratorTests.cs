@@ -135,6 +135,60 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         }
 
         [Test]
+        public async Task HasExistingEmployerRequest_ShouldReturnTrue_WhenEmployerRequestExists()
+        {
+            // Arrange
+            var accountId = 123;
+            var standardId = "ST0123";
+            var standard = new Standard { IfateReferenceNumber = "ST0123" };
+            var employerRequest = new EmployerRequest { AccountId = accountId, StandardReference = standard.IfateReferenceNumber };
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync(standard);
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetEmployerRequestQuery>(), default)).ReturnsAsync(employerRequest);
+
+            // Act
+            var result = await _sut.HasExistingEmployerRequest(accountId, standardId);
+
+            // Assert
+            result.Should().BeTrue();
+        }
+
+        [Test]
+        public async Task HasExistingEmployerRequest_ShouldReturnFalse_WhenEmployerRequestDoesNotExist()
+        {
+            // Arrange
+            var accountId = 123;
+            var standardId = "ST0123";
+            var standard = new Standard { IfateReferenceNumber = "ST0123" };
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync(standard);
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetEmployerRequestQuery>(), default)).ReturnsAsync((EmployerRequest)null);
+
+            // Act
+            var result = await _sut.HasExistingEmployerRequest(accountId, standardId);
+
+            // Assert
+            result.Should().BeFalse();
+        }
+
+        [Test]
+        public void HasExistingEmployerRequest_ShouldThrowArgumentException_WhenStandardDoesNotExist()
+        {
+            // Arrange
+            var accountId = 123;
+            var standardId = "ST0123";
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync((Standard)null);
+
+            // Act
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.HasExistingEmployerRequest(accountId, standardId));
+
+            // Assert
+            ex.Message.Should().Be($"The standard {standardId} was not found");
+        }
+
+
+        [Test]
         public async Task GetViewEmployerRequestsViewModel_ShouldReturnViewModel_WhenRequestsExist()
         {
             // Arrange

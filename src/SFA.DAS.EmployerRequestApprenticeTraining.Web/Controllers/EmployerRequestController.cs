@@ -20,6 +20,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
 
         #region Routes
         public const string OverviewEmployerRequestRouteGet = nameof(OverviewEmployerRequestRouteGet);
+        public const string ExistingEmployerRequestRouteGet = nameof(ExistingEmployerRequestRouteGet);
         public const string StartEmployerRequestRouteGet = nameof(StartEmployerRequestRouteGet);
         public const string CancelEmployerRequestRouteGet = nameof(CancelEmployerRequestRouteGet);
         public const string EnterApprenticesRouteGet = nameof(EnterApprenticesRouteGet);
@@ -46,6 +47,20 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [Route("overview", Name = OverviewEmployerRequestRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
         public async Task<IActionResult> Overview(SubmitEmployerRequestParameters parameters)
+        {
+            if (await _orchestrator.HasExistingEmployerRequest(parameters.AccountId, parameters.StandardId))
+            {
+                return RedirectToRoute(ExistingEmployerRequestRouteGet, new { parameters.HashedAccountId, parameters.RequestType, parameters.StandardId, parameters.Location });
+            }
+
+            var viewModel = await _orchestrator.GetOverviewEmployerRequestViewModel(parameters);
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        [Route("existing", Name = ExistingEmployerRequestRouteGet)]
+        [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        public async Task<IActionResult> Existing(SubmitEmployerRequestParameters parameters)
         {
             var viewModel = await _orchestrator.GetOverviewEmployerRequestViewModel(parameters);
             return View(viewModel);
@@ -239,6 +254,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
         public async Task<ActionResult> CheckYourAnswers(CheckYourAnswersEmployerRequestViewModel viewModel)
         {
+            if (await _orchestrator.HasExistingEmployerRequest(viewModel.AccountId, viewModel.StandardId))
+            {
+                return RedirectToRoute(ExistingEmployerRequestRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+            }
+
             if (!await _orchestrator.ValidateCheckYourAnswersEmployerRequestViewModel(viewModel, ModelState))
             {
                 return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
