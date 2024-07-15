@@ -16,9 +16,9 @@
    asp-route-location="@Model.Location" 
    class="govuk-back-link">Back</a>
 <main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
-    <partial name="_ValidationSummary" />
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            <partial name="_ValidationSummary" />
             <h1 class="govuk-heading-xl">@ViewData["Title"]</h1>
             <p class="govuk-text">
                 We’ll share the following details with all training providers. If a training provider can offer you training, we’ll send you their contact details.
@@ -147,7 +147,7 @@
                     </dd>
                 </div>
             </dl>
-            <p class="govuk-body">We will not share your contact details with training providers.</p>
+            <p class="govuk-text">We will not share your contact details with training providers.</p>
 
             <form asp-route="@EmployerRequestController.CheckYourAnswersRoutePost" method="post">
                 @Html.HiddenFor(model => model.HashedAccountId)

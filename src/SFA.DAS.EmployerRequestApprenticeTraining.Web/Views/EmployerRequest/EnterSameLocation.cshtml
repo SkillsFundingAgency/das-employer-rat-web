@@ -17,9 +17,9 @@
    class="govuk-back-link">Back</a>
 
 <main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
-    <partial name="_ValidationSummary" />
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            <partial name="_ValidationSummary" />
             <form asp-route="@EmployerRequestController.EnterSameLocationRoutePost" method="post">
                 @Html.HiddenFor(model => model.HashedAccountId)
                 @Html.HiddenFor(model => model.StandardId)

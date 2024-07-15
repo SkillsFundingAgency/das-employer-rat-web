@@ -16,9 +16,9 @@
    class="govuk-back-link">Back</a>
 
 <main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
-    <partial name="_ValidationSummary" />
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            <partial name="_ValidationSummary" />
             <h1 class="govuk-label-wrapper">
                 <label class="govuk-label govuk-label--l" for="MultipleLocations">
                     @ViewData["Title"]
@@ -45,8 +45,8 @@
                         {
                             <li class="govuk-grid-column-one-half">
                                 <div class="govuk-checkboxes__item  govuk-checkboxes--small">
-                                    <input class="govuk-checkboxes__input" id="MultipleLocations" name="MultipleLocations" type="checkbox" value="@location.Id" asp-for="@location.IsSelected">
-                                    <label class="govuk-label govuk-checkboxes__label" for="SubRegions" asp-for="@location.SubregionName">
+                                    <input class="govuk-checkboxes__input" id="@location.SubregionName" name="MultipleLocations" type="checkbox" value="@location.Id" asp-for="@location.IsSelected">
+                                    <label class="govuk-label govuk-checkboxes__label" for="@location.SubregionName">
                                         @location.SubregionName
                                     </label>
                                 </div>

@@ -165,6 +165,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                     else if (newSameLocation == "Yes")
                     {
                         employerRequest.Regions = null;
+                        employerRequest.SingleLocation = viewModel.Location;
                     }
 
                     viewModel.BackToCheckAnswers = false;
