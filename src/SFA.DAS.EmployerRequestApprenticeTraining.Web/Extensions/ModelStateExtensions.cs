@@ -7,19 +7,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
     [ExcludeFromCodeCoverage]
     public static class ModelStateExtensions
     {
-        public static T GetAttemptedValueWhenInvalid<T>(this ModelStateDictionary modelState, string key, T defaultValue)
+        public static T GetAttemptedValueWhenInvalid<T>(this ModelStateDictionary modelState, string key, T defaultValue, T validValue)
         {
-            if (modelState.IsValid)
+            if (modelState.IsValid || !modelState.TryGetValue(key, out ModelStateEntry entry))
             {
-                return defaultValue;
+                return validValue;
             }
 
-            if (!modelState.TryGetValue(key, out ModelStateEntry entry))
-            {
-                return defaultValue;
-            }
-
-            if(entry.AttemptedValue ==  null)
+            if(entry.AttemptedValue == null)
             {
                 return defaultValue;
             }
@@ -28,7 +23,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
             {
                 return (T)Convert.ChangeType(entry.AttemptedValue, typeof(T));
             }
-            catch (InvalidCastException)
+            catch
             {
                 return defaultValue;
             }

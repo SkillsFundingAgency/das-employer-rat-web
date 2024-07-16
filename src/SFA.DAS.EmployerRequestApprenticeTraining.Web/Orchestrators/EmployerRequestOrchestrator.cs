@@ -183,9 +183,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 RequestType = parameters.RequestType,
                 Location = parameters.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
-                // this is a special case where the attempted value will not automatically populate the
-                // input element as the input element is being replaced with an autocomplete using javascript
-                SingleLocation = modelState.GetAttemptedValueWhenInvalid(nameof(SessionEmployerRequest.SingleLocation), SessionEmployerRequest.SingleLocation),
+                // this is a special case where the attempted value will not automatically populate the input element as the input element
+                // is being replaced with an autocomplete using javascript
+                SingleLocation = modelState.GetAttemptedValueWhenInvalid(nameof(EnterSingleLocationEmployerRequestViewModel.SingleLocation), string.Empty, SessionEmployerRequest.SingleLocation),
                 SameLocation = SessionEmployerRequest.SameLocation
             };
         }
@@ -226,8 +226,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 RequestType = parameters.RequestType,
                 Location = parameters.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
-                MultipleLocations = SessionEmployerRequest.Regions?.Select(r => r.Id.ToString()).ToArray() ?? []
-        };
+                // this is a special case where the attempted value will not automatically populate the input elements as the input elements are
+                // radio buttons which are dynamically created from a list
+                MultipleLocations = modelState.GetAttemptedValueWhenInvalid(nameof(EnterMultipleLocationsEmployerRequestViewModel.MultipleLocations), [], SessionEmployerRequest.Regions?.Select(r => r.Id.ToString()).ToArray() ?? [])
+            };
         }
 
         public async Task<bool> ValidateEnterMultipleLocationsEmployerRequestViewModel(EnterMultipleLocationsEmployerRequestViewModel viewModel, ModelStateDictionary modelState)
