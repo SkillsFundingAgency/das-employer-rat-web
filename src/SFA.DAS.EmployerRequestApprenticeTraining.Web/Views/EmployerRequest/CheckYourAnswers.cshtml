@@ -1,0 +1,180 @@
+﻿@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
+@using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
+@using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
+@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.CheckYourAnswersEmployerRequestViewModel
+
+@{
+    ViewData["Title"] = "Check your answers";
+    ViewBag.GaData.Vpv = "/accounts/employerrequests/checkyouranswers";
+}
+<a asp-route="@EmployerRequestController.EnterTrainingOptionsRouteGet"
+   asp-route-hashedAccountId="@Model.HashedAccountId"
+   asp-route-requestType="@Model.RequestType"
+   asp-route-standardId="@Model.StandardId"
+   asp-route-location="@Model.Location" 
+   class="govuk-back-link">Back</a>
+<main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <partial name="_ValidationSummary" />
+            <h1 class="govuk-heading-xl">@ViewData["Title"]</h1>
+            <p class="govuk-text">
+                We’ll share the following details with all training providers. If a training provider can offer you training, we’ll send you their contact details.
+            </p>
+            <h2 class="govuk-heading-m">
+                Request for @Model.StandardTitle (level @Model.StandardLevel)
+            </h2>
+            <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key" das-highlight-error-for="NumberOfApprentices" error-class="govuk-form-group--error">
+                        How many apprentices
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.NumberOfApprentices
+                        <p das-validation-for="NumberOfApprentices" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error: </span>
+                        </p>
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" id="how-many-apprentices-change" asp-route="@EmployerRequestController.EnterApprenticesRouteGet"
+                           asp-route-hashedAccountId="@Model.HashedAccountId"
+                           asp-route-requestType="@Model.RequestType"
+                           asp-route-standardId="@Model.StandardId"
+                           asp-route-location="@Model.Location"
+                           asp-route-backToCheckAnswers="true">
+                           Change<span class="govuk-visually-hidden"> how many apprentices</span>
+                        </a>
+                    </dd>
+                </div>
+                @if(int.TryParse(Model.NumberOfApprentices, out int number) && number > 1)
+                {
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key" das-highlight-error-for="SameLocation" error-class="govuk-form-group--error">
+                        One apprenticeship location
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.SameLocation
+                        <p das-validation-for="SameLocation" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error: </span>
+                        </p>
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" id="same-location-change" asp-route="@EmployerRequestController.EnterSameLocationRouteGet"
+                           asp-route-hashedAccountId="@Model.HashedAccountId"
+                           asp-route-requestType="@Model.RequestType"
+                           asp-route-standardId="@Model.StandardId"
+                           asp-route-location="@Model.Location"
+                           asp-route-backToCheckAnswers="true">
+                            Change<span class="govuk-visually-hidden"> one apprenticeship location</span>
+                        </a>
+                    </dd>
+                </div>
+                }
+                <div class="govuk-summary-list__row">
+                    @if (string.IsNullOrEmpty(Model.SameLocation) || Model.SameLocation == "Yes")
+                    {
+                        <dt class="govuk-summary-list__key" das-highlight-error-for="SingleLocation" error-class="govuk-form-group--error">
+                            Apprenticeship locations
+                        </dt>
+                    }
+                    else
+                    {
+                        <dt class="govuk-summary-list__key" das-highlight-error-for="MultipleLocations" error-class="govuk-form-group--error">
+                            Apprenticeship locations
+                        </dt>
+                    }
+                    <dd class="govuk-summary-list__value">
+                        <partial name="_Locations" />
+                        @if (string.IsNullOrEmpty(Model.SameLocation) || Model.SameLocation == "Yes")
+                        {
+                            <p das-validation-for="SingleLocation" class="govuk-error-message">
+                                <span class="govuk-visually-hidden">Error: </span>
+                            </p>
+                        }
+                        else
+                        {
+                            <p das-validation-for="MultipleLocations" class="govuk-error-message">
+                                <span class="govuk-visually-hidden">Error: </span>
+                            </p>
+                        }
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        @if (string.IsNullOrEmpty(Model.SameLocation) || Model.SameLocation == "Yes")
+                        {
+                            <a class="govuk-link" id="how-many-apprentices-change" asp-route="@EmployerRequestController.EnterSingleLocationRouteGet"
+                            asp-route-hashedAccountId="@Model.HashedAccountId"
+                            asp-route-requestType="@Model.RequestType"
+                            asp-route-standardId="@Model.StandardId"
+                            asp-route-location="@Model.Location"
+                            asp-route-backToCheckAnswers="true">
+                                Change<span class="govuk-visually-hidden"> apprenticeship locations</span>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="govuk-link" id="how-many-apprentices-change" asp-route="@EmployerRequestController.EnterMultipleLocationsRouteGet"
+                               asp-route-hashedAccountId="@Model.HashedAccountId"
+                               asp-route-requestType="@Model.RequestType"
+                               asp-route-standardId="@Model.StandardId"
+                               asp-route-location="@Model.Location"
+                               asp-route-backToCheckAnswers="true">
+                                Change<span class="govuk-visually-hidden"> apprenticeship locations</span>
+                            </a>
+                        }
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key" das-highlight-error-for="AtApprenticesWorkplace" error-class="govuk-form-group--error">
+                        Training options
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <partial name="_TrainingOptions" />
+                        <p das-validation-for="AtApprenticesWorkplace" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error: </span>
+                        </p>
+                    </dd>
+                    <dd class="govuk-summary-list__actions">
+                        <a class="govuk-link" id="how-many-apprentices-change" asp-route="@EmployerRequestController.EnterTrainingOptionsRouteGet"
+                           asp-route-hashedAccountId="@Model.HashedAccountId"
+                           asp-route-requestType="@Model.RequestType"
+                           asp-route-standardId="@Model.StandardId"
+                           asp-route-location="@Model.Location"
+                           asp-route-backToCheckAnswers="true">
+                            Change<span class="govuk-visually-hidden"> training options</span>
+                        </a>
+                    </dd>
+                </div>
+            </dl>
+            <p class="govuk-text">We will not share your contact details with training providers.</p>
+
+            <form asp-route="@EmployerRequestController.CheckYourAnswersRoutePost" method="post">
+                @Html.HiddenFor(model => model.HashedAccountId)
+                @Html.HiddenFor(model => model.StandardId)
+                @Html.HiddenFor(model => model.RequestType)
+                @Html.HiddenFor(model => model.Location)
+                @Html.HiddenFor(model => model.NumberOfApprentices)
+                @Html.HiddenFor(model => model.SameLocation)
+                @Html.HiddenFor(model => model.SingleLocation)
+                @Html.HiddenForArray(model => model.MultipleLocations)
+                @Html.HiddenFor(model => model.AtApprenticesWorkplace)
+                @Html.HiddenFor(model => model.DayRelease)
+                @Html.HiddenFor(model => model.BlockRelease)
+
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button">
+                        Continue
+                    </button>
+                    <a class="govuk-link" id="cancel" asp-route="@EmployerRequestController.CancelEmployerRequestRouteGet" 
+                        asp-route-hashedAccountId="@Model.HashedAccountId"
+                        asp-route-requestType="@Model.RequestType"
+                        asp-route-standardId="@Model.StandardId"
+                        asp-route-location="@Model.Location">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>

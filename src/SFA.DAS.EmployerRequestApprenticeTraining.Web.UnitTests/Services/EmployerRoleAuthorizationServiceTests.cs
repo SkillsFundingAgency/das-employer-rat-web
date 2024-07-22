@@ -55,7 +55,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             var claimsPrinciple = GetClaims("userId", "email", employerUserAccount);
 
             var httpContext = new DefaultHttpContext(new FeatureCollection());
-            httpContext.Request.RouteValues.Add(RouteValueKeys.EncodedAccountId, employerUserAccount.AccountId.ToUpper());
+            httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, employerUserAccount.AccountId.ToUpper());
             httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
             // Act
@@ -91,7 +91,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             var claimsPrinciple = GetClaims(userId, email, employerUserAccount);
 
             var httpContext = new DefaultHttpContext(new FeatureCollection());
-            httpContext.Request.RouteValues.Add(RouteValueKeys.EncodedAccountId, accountId.ToUpper());
+            httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId.ToUpper());
             httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
             // Act
@@ -131,7 +131,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             var claimsPrinciple = GetClaims(userId, email, employerUserAccount);
 
             var httpContext = new DefaultHttpContext(new FeatureCollection());
-            httpContext.Request.RouteValues.Add(RouteValueKeys.EncodedAccountId, accountId.ToUpper());
+            httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId.ToUpper());
             httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
             // Act
@@ -184,7 +184,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             });
 
             var httpContext = new DefaultHttpContext(new FeatureCollection());
-            httpContext.Request.RouteValues.Add(RouteValueKeys.EncodedAccountId, employerUserAccount.AccountId);
+            httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, employerUserAccount.AccountId);
             httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
             //Act
@@ -215,7 +215,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             });
 
             var httpContext = new DefaultHttpContext(new FeatureCollection());
-            httpContext.Request.RouteValues.Add(RouteValueKeys.EncodedAccountId, accountId.ToUpper());
+            httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId.ToUpper());
             httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
             //Act
@@ -246,7 +246,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             });
 
             var httpContext = new DefaultHttpContext(new FeatureCollection());
-            httpContext.Request.RouteValues.Add(RouteValueKeys.EncodedAccountId, accountId.ToUpper());
+            httpContext.Request.RouteValues.Add(RouteValueKeys.HashedAccountId, accountId.ToUpper());
             httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
             //Act

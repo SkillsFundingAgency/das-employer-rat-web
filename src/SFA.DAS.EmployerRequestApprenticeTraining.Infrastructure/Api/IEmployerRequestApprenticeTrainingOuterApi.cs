@@ -10,17 +10,35 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
 {
     public interface IEmployerRequestApprenticeTrainingOuterApi
     {
-        [Get("/employerrequest/{employerRequestId}")]
+        [Get("/employerrequests/{employerRequestId}")]
         Task<EmployerRequest> GetEmployerRequest([Path] Guid employerRequestId);
 
-        [Get("/employerrequest/account/{accountId}")]
+        [Get("/employerrequests/account/{accountId}/standard/{standardReference}")]
+        Task<EmployerRequest> GetEmployerRequest([Path] long accountId, [Path] string standardReference);
+
+        [Get("/employerrequests/account/{accountId}")]
         Task<List<EmployerRequest>> GetEmployerRequests([Path] long accountId);
 
-        [Post("/employerrequest")]
-        Task<Guid> CreateEmployerRequest([Body] PostEmployerRequest request);
+        [Post("/employerrequests")]
+        Task<Guid> SubmitEmployerRequest([Body] SubmitEmployerRequestRequest request);
+
+        [Get("/employerrequests/{employerRequestId}/submit-confirmation")]
+        Task<SubmitEmployerRequestConfirmation> GetSubmitEmployerRequestConfirmation([Path] Guid employerRequestId);
 
         [Get("/accountusers/{userId}/accounts")]
-        Task<UserAccountsResponse> GetUserAccounts([Path] string userId, [Query] string email);
+        Task<UserAccountsDetails> GetUserAccounts([Path] string userId, [Query] string email);
+
+        [Get("/locations")]
+        Task<List<LocationSearchResult>> GetLocations([Query] string searchTerm, [Query] bool exactMatch);
+
+        [Get("/standards/{standardId}")]
+        Task<Standard> GetStandard([Path] string standardId);
+
+        [Get("/regions")]
+        Task<List<Region>> GetRegions();
+
+        [Get("/regions/closest")]
+        Task<Region> GetClosestRegion([Query] string locationName);
 
         [Get("/ping")]
         Task Ping();

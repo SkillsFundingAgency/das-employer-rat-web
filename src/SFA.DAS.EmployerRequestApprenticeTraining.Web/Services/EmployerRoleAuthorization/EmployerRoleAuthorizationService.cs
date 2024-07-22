@@ -30,12 +30,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAut
 
         public async Task<bool> IsEmployerAuthorized(ClaimsPrincipal user, UserRole minimumAllowedRole)
         {
-            if (!_httpContextAccessor.HttpContext.Request.RouteValues.ContainsKey(RouteValueKeys.EncodedAccountId))
+            if (!_httpContextAccessor.HttpContext.Request.RouteValues.ContainsKey(RouteValueKeys.HashedAccountId))
             {
                 return false;
             }
 
-            var accountIdFromUrl = _httpContextAccessor.HttpContext.Request.RouteValues[RouteValueKeys.EncodedAccountId].ToString().ToUpper();
+            var accountIdFromUrl = _httpContextAccessor.HttpContext.Request.RouteValues[RouteValueKeys.HashedAccountId].ToString().ToUpper();
             var associatedAccountsClaim = user.FindFirst(c => c.Type.Equals(EmployerClaims.UserAssociatedAccountsClaimsTypeIdentifier));
 
             if (associatedAccountsClaim?.Value == null)

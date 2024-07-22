@@ -1,0 +1,58 @@
+﻿@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
+@using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
+@using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
+@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.EnterSingleLocationEmployerRequestViewModel
+
+@{
+    ViewData["Title"] = "Where is the apprenticeship location?";
+    ViewBag.GaData.Vpv = "/accounts/employerrequests/entersinglelocation";
+}
+<a asp-route="@Model.BackRoute"
+   asp-route-hashedAccountId="@Model.HashedAccountId"
+   asp-route-requestType="@Model.RequestType"
+   asp-route-standardId="@Model.StandardId"
+   asp-route-location="@Model.Location"
+   class="govuk-back-link">Back</a>
+
+<main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <partial name="_ValidationSummary" />
+            <form asp-route="@EmployerRequestController.EnterSingleLocationRoutePost" method="post">
+                @Html.HiddenFor(model => model.HashedAccountId)
+                @Html.HiddenFor(model => model.StandardId)
+                @Html.HiddenFor(model => model.RequestType)
+                @Html.HiddenFor(model => model.Location)
+                @Html.HiddenFor(model => model.BackToCheckAnswers)
+
+                <div class="govuk-form-group" das-highlight-error-for="SingleLocation" error-class="govuk-form-group--error">
+                    <h1 class="govuk-label-wrapper">
+                        <label class="govuk-label govuk-label--l" for="SingleLocation">
+                            @ViewData["Title"]
+                        </label>
+                    </h1>
+                    <div id="SingleLocation-hint" class="govuk-hint">
+                        Town, city or postcode
+                    </div>
+                    <p das-validation-for="SingleLocation" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error: </span>
+                    </p>
+                    <input class="govuk-input" asp-for="SingleLocation" das-highlight-error-for="SingleLocation" error-class="govuk-input--error" type="search" title="Search" data-role="search-location" data-submit-on-selection="false" data-default-value="@Model.SingleLocation" aria-describedby="SingleLocation-hint SingleLocation-error">
+                </div>
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button">
+                        Continue
+                    </button>
+                    <a class="govuk-link" id="cancel" asp-route="@EmployerRequestController.CancelEmployerRequestRouteGet" 
+                        asp-route-hashedAccountId="@Model.HashedAccountId"
+                        asp-route-requestType="@Model.RequestType"
+                        asp-route-standardId="@Model.StandardId"
+                        asp-route-location="@Model.Location">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>

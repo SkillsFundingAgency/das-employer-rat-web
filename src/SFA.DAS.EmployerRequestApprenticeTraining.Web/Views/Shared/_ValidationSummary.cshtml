@@ -8,13 +8,10 @@
         </h2>
         <div class="govuk-error-summary__body">
             <ul class="govuk-list govuk-error-summary__list">
-                
                 @{
                     var explorer = ViewData.ModelExplorer;
                     foreach (var property in explorer.Properties)
                     {
-                        // Need to explicitly check that the type isn't string -
-                        // Because it implements IEnumerable<>.
                         var errors = (typeof(IEnumerable).IsAssignableFrom(property.ModelType) && property.ModelType != typeof(string))
                             ? GetErrorsForIEnumerable(property.Metadata)
                             : GetErrors(property.Metadata);
@@ -29,13 +26,10 @@
                         }
                     }
                 }
-
             </ul>
         </div>
     </div>
 }
-
-
 
 @functions{
 
@@ -94,7 +88,5 @@
         }
 
         return result;
-
     }
-
 }

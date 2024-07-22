@@ -29,14 +29,21 @@
             <tbody class="govuk-table__body">
             @foreach (var account in Model.GetAccounts())
             {
-                    <tr class="govuk-table__row">
-                        <td class="govuk-table__cell">@account.AccountId</td>
+                <tr class="govuk-table__row">
+                    <td class="govuk-table__cell">@account.AccountId</td>
                     <td class="govuk-table__cell">@account.Role</td>
                     <td class="govuk-table__cell">@account.EmployerName</td>
-                    <td class="govuk-table__cell"><a href="@Model.ReplaceAccountUrl(account.AccountId)">Continue as @account.EmployerName</a></td>
+                    @if (Model.HasHashedAccountIdPlaceholder())
+                    {
+                    <td class="govuk-table__cell"><a href="@Model.ReplaceHashedAccountIdPlaceholderUrl(account.AccountId)">Continue as @account.EmployerName</a></td>
+                    }
                 </tr>
             }
             </tbody>
         </table>
+        @if (!Model.HasHashedAccountIdPlaceholder())
+        {
+            <a class="govuk-button" id="continue" href="@Model.ReturnUrl">Continue</a>
+        }
     </div>
 </div>

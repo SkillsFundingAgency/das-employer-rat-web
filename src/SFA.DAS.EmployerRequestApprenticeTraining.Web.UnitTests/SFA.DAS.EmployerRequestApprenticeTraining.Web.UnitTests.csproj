@@ -9,24 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Attributes\**" />
     <Compile Remove="Extensions\**" />
     <Compile Remove="StartupExtensions\**" />
     <Compile Remove="TagHelpers\**" />
     <Compile Remove="ValidatorInteceptors\**" />
-    <Compile Remove="Validators\**" />
-    <EmbeddedResource Remove="Attributes\**" />
     <EmbeddedResource Remove="Extensions\**" />
     <EmbeddedResource Remove="StartupExtensions\**" />
     <EmbeddedResource Remove="TagHelpers\**" />
     <EmbeddedResource Remove="ValidatorInteceptors\**" />
-    <EmbeddedResource Remove="Validators\**" />
-    <None Remove="Attributes\**" />
     <None Remove="Extensions\**" />
     <None Remove="StartupExtensions\**" />
     <None Remove="TagHelpers\**" />
     <None Remove="ValidatorInteceptors\**" />
-    <None Remove="Validators\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -55,13 +49,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure\SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.csproj" />
+    <ProjectReference Include="..\SFA.DAS.EmployerRequestApprenticeTraining.TestHelper\SFA.DAS.EmployerRequestApprenticeTraining.TestHelper.csproj" />
     <ProjectReference Include="..\SFA.DAS.EmployerRequestApprenticeTraining.Web\SFA.DAS.EmployerRequestApprenticeTraining.Web.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="Models\" />
-    <Folder Include="Orchestrators\" />
   </ItemGroup>
 
 </Project>

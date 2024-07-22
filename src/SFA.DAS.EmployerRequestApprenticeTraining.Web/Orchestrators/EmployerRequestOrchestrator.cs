@@ -1,38 +1,372 @@
-﻿using MediatR;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CreateEmployerRequest;
+﻿using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Options;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetClosestRegion;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetRegions;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 {
-    public class EmployerRequestOrchestrator : IEmployerRequestOrchestrator
+    public class EmployerRequestOrchestrator : BaseOrchestrator, IEmployerRequestOrchestrator
     {
         private readonly IMediator _mediator;
+        private readonly ISessionStorageService _sessionStorage;
+        private readonly ILocationService _locationService;
+        private readonly EmployerRequestOrchestratorValidators _employerRequestOrchestratorValidators;
+        private readonly EmployerRequestApprenticeTrainingWebConfiguration _config;
 
-        public EmployerRequestOrchestrator(IMediator mediator)
+        public EmployerRequestOrchestrator(IMediator mediator, ISessionStorageService sessionStorage, 
+            ILocationService locationService, IUserService userService,
+            EmployerRequestOrchestratorValidators employerRequestOrchestratorValidators,
+            IOptions<EmployerRequestApprenticeTrainingWebConfiguration> options)
+            : base(userService)
         {
             _mediator = mediator;
+            _sessionStorage = sessionStorage;
+            _locationService = locationService;
+            _employerRequestOrchestratorValidators = employerRequestOrchestratorValidators;
+            _config = options?.Value;
         }
 
-        public async Task<GetViewEmployerRequestsViewModel> GetViewEmployerRequestsViewModel(long accountId)
+        public async Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(SubmitEmployerRequestParameters parameters)
+        {
+            var standard = await _mediator.Send(new GetStandardQuery(parameters.StandardId));
+            if (standard == null)
+            {
+                throw new ArgumentException($"The standard {parameters.StandardId} was not found");
+            }
+
+            return new OverviewEmployerRequestViewModel
+            {
+                HashedAccountId = parameters.HashedAccountId,
+                RequestType = parameters.RequestType,
+                StandardId = parameters.StandardId,
+                Location = parameters.Location,
+                StandardTitle = standard.Title,
+                StandardLevel = standard.Level,
+                StandardLarsCode = standard.LarsCode,
+                FindApprenticeshipTrainingBaseUrl = _config?.FindApprenticeshipTrainingBaseUrl
+            };
+        }
+
+        public async Task<bool> HasExistingEmployerRequest(long accountId, string standardId)
+        {
+            var standard = await _mediator.Send(new GetStandardQuery(standardId));
+            if (standard == null)
+            {
+                throw new ArgumentException($"The standard {standardId} was not found");
+            }
+
+            var employerRequest = await _mediator.Send(new GetEmployerRequestQuery { AccountId = accountId, StandardReference = standard.IfateReferenceNumber });
+            return employerRequest != null;
+        }
+
+        public async Task StartEmployerRequest(string location)
+        {
+            _sessionStorage.EmployerRequest = new EmployerRequest
+            {
+                SingleLocation = await _locationService.CheckLocationExists(location) ? location : string.Empty
+            };
+        }
+
+        public EnterApprenticesEmployerRequestViewModel GetEnterApprenticesEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        {
+            return new EnterApprenticesEmployerRequestViewModel
+            {
+                HashedAccountId = parameters.HashedAccountId,
+                StandardId = parameters.StandardId,
+                RequestType = parameters.RequestType,
+                Location = parameters.Location,
+                BackToCheckAnswers = parameters.BackToCheckAnswers,
+                NumberOfApprentices = SessionEmployerRequest.NumberOfApprentices != 0 
+                    ? SessionEmployerRequest.NumberOfApprentices.ToString() 
+                    : string.Empty
+            };
+        }
+
+        public async Task<bool> ValidateEnterApprenticesEmployerRequestViewModel(EnterApprenticesEmployerRequestViewModel viewModel, ModelStateDictionary modelState)
+        {
+            return await ValidateViewModel(_employerRequestOrchestratorValidators.EnterApprenticesEmployerRequestViewModelValidator, viewModel, modelState);
+        }
+
+        public void UpdateNumberOfApprenticesForEmployerRequest(EnterApprenticesEmployerRequestViewModel viewModel)
+        {
+            UpdateSessionEmployerRequest((employerRequest) => 
+            {
+                var newNumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
+
+                if(employerRequest.NumberOfApprentices != newNumberOfApprentices)
+                {
+                    if (employerRequest.NumberOfApprentices == 1 && newNumberOfApprentices > 1)
+                    {
+                        employerRequest.SameLocation = "Yes";
+                    }
+                    else if (employerRequest.NumberOfApprentices > 1 && newNumberOfApprentices == 1)
+                    {
+                        employerRequest.SameLocation = null;
+                        employerRequest.Regions = null;
+                    }
+
+                    viewModel.BackToCheckAnswers = false;
+                    employerRequest.NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
+                }
+            });
+        }
+
+        public EnterSameLocationEmployerRequestViewModel GetEnterSameLocationEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        {
+            return new EnterSameLocationEmployerRequestViewModel
+            {
+                HashedAccountId = parameters.HashedAccountId,
+                StandardId = parameters.StandardId,
+                RequestType = parameters.RequestType,
+                Location = parameters.Location,
+                BackToCheckAnswers = parameters.BackToCheckAnswers,
+                SameLocation = SessionEmployerRequest.SameLocation
+            };
+        }
+
+        public async Task<bool> ValidateEnterSameLocationEmployerRequestViewModel(EnterSameLocationEmployerRequestViewModel viewModel, ModelStateDictionary modelState)
+        {
+            return await ValidateViewModel(_employerRequestOrchestratorValidators.EnterSameLocationEmployerRequestViewModelValidator, viewModel, modelState);
+        }
+
+        public void UpdateSameLocationForEmployerRequest(EnterSameLocationEmployerRequestViewModel viewModel)
+        {
+            UpdateSessionEmployerRequest((employerRequest) => 
+            { 
+                var newSameLocation = viewModel.SameLocation;
+
+                if (employerRequest.SameLocation != newSameLocation)
+                {
+                    if (newSameLocation == "No")
+                    {
+                        employerRequest.SingleLocation = null;
+                    }
+                    else if (newSameLocation == "Yes")
+                    {
+                        employerRequest.Regions = null;
+                        employerRequest.SingleLocation = viewModel.Location;
+                    }
+
+                    viewModel.BackToCheckAnswers = false;
+                    employerRequest.SameLocation = viewModel.SameLocation;
+                }
+            });
+        }
+
+        public EnterSingleLocationEmployerRequestViewModel GetEnterSingleLocationEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        {
+            return new EnterSingleLocationEmployerRequestViewModel
+            {
+                HashedAccountId = parameters.HashedAccountId,
+                StandardId = parameters.StandardId,
+                RequestType = parameters.RequestType,
+                Location = parameters.Location,
+                BackToCheckAnswers = parameters.BackToCheckAnswers,
+                // this is a special case where the attempted value will not automatically populate the input element as the input element
+                // is being replaced with an autocomplete using javascript
+                SingleLocation = modelState.GetAttemptedValueWhenInvalid(nameof(EnterSingleLocationEmployerRequestViewModel.SingleLocation), string.Empty, SessionEmployerRequest.SingleLocation),
+                SameLocation = SessionEmployerRequest.SameLocation
+            };
+        }
+
+        public async Task<bool> ValidateEnterSingleLocationEmployerRequestViewModel(EnterSingleLocationEmployerRequestViewModel viewModel, ModelStateDictionary modelState)
+        {
+            return await ValidateViewModel(_employerRequestOrchestratorValidators.EnterSingleLocationEmployerRequestViewModelValidator, viewModel, modelState);
+        }
+
+        public void UpdateSingleLocationForEmployerRequest(EnterSingleLocationEmployerRequestViewModel viewModel)
+        {
+            UpdateSessionEmployerRequest((employerRequest) =>
+            {
+                employerRequest.SingleLocation = viewModel.SingleLocation;
+            });
+        }
+
+        public async Task<EnterMultipleLocationsEmployerRequestViewModel> GetEnterMultipleLocationsEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        {
+            var regions = await _mediator.Send(new GetRegionsQuery());
+
+            if(!string.IsNullOrEmpty(parameters.Location) && !(SessionEmployerRequest.Regions?.Any() ?? false)) 
+            {
+                var closestRegion = await _mediator.Send(new GetClosestRegionQuery {  Location = parameters.Location });
+                if (closestRegion != null)
+                {
+                    UpdateSessionEmployerRequest((employerRequest) =>
+                    {
+                        employerRequest.Regions = new List<Region> { closestRegion };
+                    });
+                }
+            }
+
+            return new EnterMultipleLocationsEmployerRequestViewModel(regions.Select(r => (RegionViewModel)r).ToList())
+            {
+                HashedAccountId = parameters.HashedAccountId,
+                StandardId = parameters.StandardId,
+                RequestType = parameters.RequestType,
+                Location = parameters.Location,
+                BackToCheckAnswers = parameters.BackToCheckAnswers,
+                // this is a special case where the attempted value will not automatically populate the input elements as the input elements are
+                // radio buttons which are dynamically created from a list
+                MultipleLocations = modelState.GetAttemptedValueWhenInvalid(nameof(EnterMultipleLocationsEmployerRequestViewModel.MultipleLocations), [], SessionEmployerRequest.Regions?.Select(r => r.Id.ToString()).ToArray() ?? [])
+            };
+        }
+
+        public async Task<bool> ValidateEnterMultipleLocationsEmployerRequestViewModel(EnterMultipleLocationsEmployerRequestViewModel viewModel, ModelStateDictionary modelState)
+        {
+            return await ValidateViewModel(_employerRequestOrchestratorValidators.EnterMultipleLocationsEmployerRequestViewModelValidator, viewModel, modelState);
+        }
+
+        public async Task UpdateMultipleLocationsForEmployerRequest(EnterMultipleLocationsEmployerRequestViewModel viewModel)
+        {
+            var regions = await _mediator.Send(new GetRegionsQuery());
+
+            UpdateSessionEmployerRequest((employerRequest) =>
+            {
+                employerRequest.Regions = viewModel.MultipleLocations
+                    .Select(s =>
+                    {
+                        var matchingRegion = regions.FirstOrDefault(r => r.Id == int.Parse(s));
+                        return matchingRegion != null
+                            ? new Region
+                            {
+                                Id = matchingRegion.Id,
+                                SubregionName = matchingRegion.SubregionName,
+                                RegionName = matchingRegion.RegionName
+                            }
+                            : null;
+                    })
+                    .Where(r => r != null)
+                    .ToList();
+            });
+        }
+
+
+        public EnterTrainingOptionsEmployerRequestViewModel GetEnterTrainingOptionsEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        {
+            return new EnterTrainingOptionsEmployerRequestViewModel
+            {
+                HashedAccountId = parameters.HashedAccountId,
+                StandardId = parameters.StandardId,
+                RequestType = parameters.RequestType,
+                Location = parameters.Location,
+                BackToCheckAnswers = parameters.BackToCheckAnswers,
+                AtApprenticesWorkplace = SessionEmployerRequest.AtApprenticesWorkplace,
+                DayRelease = SessionEmployerRequest.DayRelease,
+                BlockRelease = SessionEmployerRequest.BlockRelease,
+                SameLocation = SessionEmployerRequest.SameLocation
+            };
+        }
+
+        public async Task<bool> ValidateEnterTrainingOptionsEmployerRequestViewModel(EnterTrainingOptionsEmployerRequestViewModel viewModel, ModelStateDictionary modelState)
+        {
+            return await ValidateViewModel(_employerRequestOrchestratorValidators.EnterTrainingOptionsEmployerRequestViewModelValidator, viewModel, modelState);
+        }
+
+        public void UpdateTrainingOptionsForEmployerRequest(EnterTrainingOptionsEmployerRequestViewModel viewModel)
+        {
+            UpdateSessionEmployerRequest((employerRequest) =>
+            {
+                employerRequest.AtApprenticesWorkplace = viewModel.AtApprenticesWorkplace;
+                employerRequest.DayRelease = viewModel.DayRelease;
+                employerRequest.BlockRelease = viewModel.BlockRelease;
+            });
+        }
+
+        public async Task<CheckYourAnswersEmployerRequestViewModel> GetCheckYourAnswersEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        {
+            var standard = await _mediator.Send(new GetStandardQuery(parameters.StandardId));
+            if (standard == null)
+            {
+                throw new ArgumentException($"The standard {parameters.StandardId} was not found");
+            }
+
+            var employerRequest = SessionEmployerRequest;
+
+            return new CheckYourAnswersEmployerRequestViewModel
+            {
+                HashedAccountId = parameters.HashedAccountId,
+                StandardId = parameters.StandardId,
+                RequestType = parameters.RequestType,
+                Location = parameters.Location,
+                StandardTitle = standard.Title,
+                StandardLevel = standard.Level,
+                NumberOfApprentices = employerRequest.NumberOfApprentices > 0 ? employerRequest.NumberOfApprentices.ToString() : string.Empty,
+                SameLocation = employerRequest.SameLocation,
+                SingleLocation = employerRequest.SingleLocation,
+                MultipleLocations = employerRequest.Regions?.Select(r => r.Id.ToString()).ToArray(),
+                AtApprenticesWorkplace = employerRequest.AtApprenticesWorkplace,
+                DayRelease = employerRequest.DayRelease,
+                BlockRelease = employerRequest.BlockRelease,
+                Regions = employerRequest.Regions
+            };
+        }
+
+        public async Task<bool> ValidateCheckYourAnswersEmployerRequestViewModel(CheckYourAnswersEmployerRequestViewModel viewModel, ModelStateDictionary modelState)
+        {
+            return await ValidateViewModel(_employerRequestOrchestratorValidators.CheckYourAnswersEmployerRequestViewModelValidator, viewModel, modelState);
+        }
+
+        public async Task<Guid> SubmitEmployerRequest(CheckYourAnswersEmployerRequestViewModel viewModel)
+        {
+            var standard = await _mediator.Send(new GetStandardQuery(viewModel.StandardId));
+
+            var employerRequestId = await _mediator.Send(new SubmitEmployerRequestCommand
+            {
+                OriginalLocation = viewModel.Location,
+                RequestType = viewModel.RequestType,
+                AccountId = viewModel.AccountId,
+                StandardReference = standard.IfateReferenceNumber,
+                NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices),
+                SameLocation = viewModel.SameLocation,
+                SingleLocation = viewModel.SingleLocation,
+                MultipleLocations = viewModel.MultipleLocations,
+                AtApprenticesWorkplace = viewModel.AtApprenticesWorkplace,
+                DayRelease = viewModel.DayRelease,
+                BlockRelease = viewModel.BlockRelease,
+                RequestedBy = GetCurrentUserId,
+                ModifiedBy = GetCurrentUserId
+            });
+
+            ClearSessionEmployerRequest();
+
+            return employerRequestId;
+        }
+
+        public async Task<ViewEmployerRequestsViewModel> GetViewEmployerRequestsViewModel(long accountId)
         {
             var result = await _mediator.Send(new GetEmployerRequestsQuery { AccountId = accountId });
 
-            return new GetViewEmployerRequestsViewModel()
+            return new ViewEmployerRequestsViewModel()
             {
                 EmployerRequests = result
             };
         }
 
-        public async Task<GetEmployerRequestViewModel> GetEmployerRequestViewModel(Guid employerRequestId)
+        public async Task<ViewEmployerRequestViewModel> GetViewEmployerRequestViewModel(Guid employerRequestId)
         {
             var result = await _mediator.Send(new GetEmployerRequestQuery { EmployerRequestId = employerRequestId });
-            return new GetEmployerRequestViewModel
+            return new ViewEmployerRequestViewModel
             {
                 EmployerRequestId = result.Id,
                 AccountId = result.AccountId,
@@ -40,23 +374,51 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             };
         }
 
-        public CreateEmployerRequestViewModel GetCreateEmployerRequestViewModel(string encodedAccountId)
+        private EmployerRequest SessionEmployerRequest
         {
-            return new CreateEmployerRequestViewModel
-            {
-                EncodedAccountId = encodedAccountId,
-                RequestTypes = Enum.GetValues(typeof(RequestType)).Cast<RequestType>().ToList(),
-                RequestType = RequestType.Shortlist
-            };
+            get => _sessionStorage.EmployerRequest ?? new EmployerRequest();
         }
 
-        public async Task<Guid> CreateEmployerRequest(CreateEmployerRequestPostRequest postRequest)
+        private void UpdateSessionEmployerRequest(Action<EmployerRequest> action)
         {
-            var employerRequestId = await _mediator.Send(new CreateEmployerRequestCommand(
-                postRequest.EncodedAccountId, postRequest.RequestType
-            ));
+            var employerRequest = SessionEmployerRequest;
+            action(employerRequest);
+            _sessionStorage.EmployerRequest = employerRequest;
+        }
 
-            return employerRequestId;
+        private void ClearSessionEmployerRequest()
+        {
+            _sessionStorage.EmployerRequest = null;
+        }
+
+        private async Task<bool> ValidateViewModel<T>(IValidator<T> validator, T viewModel, ModelStateDictionary modelState)
+        {
+            await validator.ValidateAndAddModelErrorsAsync(viewModel, modelState);
+            return modelState.IsValid;
+        }
+
+        public async Task<SubmitConfirmationEmployerRequestViewModel> GetSubmitConfirmationEmployerRequestViewModel(Guid employerRequestId)
+        {
+            var result = await _mediator.Send(new GetSubmitEmployerRequestConfirmationQuery { EmployerRequestId = employerRequestId });
+            if(result == null)
+            {
+                throw new ArgumentException($"The employer request {employerRequestId} was not found");
+            }
+
+            return new SubmitConfirmationEmployerRequestViewModel
+            {
+                StandardTitle = result.StandardTitle,
+                StandardLevel = result.StandardLevel,
+                NumberOfApprentices = result.NumberOfApprentices.ToString(),
+                SameLocation = result.SameLocation,
+                SingleLocation = result.SingleLocation,
+                AtApprenticesWorkplace = result.AtApprenticesWorkplace,
+                DayRelease = result.DayRelease,
+                BlockRelease = result.BlockRelease,
+                RequestedByEmail = result.RequestedByEmail,
+                FindApprenticeshipTrainingBaseUrl = _config?.FindApprenticeshipTrainingBaseUrl,
+                Regions = result.Regions
+            };
         }
     }
 }

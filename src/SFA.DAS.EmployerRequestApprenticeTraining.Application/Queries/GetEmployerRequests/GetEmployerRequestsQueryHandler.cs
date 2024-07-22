@@ -1,23 +1,26 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
-using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests
 {
     public class GetEmployerRequestsQueryHandler : IRequestHandler<GetEmployerRequestsQuery, List<EmployerRequest>>
     {
         private readonly IEmployerRequestApprenticeTrainingOuterApi _outerApi;
+        private readonly IValidator<GetEmployerRequestsQuery> _validator;
 
-        public GetEmployerRequestsQueryHandler(IEmployerRequestApprenticeTrainingOuterApi outerApi)
+        public GetEmployerRequestsQueryHandler(IEmployerRequestApprenticeTrainingOuterApi outerApi, IValidator<GetEmployerRequestsQuery> validator)
         {
             _outerApi = outerApi;
+            _validator = validator;
         }
 
         public async Task<List<EmployerRequest>> Handle(GetEmployerRequestsQuery request, CancellationToken cancellationToken)
         {
-            var employerRequest = await _outerApi.GetEmployerRequests(request.AccountId);
-
-            return employerRequest;
+            await _validator.ValidateAsync(request, cancellationToken);
+            var employerRequests = await _outerApi.GetEmployerRequests(request.AccountId);
+            return employerRequests;
         }
     }
 }

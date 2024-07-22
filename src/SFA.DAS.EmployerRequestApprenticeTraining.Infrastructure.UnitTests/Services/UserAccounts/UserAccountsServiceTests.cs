@@ -19,11 +19,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         public async Task Given_GetUserAccountsCalled_Then_ResponseReturnedForUser(
             string userId,
             string email,
-            [Frozen] Mock<IEmployerRequestApprenticeTrainingOuterApi> outerApi,
+            [Frozen] Mock<IEmployerRequestApprenticeTrainingOuterApi> outerApiMock,
             UserAccountsService userAccountsService)
         {
             // Arrange
-            var userAccountsResponse = new UserAccountsResponse
+            var userAccountsResponse = new UserAccountsDetails
             {
                 EmployerUserId = userId,
                 FirstName = "First",
@@ -40,7 +40,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
                 }
             };
 
-            outerApi.Setup(p => p.GetUserAccounts(userId, email))
+            outerApiMock.Setup(p => p.GetUserAccounts(userId, email))
                 .ReturnsAsync(userAccountsResponse);
 
             // Act
@@ -54,13 +54,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         public async Task Given_GetUserAccountsCalled_AndExceptionThrown_Then_NoResponseReturnedForUser(
             string userId,
             string email,
-            [Frozen] Mock<IEmployerRequestApprenticeTrainingOuterApi> outerApi,
+            [Frozen] Mock<IEmployerRequestApprenticeTrainingOuterApi> outerApiMock,
             UserAccountsService userAccountsService)
         {
             // Arrange
-            var userAccountsResponse = new UserAccountsResponse();
+            var userAccountsResponse = new UserAccountsDetails();
 
-            outerApi.Setup(p => p.GetUserAccounts(userId, email))
+            outerApiMock.Setup(p => p.GetUserAccounts(userId, email))
                 .Throws(new ApiException(new HttpRequestMessage(), new HttpResponseMessage(), string.Empty));
 
             // Act

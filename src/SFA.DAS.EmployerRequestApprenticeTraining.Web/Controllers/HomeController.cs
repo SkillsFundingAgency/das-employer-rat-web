@@ -5,9 +5,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home;
+using SFA.DAS.GovUK.Auth.Configuration;
 using SFA.DAS.GovUK.Auth.Models;
 using SFA.DAS.GovUK.Auth.Services;
 using System.Collections.Generic;
@@ -20,15 +23,22 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
     public class HomeController : Controller
     {
         private readonly IConfiguration _config;
-        private readonly IStubAuthenticationService _stubAuthenticationService;
         private readonly IHttpContextAccessor _contextAccessor;
+        private readonly ILogger<HomeController> _logger;
+        private readonly IStubAuthenticationService _stubAuthenticationService;
 
-        public HomeController(IConfiguration config, 
-            IStubAuthenticationService stubAuthenticationService, IHttpContextAccessor contextAccessor)
+        #region Routes
+        public const string OverviewStubRouteGet = nameof(OverviewStubRouteGet);
+        public const string ErrorRouteGet = nameof(ErrorRouteGet);
+        #endregion Routes
+
+        public HomeController(IConfiguration config, IHttpContextAccessor contextAccessor,
+            ILogger<HomeController> logger, IStubAuthenticationService stubAuthenticationService)
         {
             _config = config;
-            _stubAuthenticationService = stubAuthenticationService;
             _contextAccessor = contextAccessor;
+            _logger = logger;
+            _stubAuthenticationService = stubAuthenticationService;
         }
 
         public IActionResult Index()
@@ -42,27 +52,18 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
             return View();
         }
 
-        [HttpGet()]
-        public IActionResult PortalStub()
-        {
-            if (bool.TryParse(_config["StubAuth"], out bool stubAuth) && stubAuth)
-            {
-                return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { encodedAccountId = "encodedAccountId" });
-            }
-
-            return RedirectToAction("ViewEmployerRequests", "EmployerRequest", new { encodedAccountId = "BB4KGX" });
-        }
-
+        [Route("error", Name = ErrorRouteGet)]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Error(string errorMessage)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            _logger.LogError(errorMessage);
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? _contextAccessor.HttpContext.TraceIdentifier, ErrorMessage = errorMessage });
         }
 
         [Route("signout", Name = "signout")]
         public new async Task<IActionResult> SignOut()
         {
-            var idToken = await HttpContext.GetTokenAsync("id_token");
+            var idToken = await _contextAccessor.HttpContext.GetTokenAsync("id_token");
 
             var authenticationProperties = new AuthenticationProperties
             {
@@ -85,9 +86,17 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [Route("signoutcleanup")]
         public void SignOutCleanup()
         {
-            Response.Cookies.Delete("SFA.DAS.EmployerRequestApprenticeTraining.Web.Auth");
+            _contextAccessor.HttpContext.Response.Cookies.Delete("SFA.DAS.EmployerRequestApprenticeTraining.Web.Auth");
         }
 #if DEBUG
+        [AllowAnonymous()]
+        [Route("Overview-Stub", Name= OverviewStubRouteGet)]
+        public IActionResult OverviewStub()
+        {
+            _contextAccessor.HttpContext.Response.Cookies.Delete(GovUkConstants.StubAuthCookieName);
+            return RedirectToRoute(EmployerRequestController.OverviewEmployerRequestRouteGet, new { hashedAccountId = SignedInStubViewModel.HashedAccountIdPlaceholder, standardId=274, requestType=RequestType.Providers });
+        }
+
         [AllowAnonymous()]
         [HttpGet]
         [Route("SignIn-Stub", Name = "SignInStub")]

@@ -1,0 +1,75 @@
+﻿@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
+@using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
+@using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
+@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.EnterSameLocationEmployerRequestViewModel
+
+@{
+    ViewData["Title"] = "Are the apprenticeships in the same location?";
+    ViewBag.GaData.Vpv = "/accounts/employerrequests/entersamelocation";
+}
+
+<a asp-route="@Model.BackRoute"
+   asp-route-hashedAccountId="@Model.HashedAccountId"
+   asp-route-requestType="@Model.RequestType"
+   asp-route-standardId="@Model.StandardId"
+   asp-route-location="@Model.Location"
+   class="govuk-back-link">Back</a>
+
+<main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <partial name="_ValidationSummary" />
+            <form asp-route="@EmployerRequestController.EnterSameLocationRoutePost" method="post">
+                @Html.HiddenFor(model => model.HashedAccountId)
+                @Html.HiddenFor(model => model.StandardId)
+                @Html.HiddenFor(model => model.RequestType)
+                @Html.HiddenFor(model => model.Location)
+                @Html.HiddenFor(model => model.BackToCheckAnswers)
+
+                <div class="govuk-form-group" das-highlight-error-for="SameLocation" error-class="govuk-form-group--error">
+                    <fieldset class="govuk-fieldset" aria-describedby="signIn-hint">
+                        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                            <h1 class="govuk-fieldset__heading">
+                                @ViewData["Title"]
+                            </h1>
+                        </legend>
+                        <div id="signIn-hint" class="govuk-hint">
+                            Select no if the apprentices are in different locations that would require multiple assessors or training providers.
+                        </div>
+                        <p das-validation-for="SameLocation" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error: </span>
+                        </p>
+                        <div class="govuk-radios" data-module="govuk-radios">
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" asp-for="SameLocation" type="radio" value="Yes" aria-describedby="SameLocation-error">
+                                <label class="govuk-label govuk-radios__label" for="SameLocation">
+                                    Yes
+                                </label>
+                            </div>
+                            <div class="govuk-radios__item">
+                                <input class="govuk-radios__input" id="SameLocation-no" asp-for="SameLocation" type="radio" value="No" aria-describedby="SameLocation-error">
+                                <label class="govuk-label govuk-radios__label" for="SameLocation-no">
+                                    No
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button" data-module="govuk-button">
+                        Continue
+                    </button>
+                    <a class="govuk-link" id="cancel" asp-route="@EmployerRequestController.CancelEmployerRequestRouteGet" 
+                        asp-route-hashedAccountId="@Model.HashedAccountId"
+                        asp-route-requestType="@Model.RequestType"
+                        asp-route-standardId="@Model.StandardId"
+                        asp-route-location="@Model.Location">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>

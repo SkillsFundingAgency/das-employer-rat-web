@@ -1,0 +1,15 @@
+﻿@using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses
+@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.CheckYourAnswersEmployerRequestViewModel
+@if (string.IsNullOrEmpty(Model.SameLocation) || Model.SameLocation == "Yes")
+{
+    @Model.SingleLocation
+}
+else if(Model.Regions != null)
+{
+    <ul class="govuk-list govuk-list--bullet">
+        @foreach (var location in Model.GetMultipleLocations())
+        {
+            <li>@location</li>
+        }
+    </ul>
+}
