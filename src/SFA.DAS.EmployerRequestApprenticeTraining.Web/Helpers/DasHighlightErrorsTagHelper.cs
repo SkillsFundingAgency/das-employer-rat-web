@@ -45,10 +45,20 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
                 tag: null,
                 htmlAttributes: null);
 
-            if (tagBuilder.InnerHtml.IsNullOrEmpty())
-                return;
+            if (!tagBuilder.InnerHtml.IsNullOrEmpty())
+            {
+                output.AddClass(CssClass, HtmlEncoder.Default);
 
-            output.AddClass(CssClass, HtmlEncoder.Default);
+                if (output.Attributes.TryGetAttribute("aria-describedby", out var existingAriaDescribedBy))
+                {
+                    var newValue = $"{existingAriaDescribedBy.Value} {Property.Name}-error";
+                    output.Attributes.SetAttribute("aria-describedby", newValue);
+                }
+                else
+                {
+                    output.Attributes.SetAttribute("aria-describedby", $"{Property.Name}-error");
+                }
+            }
         }
     }
 }
