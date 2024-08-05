@@ -28,27 +28,25 @@
                 @Html.HiddenFor(model => model.BackToCheckAnswers)
 
                 <div class="govuk-form-group" das-highlight-error-for="SameLocation" error-class="govuk-form-group--error">
-                    <fieldset class="govuk-fieldset" aria-describedby="signIn-hint">
+                    <fieldset class="govuk-fieldset" aria-describedby="SameLocation-hint">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                             <h1 class="govuk-fieldset__heading">
                                 @ViewData["Title"]
                             </h1>
                         </legend>
-                        <div id="signIn-hint" class="govuk-hint">
+                        <div id="SameLocation-hint" class="govuk-hint">
                             Select no if the apprentices are in different locations that would require multiple assessors or training providers.
                         </div>
-                        <p das-validation-for="SameLocation" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error: </span>
-                        </p>
+                        <p das-validation-for="SameLocation" class="govuk-error-message"></p>
                         <div class="govuk-radios" data-module="govuk-radios">
                             <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" asp-for="SameLocation" type="radio" value="Yes" aria-describedby="SameLocation-error">
+                                <input class="govuk-radios__input" asp-for="SameLocation" das-highlight-error-for="SameLocation" error-class="govuk-input--error" type="radio" value="Yes" aria-describedby="SameLocation-hint">
                                 <label class="govuk-label govuk-radios__label" for="SameLocation">
                                     Yes
                                 </label>
                             </div>
                             <div class="govuk-radios__item">
-                                <input class="govuk-radios__input" id="SameLocation-no" asp-for="SameLocation" type="radio" value="No" aria-describedby="SameLocation-error">
+                                <input class="govuk-radios__input" id="SameLocation-no" asp-for="SameLocation" type="radio" value="No">
                                 <label class="govuk-label govuk-radios__label" for="SameLocation-no">
                                     No
                                 </label>

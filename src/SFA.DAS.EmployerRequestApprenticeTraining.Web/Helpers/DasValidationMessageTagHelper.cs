@@ -38,12 +38,18 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
                 tag: null,
                 htmlAttributes: null);
 
-            if (tagBuilder.InnerHtml.IsNullOrEmpty())
-                return;
+            if (!tagBuilder.InnerHtml.IsNullOrEmpty())
+            {
+                output.Attributes.Add("id", $"{Property.Name}-error");
 
-            output.Attributes.Add("id", $"{Property.Name}-error");
+                var errorMessage = new TagBuilder("span");
+                errorMessage.AddCssClass("govuk-visually-hidden");
+                errorMessage.InnerHtml.Append("Error: ");
 
-            output.Content.AppendHtml(tagBuilder.InnerHtml);
+                output.Content.AppendHtml(errorMessage);
+
+                output.Content.AppendHtml(tagBuilder.InnerHtml);
+            }
         }
     }
 }

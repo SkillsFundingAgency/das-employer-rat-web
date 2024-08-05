@@ -35,10 +35,8 @@
                     <div id="SingleLocation-hint" class="govuk-hint">
                         Town, city or postcode
                     </div>
-                    <p das-validation-for="SingleLocation" class="govuk-error-message">
-                        <span class="govuk-visually-hidden">Error: </span>
-                    </p>
-                    <input class="govuk-input" asp-for="SingleLocation" das-highlight-error-for="SingleLocation" error-class="govuk-input--error" type="search" title="Search" data-role="search-location" data-submit-on-selection="false" data-default-value="@Model.SingleLocation" aria-describedby="SingleLocation-hint SingleLocation-error">
+                    <p das-validation-for="SingleLocation" class="govuk-error-message"></p>
+                    <input class="govuk-input" asp-for="SingleLocation" das-highlight-error-for="SingleLocation" error-class="govuk-input--error" type="search" title="Search" data-role="search-location" data-submit-on-selection="false" data-default-value="@Model.SingleLocation" aria-describedby="SingleLocation-hint">
                 </div>
                 <div class="govuk-button-group">
                     <button type="submit" class="govuk-button" data-module="govuk-button">

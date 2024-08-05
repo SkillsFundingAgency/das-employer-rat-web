@@ -29,7 +29,7 @@
                 @Html.HiddenFor(model => model.BackToCheckAnswers)
 
                 <div class="govuk-form-group" das-highlight-error-for="AtApprenticesWorkplace" error-class="govuk-form-group--error">
-                    <fieldset class="govuk-fieldset" aria-describedby="nationality-hint nationality-error">
+                    <fieldset class="govuk-fieldset" aria-describedby="TrainingOptions-hint">
                         <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
                             <h1 class="govuk-fieldset__heading">
                                 @ViewData["Title"]
@@ -38,12 +38,10 @@
                         <div id="TrainingOptions-hint" class="govuk-hint">
                             Select all that apply.
                         </div>
-                        <p das-validation-for="AtApprenticesWorkplace" class="govuk-error-message">
-                            <span class="govuk-visually-hidden">Error: </span>
-                        </p>
+                        <p das-validation-for="AtApprenticesWorkplace" class="govuk-error-message"></p>
                         <div class="govuk-checkboxes" data-module="govuk-checkboxes">
                             <div class="govuk-checkboxes__item">
-                                <input class="govuk-checkboxes__input" asp-for="AtApprenticesWorkplace" error-class="govuk-input--error" type="checkbox" aria-describedby="AtApprenticesWorkplace-error AtApprenticesWorkplace-hint">
+                                <input class="govuk-checkboxes__input" asp-for="AtApprenticesWorkplace" error-class="govuk-input--error" type="checkbox" aria-describedby="AtApprenticesWorkplace-hint">
                                 <label class="govuk-label govuk-checkboxes__label" for="AtApprenticesWorkplace">
                                    @TrainingOptions.AtApprenticesWorkplace
                                 </label>
@@ -52,7 +50,7 @@
                                 </div>
                             </div>
                             <div class="govuk-checkboxes__item">
-                                <input class="govuk-checkboxes__input" asp-for="DayRelease" error-class="govuk-input--error" type="checkbox" aria-describedby="AtApprenticesWorkplace-error DayRelease-hint">
+                                <input class="govuk-checkboxes__input" asp-for="DayRelease" error-class="govuk-input--error" type="checkbox" aria-describedby="DayRelease-hint">
                                 <label class="govuk-label govuk-checkboxes__label" for="DayRelease">
                                     @TrainingOptions.DayRelease
                                 </label>
@@ -61,7 +59,7 @@
                                 </div>
                             </div>
                             <div class="govuk-checkboxes__item">
-                                <input class="govuk-checkboxes__input" asp-for="BlockRelease" error-class="govuk-input--error" type="checkbox" aria-describedby="AtApprenticesWorkplace-error BlockRelease-hint">
+                                <input class="govuk-checkboxes__input" asp-for="BlockRelease" error-class="govuk-input--error" type="checkbox" aria-describedby="BlockRelease-hint">
                                 <label class="govuk-label govuk-checkboxes__label" for="BlockRelease">
                                     @TrainingOptions.BlockRelease
                                 </label>
