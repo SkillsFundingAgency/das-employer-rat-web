@@ -21,6 +21,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators
                     .WithMessage("Enter the number of apprentices")
                 .Must(BeValidNumber)
                     .WithMessage("Enter a number")
+                .Must(BeWholeNumber)
+                    .WithMessage("Enter a whole number")
                 .Must(BeWithinValidRange)
                     .WithMessage("Enter a number between 1 and 9999");
         }
@@ -28,6 +30,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators
         private static bool BeValidNumber(string numberOfApprentices)
         {
             return int.TryParse(numberOfApprentices, out _);
+        }
+
+        private static bool BeWholeNumber(string numberOfApprentices)
+        {
+            return string.IsNullOrEmpty(numberOfApprentices) || !numberOfApprentices.Contains('.');
         }
 
         private static bool BeWithinValidRange(string numberOfApprentices)
