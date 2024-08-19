@@ -25,7 +25,7 @@
                     @ViewData["Title"]
                 </label>
             </h1>
-            <p class="govuk-body">You have told us you have more than one apprentice in different locations.</p>
+            <p class="govuk-body">You have told us that you have more than one apprentice in different locations.</p>
             <p class="govuk-body">Select all the locations where you require apprenticeship training:</p>
             <form asp-route="@EmployerRequestController.EnterMultipleLocationsRoutePost" method="post">
                 @Html.HiddenFor(model => model.HashedAccountId)

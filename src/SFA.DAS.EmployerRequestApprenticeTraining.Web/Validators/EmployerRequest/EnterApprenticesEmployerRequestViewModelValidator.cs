@@ -14,6 +14,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators
 
     public static class EnterApprenticesEmployerRequestViewModelValidatorRules
     {
+        private const int minNumberOfApprentices = 1;
+        private const int maxNumberOfApprentices = 9999;
+        
         public static IRuleBuilderOptions<T, string> ValidateNumberOfApprentices<T>(this IRuleBuilder<T, string> ruleBuilder)
         {
             return ruleBuilder
@@ -24,25 +27,26 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators
                 .Must(BeWholeNumber)
                     .WithMessage("Enter a whole number")
                 .Must(BeWithinValidRange)
-                    .WithMessage("Enter a number between 1 and 9999");
+                    .WithMessage($"Enter a number between {minNumberOfApprentices} and {maxNumberOfApprentices}");
         }
 
         private static bool BeValidNumber(string numberOfApprentices)
         {
-            return int.TryParse(numberOfApprentices, out _);
+            return decimal.TryParse(numberOfApprentices, out _);
         }
 
         private static bool BeWholeNumber(string numberOfApprentices)
         {
-            return string.IsNullOrEmpty(numberOfApprentices) || !numberOfApprentices.Contains('.');
+            return int.TryParse(numberOfApprentices, out _);
         }
 
         private static bool BeWithinValidRange(string numberOfApprentices)
         {
             if (int.TryParse(numberOfApprentices, out int number))
             {
-                return number >= 1 && number <= 9999;
+                return number >= minNumberOfApprentices && number <= maxNumberOfApprentices;
             }
+
             return false;
         }
     }
