@@ -1,11 +1,11 @@
 ﻿using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.AcknowledgeProviderResponses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetClosestRegion;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetDashboard;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetRegions;
@@ -45,6 +45,23 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             _locationService = locationService;
             _employerRequestOrchestratorValidators = employerRequestOrchestratorValidators;
             _config = options?.Value;
+        }
+
+        public async Task<DashboardViewModel> GetDashboardViewModel(long accountId, string hashedAccountId)
+        {
+            var dashboard = await _mediator.Send(new GetDashboardQuery(accountId));
+            return new DashboardViewModel 
+            { 
+                Dashboard = dashboard,
+                HashedAccountId = hashedAccountId,
+                FindApprenticeshipTrainingCoursesUrl = $"{_config.FindApprenticeshipTrainingBaseUrl}courses",
+                EmployerAccountDashboardUrl = $"{_config.EmployerAccountsBaseUrl}accounts\\{hashedAccountId}\\teams",
+            };
+        }
+
+        public async Task AcknowledgeProviderResponses(Guid employerRequestId)
+        {
+            await _mediator.Send(new AcknowledgeProviderResponsesCommand(employerRequestId, GetCurrentUserId));
         }
 
         public async Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(SubmitEmployerRequestParameters parameters)

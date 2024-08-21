@@ -8,6 +8,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 {
     public interface IEmployerRequestOrchestrator
     {
+        Task<DashboardViewModel> GetDashboardViewModel(long accountId, string hashedAccountId);
+        Task AcknowledgeProviderResponses(Guid employerRequestId);
         Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(SubmitEmployerRequestParameters parameters);
         Task<bool> HasExistingEmployerRequest(long accountId, string standardId);
         Task StartEmployerRequest(string location);

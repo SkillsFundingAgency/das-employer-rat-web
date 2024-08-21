@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.TestHelper.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
@@ -24,6 +26,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
     public class HomeControllerTests
     {
         private Mock<IConfiguration> _configMock;
+        private Mock<IOptions<EmployerRequestApprenticeTrainingWebConfiguration>> _optionsMock;
         private Mock<IHttpContextAccessor> _contextAccessorMock;
         private Mock<ILogger<HomeController>> _loggerMock;
         private Mock<IStubAuthenticationService> _stubAuthServiceMock;
@@ -33,12 +36,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public void Setup()
         {
             _configMock = new Mock<IConfiguration>();
+            _optionsMock = new Mock<IOptions<EmployerRequestApprenticeTrainingWebConfiguration>>();
             _contextAccessorMock = new Mock<IHttpContextAccessor>();
             _loggerMock = new Mock<ILogger<HomeController>>();
             _stubAuthServiceMock = new Mock<IStubAuthenticationService>();
 
             _sut = new HomeController(
                 _configMock.Object,
+                _optionsMock.Object,
                 _contextAccessorMock.Object,
                 _loggerMock.Object,
                 _stubAuthServiceMock.Object

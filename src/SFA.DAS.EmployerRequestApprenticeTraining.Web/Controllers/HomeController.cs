@@ -6,10 +6,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions;
 using SFA.DAS.GovUK.Auth.Configuration;
 using SFA.DAS.GovUK.Auth.Models;
 using SFA.DAS.GovUK.Auth.Services;
@@ -23,19 +26,23 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
     public class HomeController : Controller
     {
         private readonly IConfiguration _config;
+        private readonly EmployerRequestApprenticeTrainingWebConfiguration _configuration;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger<HomeController> _logger;
         private readonly IStubAuthenticationService _stubAuthenticationService;
 
         #region Routes
+        public const string DashboardStubRouteGet = nameof(DashboardStubRouteGet);
         public const string OverviewStubRouteGet = nameof(OverviewStubRouteGet);
         public const string ErrorRouteGet = nameof(ErrorRouteGet);
         #endregion Routes
 
-        public HomeController(IConfiguration config, IHttpContextAccessor contextAccessor,
-            ILogger<HomeController> logger, IStubAuthenticationService stubAuthenticationService)
+        public HomeController(IConfiguration config, IOptions<EmployerRequestApprenticeTrainingWebConfiguration> options,
+            IHttpContextAccessor contextAccessor, ILogger<HomeController> logger, 
+            IStubAuthenticationService stubAuthenticationService)
         {
             _config = config;
+            _configuration = options.Value;
             _contextAccessor = contextAccessor;
             _logger = logger;
             _stubAuthenticationService = stubAuthenticationService;
@@ -43,7 +50,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            if (_config.IsRunningLocally() || _config.IsRunningInDev())
+            {
+                return View();
+            }
+
+            return Redirect(_configuration.EmployerAccountsBaseUrl);
         }
 
         [HttpGet("~/error/403")]
@@ -89,6 +101,15 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
             _contextAccessor.HttpContext.Response.Cookies.Delete("SFA.DAS.EmployerRequestApprenticeTraining.Web.Auth");
         }
 #if DEBUG
+        [AllowAnonymous()]
+        [Route("Dashboard-Stub", Name = DashboardStubRouteGet)]
+        public IActionResult DashboardStub()
+        {
+            _contextAccessor.HttpContext.Response.Cookies.Delete(GovUkConstants.StubAuthCookieName);
+            return RedirectToRoute(EmployerRequestController.DashboardRouteGet, new { hashedAccountId = SignedInStubViewModel.HashedAccountIdPlaceholder });
+        }
+
+
         [AllowAnonymous()]
         [Route("Overview-Stub", Name= OverviewStubRouteGet)]
         public IActionResult OverviewStub()

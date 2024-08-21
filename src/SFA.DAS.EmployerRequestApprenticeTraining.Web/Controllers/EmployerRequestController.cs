@@ -4,9 +4,11 @@ using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Authorization;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators;
 using System;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
@@ -19,6 +21,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         private readonly IEmployerRequestOrchestrator _orchestrator;
 
         #region Routes
+        public const string DashboardRouteGet = nameof(DashboardRouteGet);
+        public const string ViewProviderResponsesRouteGet = nameof(ViewProviderResponsesRouteGet);
         public const string OverviewEmployerRequestRouteGet = nameof(OverviewEmployerRequestRouteGet);
         public const string ExistingEmployerRequestRouteGet = nameof(ExistingEmployerRequestRouteGet);
         public const string StartEmployerRequestRouteGet = nameof(StartEmployerRequestRouteGet);
@@ -41,6 +45,23 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         public EmployerRequestController(IEmployerRequestOrchestrator orchestrator)
         {
             _orchestrator = orchestrator;
+        }
+
+        [HttpGet]
+        [Route("dashboard", Name = DashboardRouteGet)]
+        public async Task<IActionResult> Dashboard(Parameters parameters)
+        {
+            var viewModel = await _orchestrator.GetDashboardViewModel(parameters.AccountId, parameters.HashedAccountId);
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        [Route("{employerRequestId}/responses", Name = ViewProviderResponsesRouteGet)]
+        public async Task<IActionResult> ViewProviderResponses(ViewProviderResponsesParameters parameters)
+        {
+            await _orchestrator.AcknowledgeProviderResponses(parameters.EmployerRequestId);
+
+            return RedirectToRoute(DashboardRouteGet, new { parameters.HashedAccountId });
         }
 
         [HttpGet]

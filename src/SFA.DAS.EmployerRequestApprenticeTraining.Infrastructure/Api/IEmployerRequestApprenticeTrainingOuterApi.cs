@@ -10,6 +10,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
 {
     public interface IEmployerRequestApprenticeTrainingOuterApi
     {
+        [Get("/employerrequests/account/{accountId}/aggregated")]
+        Task<List<AggregatedEmployerRequest>> GetAggregatedEmployerRequests([Path] long accountId);
+
+        [Get("/settings")]
+        Task<Settings> GetSettings();
+
         [Get("/employerrequests/{employerRequestId}")]
         Task<EmployerRequest> GetEmployerRequest([Path] Guid employerRequestId);
 
@@ -24,6 +30,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
 
         [Get("/employerrequests/{employerRequestId}/submit-confirmation")]
         Task<SubmitEmployerRequestConfirmation> GetSubmitEmployerRequestConfirmation([Path] Guid employerRequestId);
+
+        [Put("/employerrequests/{employerRequestId}/acknowledge-provider-responses")]
+        Task AcknowledgeProviderResponses([Path] Guid employerRequestId, [Query] Guid acknowledgedBy);
 
         [Get("/accountusers/{userId}/accounts")]
         Task<UserAccountsDetails> GetUserAccounts([Path] string userId, [Query] string email);

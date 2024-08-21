@@ -1,0 +1,118 @@
+﻿@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
+@using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
+@using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
+@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Find apprenticeship training and manage requests";
+    ViewBag.GaData.Vpv = "/accounts/employerrequests/dashboard";
+}
+
+<a href="@Model.EmployerAccountDashboardUrl" class="govuk-back-link">Back</a>
+
+<main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-xl">@ViewData["Title"]</h1>
+            <p class="govuk-body">Search for apprenticeship training and manage your training requests.</p>
+            
+            <div>
+                <h2 class="govuk-heading-l">Find apprenticeship training</h2>
+                <p class="govuk-body">Search for apprenticeships and see details of providers who can deliver the training.</p>
+                <a class="govuk-link govuk-button" href="@Model.FindApprenticeshipTrainingCoursesUrl" data-module="govuk-button">
+                    Find apprenticeship training
+                </a>
+            </div>
+
+            <div class="govuk-!-margin-top-3">
+                <h2 class="govuk-heading-l">Manage your training requests</h2>
+                <div class="govuk-tabs" data-module="govuk-tabs">
+                <h2 class="govuk-tabs__title">
+                    Requests
+                </h2>
+                <ul class="govuk-tabs__list">
+                    <li class="govuk-tabs__list-item govuk-tabs__list-item--selected">
+                        <a class="govuk-tabs__tab" href="#active-requests">
+                            Active requests
+                        </a>
+                    </li>
+                    <li class="govuk-tabs__list-item">
+                        <a class="govuk-tabs__tab" href="#expired-requests">
+                            Expired requests
+                        </a>
+                    </li>
+                </ul>
+                <div class="govuk-tabs__panel" id="active-requests">
+                    <h3 class="govuk-heading-m">Active requests</h3>
+                    @if(Model.Dashboard.AggregatedEmployerRequests.Count > 0)
+                    {
+                        <p class="govuk-body">Training providers can see your requests and will respond if they can offer the training.</p>
+
+                        <p class="govuk-body">Select a training course to:</p>
+
+                        <ul class="govuk-list govuk-list--bullet">
+                            <li>view training provider contact details</li>
+                            <li>cancel your request</li>
+                        </ul>
+                        <p>Requests will expire after @Model.Dashboard.Settings.ExpiryAfterMonths months.</p>
+                        <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-6 govuk-!-margin-bottom-6" />
+                        foreach(var request in Model.Dashboard.AggregatedEmployerRequests)
+                        {
+                            if (request.NewNumberOfResponses > 0)
+                            {
+                                <strong class="govuk-tag">
+                                    New
+                                    @if (request.NewNumberOfResponses == 1)
+                                    {
+                                        <text>response</text>
+                                    }
+                                    else
+                                    {
+                                        <text>responses</text>
+                                    }
+                                </strong>
+                            }
+                            <p>
+                                <div class="govuk-body govuk-!-margin-bottom-1">
+                                    <a 
+                                        asp-route="@EmployerRequestController.ViewProviderResponsesRouteGet"
+                                        asp-route-hashedAccountId="@Model.HashedAccountId"
+                                        asp-route-employerRequestId="@request.EmployerRequestId" 
+                                        class="govuk-link govuk-link--no-visted-state">@request.StandardTitle (level @request.StandardLevel)
+                                    </a>
+                                </div>
+                                <div class="govuk-hint">
+                                    @request.NumberOfResponses
+                                    @if (request.NumberOfResponses == 1)
+                                    {
+                                        <text>response</text>
+                                    }
+                                    else
+                                    {
+                                        <text>responses</text>
+                                    }
+                                </div>
+                            </p>
+                            <p>
+                                <div class="govuk-body govuk-!-margin-bottom-1">Request made on @request.RequestedAt.ToString("d MMM yyyy")</div>
+                                <div class="govuk-hint">
+                                    Expires in @((request.ExpiryAt - DateTime.Now.Date).Days) days (@request.ExpiryAt.ToString("d MMM yyyy"))
+                                </div>
+                            </p>
+                            <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-6 govuk-!-margin-bottom-6" />
+                        }
+                    }
+                    else
+                    {
+                        <p class="govuk-body">If you've tried to find apprenticeship training and used our form to ask if training providers can offer a course, you'll see your requests here.</p>
+                    }
+                </div>
+                <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="expired-requests">
+                    <h3 class="govuk-heading-m">Expired requests</h3>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</main>
