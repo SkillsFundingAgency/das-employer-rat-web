@@ -13,7 +13,6 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.TestHelper.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
-using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home;
 using SFA.DAS.GovUK.Auth.Services;
 using System;
 using System.Collections.Generic;
@@ -30,6 +29,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         private Mock<IHttpContextAccessor> _contextAccessorMock;
         private Mock<ILogger<HomeController>> _loggerMock;
         private Mock<IStubAuthenticationService> _stubAuthServiceMock;
+        private EmployerRequestApprenticeTrainingWebConfiguration _configuration;
         private HomeController _sut;
 
         [SetUp]
@@ -40,6 +40,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             _contextAccessorMock = new Mock<IHttpContextAccessor>();
             _loggerMock = new Mock<ILogger<HomeController>>();
             _stubAuthServiceMock = new Mock<IStubAuthenticationService>();
+
+            _configuration = new EmployerRequestApprenticeTrainingWebConfiguration();
+            _optionsMock
+                .Setup(m => m.Value)
+                .Returns(_configuration);
 
             _sut = new HomeController(
                 _configMock.Object,
@@ -57,13 +62,54 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public void Index_ShouldReturnView()
+        public void Index_ShouldReturnView_WhenRunningLocally()
         {
+            // Arrange
+            _configMock
+                .Setup(p => p["EnvironmentName"])
+                .Returns("LOCAL");
+
             // Act
             var result = _sut.Index() as ViewResult;
 
             // Assert
             result.Should().NotBeNull();
+        }
+
+        [Test]
+        public void Index_ShouldReturnView_WhenRunningInDev()
+        {
+            // Arrange
+            _configMock
+                .Setup(p => p["EnvironmentName"])
+                .Returns("DEV");
+
+            // Act
+            var result = _sut.Index() as ViewResult;
+
+            // Assert
+            result.Should().NotBeNull();
+        }
+
+        [TestCase("AT")]
+        [TestCase("TEST")]
+        [TestCase("TEST2")]
+        [TestCase("PROD")]
+        [TestCase("MO")]
+        public void Index_ShouldReturnRedirect_WhenNotRunningLocallyOrInDev(string environmentName)
+        {
+            // Arrange
+            _configMock
+                .Setup(p => p["EnvironmentName"])
+                .Returns(environmentName);
+
+            _configuration.EmployerAccountsBaseUrl = "http://accounts.url";
+
+            // Act
+            var result = _sut.Index() as RedirectResult;
+
+            // Assert
+            result.Url.Should().Be(_configuration.EmployerAccountsBaseUrl);
         }
 
         [Test]
