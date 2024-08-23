@@ -9,7 +9,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Commands
 {
     [TestFixture]
-    public class SubmitEmployerRequestCommandHandlerTests
+    public class WhenHandlingSubmitEmployerRequestCommand
     {
         private Mock<IEmployerRequestApprenticeTrainingOuterApi> _mockOuterApi;
         private SubmitEmployerRequestCommandHandler _handler;

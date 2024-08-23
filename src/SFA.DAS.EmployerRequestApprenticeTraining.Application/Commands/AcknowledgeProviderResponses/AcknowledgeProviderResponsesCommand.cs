@@ -4,13 +4,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.Acknowl
 {
     public class AcknowledgeProviderResponsesCommand : IRequest
     {
-        public AcknowledgeProviderResponsesCommand(Guid employerRequestId, Guid acknowledgedBy)
-        {
-            EmployerRequestId = employerRequestId;
-            AcknowledgedBy = acknowledgedBy;
-        }
-
-        public Guid EmployerRequestId { get; private set; }
-        public Guid AcknowledgedBy { get; private set; }
+        public Guid EmployerRequestId { get; set; }
+        public Guid AcknowledgedBy { get; set; }
     }
 }

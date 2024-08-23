@@ -49,7 +49,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
         public async Task<DashboardViewModel> GetDashboardViewModel(long accountId, string hashedAccountId)
         {
-            var dashboard = await _mediator.Send(new GetDashboardQuery(accountId));
+            var dashboard = await _mediator.Send(new GetDashboardQuery { AccountId = accountId });
             return new DashboardViewModel 
             { 
                 Dashboard = dashboard,
@@ -61,7 +61,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
         public async Task AcknowledgeProviderResponses(Guid employerRequestId)
         {
-            await _mediator.Send(new AcknowledgeProviderResponsesCommand(employerRequestId, GetCurrentUserId));
+            await _mediator.Send(new AcknowledgeProviderResponsesCommand 
+            { 
+                EmployerRequestId = employerRequestId, AcknowledgedBy = GetCurrentUserId 
+            });
         }
 
         public async Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(SubmitEmployerRequestParameters parameters)

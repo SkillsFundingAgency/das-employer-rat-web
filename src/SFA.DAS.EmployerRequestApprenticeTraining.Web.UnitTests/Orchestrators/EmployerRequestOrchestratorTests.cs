@@ -6,8 +6,10 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.AcknowledgeProviderResponses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetClosestRegion;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetDashboard;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetRegions;
@@ -21,6 +23,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserServ
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators;
+using SFA.DAS.Testing.AutoFixture;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -80,6 +83,42 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _sut = new EmployerRequestOrchestrator(_mediatorMock.Object, _sessionStorageMock.Object, 
                 _locationServiceMock.Object,  _userServiceMock.Object, 
                 employerRequestOrchestratorValidators, _optionsMock.Object);
+        }
+
+        [Test, MoqAutoData]
+        public async Task GetDashboardViewModel_ShouldReturnDashboardViewModel_WithCorrectValues(Dashboard dashboard)
+        {
+            // Arrange
+            var accountId = 123;
+            var hashedAccountId = "ABC123";
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetDashboardQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(dashboard);
+
+            // Act
+            var result = await _sut.GetDashboardViewModel(accountId, hashedAccountId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Dashboard.Should().Be(dashboard);
+            result.HashedAccountId.Should().Be(hashedAccountId);
+            result.FindApprenticeshipTrainingCoursesUrl.Should().Be($"{_config.FindApprenticeshipTrainingBaseUrl}courses");
+            result.EmployerAccountDashboardUrl.Should().Be($"{_config.EmployerAccountsBaseUrl}accounts\\{hashedAccountId}\\teams");
+        }
+
+        [Test]
+        public async Task AcknowledgeProviderResponses_ShouldCallMediator_WithCorrectParameters()
+        {
+            // Arrange
+            var employerRequestId = Guid.NewGuid();
+            var userId = Guid.NewGuid();
+            _userServiceMock.Setup(u => u.GetUserId()).Returns(userId.ToString());
+
+            // Act
+            await _sut.AcknowledgeProviderResponses(employerRequestId);
+
+            // Assert
+            _mediatorMock.Verify(m => m.Send(It.Is<AcknowledgeProviderResponsesCommand>(cmd =>
+                cmd.EmployerRequestId == employerRequestId && cmd.AcknowledgedBy == userId),
+                It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
