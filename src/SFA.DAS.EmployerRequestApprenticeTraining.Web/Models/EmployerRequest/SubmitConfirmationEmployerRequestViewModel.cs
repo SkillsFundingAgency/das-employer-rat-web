@@ -2,9 +2,8 @@
 {
     public class SubmitConfirmationEmployerRequestViewModel : CheckYourAnswersEmployerRequestViewModel
     {
-        public string FindApprenticeshipTrainingBaseUrl { get; set; }
+        public string FindApprenticeshipTrainingCoursesUrl { get; set; }
         public string RequestedByEmail { get; set; }
-
-        public string FindApprenticeTrainingCoursesUrl => $"{FindApprenticeshipTrainingBaseUrl}courses";
+        public int ExpiryAfterMonths { get; set; }
     }
 }

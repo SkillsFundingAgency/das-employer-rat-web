@@ -22,19 +22,15 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.UnitTests.Application.Querie
         }
 
         [Test, MoqAutoData]
-        public async Task Then_Returns_Dashboard_With_AggregatedEmployerRequests_And_Settings(
-            List<AggregatedEmployerRequest> aggregatedEmployerRequests,
-            Settings settings)
+        public async Task Then_Returns_Dashboard(
+            Dashboard dashboard)
         {
             // Arrange
             var accountId = 123;
 
             _outerApiMock
-                .Setup(x => x.GetAggregatedEmployerRequests(accountId))
-                .ReturnsAsync(aggregatedEmployerRequests);
-
-            _outerApiMock.Setup(x => x.GetSettings())
-                         .ReturnsAsync(settings);
+                .Setup(x => x.GetDashboard(accountId))
+                .ReturnsAsync(dashboard);
 
             var query = new GetDashboardQuery { AccountId = accountId };
 
@@ -42,12 +38,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.UnitTests.Application.Querie
             var result = await _handler.Handle(query, CancellationToken.None);
 
             // Assert
-            _outerApiMock.Verify(x => x.GetAggregatedEmployerRequests(accountId), Times.Once);
-            _outerApiMock.Verify(x => x.GetSettings(), Times.Once);
+            _outerApiMock.Verify(x => x.GetDashboard(accountId), Times.Once);
 
             result.Should().NotBeNull();
-            result.AggregatedEmployerRequests.Should().BeEquivalentTo(aggregatedEmployerRequests);
-            result.Settings.Should().Be(settings);
+            result.AggregatedEmployerRequests.Should().BeEquivalentTo(dashboard.AggregatedEmployerRequests);
+            result.ExpiryAfterMonths.Should().Be(dashboard.ExpiryAfterMonths);
         }
     }
 }

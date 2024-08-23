@@ -1098,6 +1098,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         {
             // Arrange
             var employerRequestId = Guid.NewGuid();
+            var hashedAccountId = "ABC123";
+
             var confirmation = new SubmitEmployerRequestConfirmation
             {
                 StandardTitle = "StandardTitle",
@@ -1113,7 +1115,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _mediatorMock.Setup(m => m.Send(It.IsAny<GetSubmitEmployerRequestConfirmationQuery>(), default)).ReturnsAsync(confirmation);
 
             // Act
-            var result = await _sut.GetSubmitConfirmationEmployerRequestViewModel(employerRequestId);
+            var result = await _sut.GetSubmitConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId);
 
             // Assert
             result.Should().NotBeNull();
@@ -1125,7 +1127,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             result.DayRelease.Should().Be(confirmation.DayRelease);
             result.BlockRelease.Should().Be(confirmation.BlockRelease);
             result.RequestedByEmail.Should().Be(confirmation.RequestedByEmail);
-            result.FindApprenticeshipTrainingBaseUrl.Should().Be(_config.FindApprenticeshipTrainingBaseUrl);
+            result.FindApprenticeshipTrainingCoursesUrl.Should().Be($"{_config.FindApprenticeshipTrainingBaseUrl}courses");
         }
 
         [Test]
@@ -1133,11 +1135,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         {
             // Arrange
             var employerRequestId = Guid.NewGuid();
+            var hashedAccountId = "ABC123";
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetSubmitEmployerRequestConfirmationQuery>(), default)).ReturnsAsync((SubmitEmployerRequestConfirmation)null);
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<GetSubmitEmployerRequestConfirmationQuery>(), default))
+                .ReturnsAsync((SubmitEmployerRequestConfirmation)null);
 
             // Act
-            var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetSubmitConfirmationEmployerRequestViewModel(employerRequestId));
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetSubmitConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId));
 
             // Assert
             ex.Message.Should().Be($"The employer request {employerRequestId} was not found");

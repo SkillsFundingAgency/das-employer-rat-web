@@ -919,19 +919,21 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         {
             // Arrange
             var employerRequestId = Guid.NewGuid();
+            var hashedAccountId = "ABC123";
+
             var viewModel = new SubmitConfirmationEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123",
-                FindApprenticeshipTrainingBaseUrl = "https://example.com/",
+                HashedAccountId = hashedAccountId,
+                FindApprenticeshipTrainingCoursesUrl = "https://example.com/",
                 RequestedByEmail = "test@example.com"
             };
 
             _orchestratorMock
-                .Setup(o => o.GetSubmitConfirmationEmployerRequestViewModel(employerRequestId))
+                .Setup(o => o.GetSubmitConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId))
                 .ReturnsAsync(viewModel);
 
             // Act
-            var result = await _sut.SubmitConfirmation(employerRequestId) as ViewResult;
+            var result = await _sut.SubmitConfirmation(hashedAccountId, employerRequestId) as ViewResult;
 
             // Assert
             result.Should().NotBeNull();

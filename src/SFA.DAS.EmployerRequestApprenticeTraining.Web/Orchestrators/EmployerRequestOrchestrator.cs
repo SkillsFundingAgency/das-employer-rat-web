@@ -417,7 +417,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return modelState.IsValid;
         }
 
-        public async Task<SubmitConfirmationEmployerRequestViewModel> GetSubmitConfirmationEmployerRequestViewModel(Guid employerRequestId)
+        public async Task<SubmitConfirmationEmployerRequestViewModel> GetSubmitConfirmationEmployerRequestViewModel(string hashedAccountId, Guid employerRequestId)
         {
             var result = await _mediator.Send(new GetSubmitEmployerRequestConfirmationQuery { EmployerRequestId = employerRequestId });
             if(result == null)
@@ -427,6 +427,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
             return new SubmitConfirmationEmployerRequestViewModel
             {
+                HashedAccountId = hashedAccountId,
                 StandardTitle = result.StandardTitle,
                 StandardLevel = result.StandardLevel,
                 NumberOfApprentices = result.NumberOfApprentices.ToString(),
@@ -436,7 +437,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 DayRelease = result.DayRelease,
                 BlockRelease = result.BlockRelease,
                 RequestedByEmail = result.RequestedByEmail,
-                FindApprenticeshipTrainingBaseUrl = _config?.FindApprenticeshipTrainingBaseUrl,
+                FindApprenticeshipTrainingCoursesUrl = $"{_config.FindApprenticeshipTrainingBaseUrl}courses",
+                ExpiryAfterMonths = result.ExpiryAfterMonths,
                 Regions = result.Regions
             };
         }

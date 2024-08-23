@@ -15,19 +15,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetDashb
 
         public async Task<Dashboard> Handle(GetDashboardQuery request, CancellationToken cancellationToken)
         {
-            var aggregatedEmployerRequestsTask = _outerApi.GetAggregatedEmployerRequests(request.AccountId);
-            var settingsTask = _outerApi.GetSettings();
-
-            await Task.WhenAll(aggregatedEmployerRequestsTask, settingsTask);
-            
-            var aggregatedEmployerRequests = await aggregatedEmployerRequestsTask;
-            var settings = await settingsTask;
-
-            return new Dashboard
-            {
-                AggregatedEmployerRequests = aggregatedEmployerRequests,
-                Settings = settings
-            };
+            var dashboard = await _outerApi.GetDashboard(request.AccountId);
+            return dashboard;
         }
 
     }

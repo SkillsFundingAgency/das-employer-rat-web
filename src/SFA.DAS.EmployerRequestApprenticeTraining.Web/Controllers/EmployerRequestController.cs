@@ -292,9 +292,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
 
         [HttpGet]
         [Route("submit-confirmation/{employerRequestId}", Name = SubmitConfirmationRouteGet)]
-        public async Task<IActionResult> SubmitConfirmation(Guid employerRequestId)
+        public async Task<IActionResult> SubmitConfirmation(string hashedAccountId, Guid employerRequestId)
         {
-            return View(await _orchestrator.GetSubmitConfirmationEmployerRequestViewModel(employerRequestId));
+            return View(await _orchestrator.GetSubmitConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId));
         }
 
     }

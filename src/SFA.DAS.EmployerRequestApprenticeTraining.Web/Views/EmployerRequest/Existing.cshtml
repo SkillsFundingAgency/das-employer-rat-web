@@ -22,14 +22,13 @@
                 If you need to add a location or make a change to your request, you'll need to cancel your request and ask again.
             </p>
 
-            <a class="govuk-link"
-                asp-route="@EmployerRequestController.ExistingEmployerRequestRouteGet"
-                asp-route-hashedAccountId="@Model.HashedAccountId"
-                asp-route-requestType="@Model.RequestType"
-                asp-route-standardId="@Model.StandardId"
-                asp-route-location="@Model.Location">
-                Manage your @Model.StandardTitle (level @Model.StandardLevel) training request
-            </a>
+            <div class="govuk-body">
+                <a class="govuk-link"
+                    asp-route="@EmployerRequestController.DashboardRouteGet"
+                    asp-route-hashedAccountId="@Model.HashedAccountId">
+                    Manage your @Model.StandardTitle (level @Model.StandardLevel) training request
+                </a>
+            </div>
         </div>
     </div>
 </main>
