@@ -22,8 +22,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
         [Get("/employerrequests/account/{accountId}")]
         Task<List<EmployerRequest>> GetEmployerRequests([Path] long accountId);
 
-        [Post("/employerrequests")]
-        Task<Guid> SubmitEmployerRequest([Body] SubmitEmployerRequestRequest request);
+        [Post("/employerrequests/account/{accountId}/submit-request")]
+        Task<Guid> SubmitEmployerRequest([Path] long accountId, [Body] SubmitEmployerRequestRequest request);
 
         [Get("/employerrequests/{employerRequestId}/submit-confirmation")]
         Task<SubmitEmployerRequestConfirmation> GetSubmitEmployerRequestConfirmation([Path] Guid employerRequestId);

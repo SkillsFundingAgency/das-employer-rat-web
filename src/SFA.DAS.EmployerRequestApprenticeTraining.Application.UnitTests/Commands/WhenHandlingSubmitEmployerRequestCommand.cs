@@ -32,8 +32,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Comman
         {
             // Arrange
             var expectedGuid = Guid.NewGuid();
-            _mockOuterApi.Setup(x => x.SubmitEmployerRequest(It.Is<SubmitEmployerRequestRequest>(req =>
-                req.AccountId == 12345 && req.RequestType == RequestType.Shortlist)))
+            _mockOuterApi.Setup(x => x.SubmitEmployerRequest(
+                    It.Is<long>(p => p == 12345), 
+                    It.Is<SubmitEmployerRequestRequest>(req => req.RequestType == RequestType.Shortlist)))
                 .ReturnsAsync(expectedGuid);
 
             // Act
@@ -41,14 +42,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Comman
 
             // Assert
             result.Should().Be(expectedGuid);
-            _mockOuterApi.Verify(x => x.SubmitEmployerRequest(It.IsAny<SubmitEmployerRequestRequest>()), Times.Once);
+            _mockOuterApi.Verify(x => x.SubmitEmployerRequest(It.IsAny<long>(), It.IsAny<SubmitEmployerRequestRequest>()), Times.Once);
         }
 
         [Test]
         public void Handle_WhenApiThrowsException_ShouldRethrowIt()
         {
             // Arrange
-            _mockOuterApi.Setup(x => x.SubmitEmployerRequest(It.IsAny<SubmitEmployerRequestRequest>()))
+            _mockOuterApi.Setup(x => x.SubmitEmployerRequest(It.IsAny<long>(), It.IsAny<SubmitEmployerRequestRequest>()))
                 .ThrowsAsync(new Exception("API error"));
 
             // Act
