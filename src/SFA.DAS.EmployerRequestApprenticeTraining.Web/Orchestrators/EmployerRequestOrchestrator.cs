@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.AcknowledgeProviderResponses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetExistingEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetClosestRegion;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetDashboard;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetRegions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
@@ -17,12 +17,13 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionS
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers;
-using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetTrainingRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 {
@@ -67,6 +68,36 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             });
         }
 
+        public async Task<ViewTrainingRequestViewModel> GetViewTrainingRequestViewModel(Guid employerRequestId, string hashedAccountId)
+        {
+            var trainingRequest = await _mediator.Send(new GetTrainingRequestQuery { EmployerRequestId = employerRequestId });
+            if (trainingRequest == null)
+            {
+                throw new ArgumentException($"The training request for {employerRequestId} was not found");
+            }
+
+            return new ViewTrainingRequestViewModel
+            {
+                HashedAccountId = hashedAccountId,
+                EmployerRequestId = trainingRequest.EmployerRequestId,
+                StandardTitle = trainingRequest.StandardTitle,
+                StandardLevel = trainingRequest.StandardLevel,
+                NumberOfApprentices = trainingRequest.NumberOfApprentices,
+                SameLocation = trainingRequest.SameLocation,
+                SingleLocation = trainingRequest.SingleLocation,
+                AtApprenticesWorkplace = trainingRequest.AtApprenticesWorkplace,
+                DayRelease = trainingRequest.DayRelease,
+                BlockRelease = trainingRequest.BlockRelease,
+                RequestedAt = trainingRequest.RequestedAt,
+                Status = trainingRequest.Status,
+                ExpiredAt = trainingRequest.ExpiredAt,
+                ExpiryAt = trainingRequest.ExpiryAt,
+                RemoveAt = trainingRequest.RemoveAt,
+                Regions = trainingRequest.Regions,
+                ProviderResponses = trainingRequest.ProviderResponses
+            };
+        }
+
         public async Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(SubmitEmployerRequestParameters parameters)
         {
             var standard = await _mediator.Send(new GetStandardQuery(parameters.StandardId));
@@ -96,8 +127,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 throw new ArgumentException($"The standard {standardId} was not found");
             }
 
-            var employerRequest = await _mediator.Send(new GetEmployerRequestQuery { AccountId = accountId, StandardReference = standard.IfateReferenceNumber });
-            return employerRequest != null;
+            var existing = await _mediator.Send(new GetExistingEmployerRequestQuery { AccountId = accountId, StandardReference = standard.IfateReferenceNumber });
+            return existing;
         }
 
         public async Task StartEmployerRequest(string location)
@@ -371,27 +402,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             ClearSessionEmployerRequest();
 
             return employerRequestId;
-        }
-
-        public async Task<ViewEmployerRequestsViewModel> GetViewEmployerRequestsViewModel(long accountId)
-        {
-            var result = await _mediator.Send(new GetEmployerRequestsQuery { AccountId = accountId });
-
-            return new ViewEmployerRequestsViewModel()
-            {
-                EmployerRequests = result
-            };
-        }
-
-        public async Task<ViewEmployerRequestViewModel> GetViewEmployerRequestViewModel(Guid employerRequestId)
-        {
-            var result = await _mediator.Send(new GetEmployerRequestQuery { EmployerRequestId = employerRequestId });
-            return new ViewEmployerRequestViewModel
-            {
-                EmployerRequestId = result.Id,
-                AccountId = result.AccountId,
-                RequestType = result.RequestType
-            };
         }
 
         private EmployerRequest SessionEmployerRequest

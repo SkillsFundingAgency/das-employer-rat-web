@@ -10,6 +10,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
     {
         Task<DashboardViewModel> GetDashboardViewModel(long accountId, string hashedAccountId);
         Task AcknowledgeProviderResponses(Guid employerRequestId);
+        Task<ViewTrainingRequestViewModel> GetViewTrainingRequestViewModel(Guid employerRequestId, string hashedAccountId);
         Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(SubmitEmployerRequestParameters parameters);
         Task<bool> HasExistingEmployerRequest(long accountId, string standardId);
         Task StartEmployerRequest(string location);
@@ -31,8 +32,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         Task<CheckYourAnswersEmployerRequestViewModel> GetCheckYourAnswersEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState);
         Task<bool> ValidateCheckYourAnswersEmployerRequestViewModel(CheckYourAnswersEmployerRequestViewModel viewModel, ModelStateDictionary modelState);
         Task<Guid> SubmitEmployerRequest(CheckYourAnswersEmployerRequestViewModel viewModel);
-        Task<ViewEmployerRequestsViewModel> GetViewEmployerRequestsViewModel(long accountId);
-        Task<ViewEmployerRequestViewModel> GetViewEmployerRequestViewModel(Guid employerRequestId);
         Task<SubmitConfirmationEmployerRequestViewModel> GetSubmitConfirmationEmployerRequestViewModel(string hashedAccountId, Guid employerRequestId);
     }
 }

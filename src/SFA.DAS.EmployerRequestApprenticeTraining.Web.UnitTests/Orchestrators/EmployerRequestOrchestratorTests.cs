@@ -8,10 +8,10 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.AcknowledgeProviderResponses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetExistingEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetClosestRegion;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetDashboard;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetRegions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
@@ -22,7 +22,6 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionS
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators;
-using SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators;
 using SFA.DAS.Testing.AutoFixture;
 using System;
 using System.Collections.Generic;
@@ -177,13 +176,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public async Task HasExistingEmployerRequest_ShouldReturnTrue_WhenEmployerRequestExists()
         {
             // Arrange
-            var accountId = 123;
+            var accountId = 12345;
             var standardId = "ST0123";
-            var standard = new Standard { IfateReferenceNumber = "ST0123" };
-            var employerRequest = new EmployerRequest { AccountId = accountId, StandardReference = standard.IfateReferenceNumber };
+            var standard = new Standard { IfateReferenceNumber = standardId };
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync(standard);
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetEmployerRequestQuery>(), default)).ReturnsAsync(employerRequest);
+            _mediatorMock.Setup(m => m.Send(It.Is<GetStandardQuery>(p => p.StandardId == standardId), default)).ReturnsAsync(standard);
+            _mediatorMock.Setup(m => m.Send(It.Is<GetExistingEmployerRequestQuery>(p => p.AccountId == accountId && p.StandardReference == standardId), default)).ReturnsAsync(true);
 
             // Act
             var result = await _sut.HasExistingEmployerRequest(accountId, standardId);
@@ -196,12 +194,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public async Task HasExistingEmployerRequest_ShouldReturnFalse_WhenEmployerRequestDoesNotExist()
         {
             // Arrange
-            var accountId = 123;
+            var accountId = 12345;
             var standardId = "ST0123";
-            var standard = new Standard { IfateReferenceNumber = "ST0123" };
+            var standard = new Standard { IfateReferenceNumber = standardId };
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync(standard);
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetEmployerRequestQuery>(), default)).ReturnsAsync((EmployerRequest)null);
+            _mediatorMock.Setup(m => m.Send(It.Is<GetStandardQuery>(p => p.StandardId == standardId), default)).ReturnsAsync(standard);
+            _mediatorMock.Setup(m => m.Send(It.Is<GetExistingEmployerRequestQuery>(p => p.AccountId == accountId && p.StandardReference == standardId), default)).ReturnsAsync(false);
 
             // Act
             var result = await _sut.HasExistingEmployerRequest(accountId, standardId);
@@ -224,44 +222,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
 
             // Assert
             ex.Message.Should().Be($"The standard {standardId} was not found");
-        }
-
-
-        [Test]
-        public async Task GetViewEmployerRequestsViewModel_ShouldReturnViewModel_WhenRequestsExist()
-        {
-            // Arrange
-            var accountId = 123;
-            var employerRequests = new List<EmployerRequest> { new EmployerRequest { Id = Guid.NewGuid(), AccountId = accountId, RequestType = RequestType.Shortlist } };
-
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetEmployerRequestsQuery>(), default)).ReturnsAsync(employerRequests);
-
-            // Act
-            var result = await _sut.GetViewEmployerRequestsViewModel(accountId);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.EmployerRequests.Count.Should().Be(1);
-            result.EmployerRequests[0].AccountId.Should().Be(accountId);
-        }
-
-        [Test]
-        public async Task GetViewEmployerRequestViewModel_ShouldReturnViewModel_WhenRequestExists()
-        {
-            // Arrange
-            var employerRequestId = Guid.NewGuid();
-            var employerRequest = new EmployerRequest { Id = employerRequestId, AccountId = 123, RequestType = RequestType.Shortlist };
-
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetEmployerRequestQuery>(), default)).ReturnsAsync(employerRequest);
-
-            // Act
-            var result = await _sut.GetViewEmployerRequestViewModel(employerRequestId);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.EmployerRequestId.Should().Be(employerRequest.Id);
-            result.AccountId.Should().Be(employerRequest.AccountId);
-            result.RequestType.Should().Be(employerRequest.RequestType);
         }
 
         [Test]
@@ -644,7 +604,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         }
 
         [Test]
-        public void UpdateMultipleLocationsForEmployerRequest_ShouldUpdateMultipleLocations_WhenSessionHasEmployerRequest()
+        public async Task UpdateMultipleLocationsForEmployerRequest_ShouldUpdateMultipleLocations_WhenSessionHasEmployerRequest()
         {
             // Arrange
             var viewModel = new EnterMultipleLocationsEmployerRequestViewModel
@@ -660,7 +620,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
 
             // Act
-            _sut.UpdateMultipleLocationsForEmployerRequest(viewModel);
+            await _sut.UpdateMultipleLocationsForEmployerRequest(viewModel);
 
             // Assert
             employerRequest.Regions.Should().NotBeNull();
@@ -671,7 +631,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         }
 
         [Test]
-        public void UpdateMultipleLocationsForEmployerRequest_ShouldSetNewEmployerRequest_WhenSessionIsEmpty()
+        public async Task UpdateMultipleLocationsForEmployerRequest_ShouldSetNewEmployerRequest_WhenSessionIsEmpty()
         {
             // Arrange
             var viewModel = new EnterMultipleLocationsEmployerRequestViewModel
@@ -686,7 +646,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _sessionStorageMock.Setup(s => s.EmployerRequest).Returns((EmployerRequest)null);
 
             // Act
-            _sut.UpdateMultipleLocationsForEmployerRequest(viewModel);
+            await _sut.UpdateMultipleLocationsForEmployerRequest(viewModel);
 
             // Assert
             _sessionStorageMock.VerifySet(s => s.EmployerRequest = It.Is<EmployerRequest>(er => er.Regions.Count == 2 && er.Regions[0].Id == 1 && er.Regions[1].Id == 2), Times.Once);

@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
 {
-    public class EnterTrainingOptionsEmployerRequestViewModel : SubmitEmployerRequestViewModel, IEnterTrainingOptionsEmployerRequestViewModel
+    public class EnterTrainingOptionsEmployerRequestViewModel : SubmitEmployerRequestViewModel, ITrainingOptionsViewModel
     {
         public bool AtApprenticesWorkplace { get; set; }
         public bool DayRelease { get; set; }

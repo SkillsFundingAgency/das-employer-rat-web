@@ -1,38 +1,34 @@
 ﻿using FluentAssertions;
 using FluentValidation;
 using FluentValidation.Results;
-using MediatR;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetTrainingRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Queries.GetEmployerRequest
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Queries.GetTrainingRequest
 {
     [TestFixture]
-    public class GetEmployerRequestQueryTests
+    public class GetTrainingRequestQueryTests
     {
         private Mock<IEmployerRequestApprenticeTrainingOuterApi> _outerApiMock;
-        private Mock<IValidator<GetEmployerRequestQuery>> _mockValidator;
-        private GetEmployerRequestQueryHandler _handler;
+        private Mock<IValidator<GetTrainingRequestQuery>> _mockValidator;
+        private GetTrainingRequestQueryHandler _handler;
 
         [SetUp]
         public void Setup()
         {
             _outerApiMock = new Mock<IEmployerRequestApprenticeTrainingOuterApi>();
-            _mockValidator = new Mock<IValidator<GetEmployerRequestQuery>>();
-            _handler = new GetEmployerRequestQueryHandler(_outerApiMock.Object, _mockValidator.Object);
+            _mockValidator = new Mock<IValidator<GetTrainingRequestQuery>>();
+            _handler = new GetTrainingRequestQueryHandler(_outerApiMock.Object, _mockValidator.Object);
         }
 
         [Test]
         public async Task Handle_Should_CallValidator()
         {
             // Arrange
-            var query = new GetEmployerRequestQuery { EmployerRequestId = Guid.NewGuid() };
+            var query = new GetTrainingRequestQuery { EmployerRequestId = Guid.NewGuid() };
             _mockValidator.Setup(v => v.ValidateAsync(query, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
 
             // Act
@@ -43,40 +39,21 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
         }
 
         [Test]
-        public async Task Handle_Should_ReturnEmployerRequest_When_EmployerRequestId_IsProvided()
+        public async Task Handle_Should_ReturnTrainingRequest_When_EmployerRequestId_IsProvided()
         {
             // Arrange
             var employerRequestId = Guid.NewGuid();
-            var employerRequest = new EmployerRequest();
-            var query = new GetEmployerRequestQuery { EmployerRequestId = employerRequestId };
+            var trainingRequest = new TrainingRequest() { EmployerRequestId = employerRequestId };
+            var query = new GetTrainingRequestQuery { EmployerRequestId = employerRequestId };
 
             _mockValidator.Setup(v => v.ValidateAsync(query, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
-            _outerApiMock.Setup(api => api.GetEmployerRequest(employerRequestId)).ReturnsAsync(employerRequest);
+            _outerApiMock.Setup(api => api.GetTrainingRequest(employerRequestId)).ReturnsAsync(trainingRequest);
 
             // Act
             var result = await _handler.Handle(query, CancellationToken.None);
 
             // Assert
-            result.Should().Be(employerRequest);
-        }
-
-        [Test]
-        public async Task Handle_Should_ReturnEmployerRequest_When_AccountId_And_StandardReference_AreProvided()
-        {
-            // Arrange
-            var accountId = 123;
-            var standardReference = "ST0123";
-            var employerRequest = new EmployerRequest();
-            var query = new GetEmployerRequestQuery { AccountId = accountId, StandardReference = standardReference };
-
-            _mockValidator.Setup(v => v.ValidateAsync(query, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
-            _outerApiMock.Setup(api => api.GetEmployerRequest(accountId, standardReference)).ReturnsAsync(employerRequest);
-
-            // Act
-            var result = await _handler.Handle(query, CancellationToken.None);
-
-            // Assert
-            result.Should().Be(employerRequest);
+            result.Should().Be(trainingRequest);
         }
 
         [Test]
@@ -84,10 +61,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
         {
             // Arrange
             var employerRequestId = Guid.NewGuid();
-            var query = new GetEmployerRequestQuery { EmployerRequestId = employerRequestId };
+            var query = new GetTrainingRequestQuery { EmployerRequestId = employerRequestId };
 
             _mockValidator.Setup(v => v.ValidateAsync(query, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
-            _outerApiMock.Setup(api => api.GetEmployerRequest(employerRequestId)).ReturnsAsync((EmployerRequest?)null);
+            _outerApiMock.Setup(api => api.GetTrainingRequest(employerRequestId)).ReturnsAsync((TrainingRequest?)null);
 
             // Act
             var result = await _handler.Handle(query, CancellationToken.None);
@@ -100,7 +77,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
         public void Handle_Should_ThrowValidationException_When_ValidationFails()
         {
             // Arrange
-            var query = new GetEmployerRequestQuery();
+            var query = new GetTrainingRequestQuery();
             var validationResult = new ValidationResult();
 
             _mockValidator

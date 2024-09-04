@@ -22,7 +22,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
 
         #region Routes
         public const string DashboardRouteGet = nameof(DashboardRouteGet);
-        public const string ViewProviderResponsesRouteGet = nameof(ViewProviderResponsesRouteGet);
+        public const string ViewTrainingRequestRouteGet = nameof(ViewTrainingRequestRouteGet);
         public const string OverviewEmployerRequestRouteGet = nameof(OverviewEmployerRequestRouteGet);
         public const string ExistingEmployerRequestRouteGet = nameof(ExistingEmployerRequestRouteGet);
         public const string StartEmployerRequestRouteGet = nameof(StartEmployerRequestRouteGet);
@@ -56,12 +56,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         }
 
         [HttpGet]
-        [Route("{employerRequestId}/responses", Name = ViewProviderResponsesRouteGet)]
-        public async Task<IActionResult> ViewProviderResponses(ViewProviderResponsesParameters parameters)
+        [Route("{employerRequestId}/responses", Name = ViewTrainingRequestRouteGet)]
+        public async Task<IActionResult> ViewTrainingRequest(ViewTrainingRequestParameters parameters)
         {
             await _orchestrator.AcknowledgeProviderResponses(parameters.EmployerRequestId);
 
-            return RedirectToRoute(DashboardRouteGet, new { parameters.HashedAccountId });
+            var viewModel = await _orchestrator.GetViewTrainingRequestViewModel(parameters.EmployerRequestId, parameters.HashedAccountId);
+
+            return View(viewModel);
         }
 
         [HttpGet]

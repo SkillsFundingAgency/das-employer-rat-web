@@ -68,10 +68,11 @@
                             <p>
                                 <div class="govuk-body govuk-!-margin-bottom-1">
                                     <a 
-                                        asp-route="@EmployerRequestController.ViewProviderResponsesRouteGet"
+                                        asp-route="@EmployerRequestController.ViewTrainingRequestRouteGet"
                                         asp-route-hashedAccountId="@Model.HashedAccountId"
                                         asp-route-employerRequestId="@request.EmployerRequestId" 
-                                        class="govuk-link govuk-link--no-visted-state">@request.StandardTitle (level @request.StandardLevel)
+                                        class="govuk-link govuk-link--no-visted-state">
+                                        @request.StandardTitle (level @request.StandardLevel)
                                     </a>
                                 </div>
                                 <div class="govuk-hint">
@@ -105,11 +106,11 @@
                             {
                                 <p>
                                     <div class="govuk-body govuk-!-margin-bottom-1">
-                                        <a asp-route="@EmployerRequestController.ViewProviderResponsesRouteGet"
+                                        <a asp-route="@EmployerRequestController.ViewTrainingRequestRouteGet"
                                            asp-route-hashedAccountId="@Model.HashedAccountId"
                                            asp-route-employerRequestId="@request.EmployerRequestId"
                                            class="govuk-link govuk-link--no-visted-state">
-                                            @request.StandardTitle (level @request.StandardLevel)
+                                           @request.StandardTitle (level @request.StandardLevel)
                                         </a>
                                     </div>
                                     <div class="govuk-hint">
