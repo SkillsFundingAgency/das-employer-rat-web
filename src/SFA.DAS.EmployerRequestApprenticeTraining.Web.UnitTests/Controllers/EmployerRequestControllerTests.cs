@@ -60,24 +60,30 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public async Task ViewProviderResponses_ShouldAcknowledgeProviderResponsesAndRedirectToDashboard()
+        public async Task ViewTrainingRequest_ShouldAcknowledgeProviderResponsesAndRedirectToViewTrainingRequest()
         {
             // Arrange
-            var parameters = new ViewProviderResponsesParameters
+            var parameters = new ViewTrainingRequestParameters
             {
                 HashedAccountId = "ABC123",
                 EmployerRequestId = Guid.NewGuid()
             };
 
+            var viewModel = new ViewTrainingRequestViewModel
+            {
+                HashedAccountId = "ABC123"
+            };
+
+            _orchestratorMock.Setup(o => o.GetViewTrainingRequestViewModel(parameters.EmployerRequestId, parameters.HashedAccountId)).ReturnsAsync(viewModel);
+
             // Act
-            var result = await _sut.ViewProviderResponses(parameters) as RedirectToRouteResult;
+            var result = await _sut.ViewTrainingRequest(parameters) as ViewResult;
 
             // Assert
             _orchestratorMock.Verify(o => o.AcknowledgeProviderResponses(parameters.EmployerRequestId), Times.Once);
 
             result.Should().NotBeNull();
-            result.RouteName.Should().Be(EmployerRequestController.DashboardRouteGet);
-            result.RouteValues["hashedAccountId"].Should().Be(parameters.HashedAccountId);
+            result.Model.Should().BeEquivalentTo(viewModel);
         }
 
         [Test]
