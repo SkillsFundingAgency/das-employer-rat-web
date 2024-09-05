@@ -131,7 +131,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
                 {
                     new Region { Id = 1, RegionName = "Region1", SubregionName = "Subregion1" }
                 },
-                ProviderResponses = new List<ProviderResponse>()
+                ProviderResponses = new List<ProviderResponse>
+                {
+                    new ProviderResponse { ContactName = "Some Person", Email = "sperson@somewhere.com", PhoneNumber = "12345", ProviderName = "PROVIDER", RespondedAt = DateTime.Now, Ukprn = 10003030, Website = "www.somewhere.com" },
+                }
             };
 
             _mediatorMock.Setup(m => m.Send(It.IsAny<GetTrainingRequestQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(trainingRequest);
