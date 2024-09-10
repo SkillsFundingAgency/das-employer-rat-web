@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Attributes;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Authorization;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
@@ -23,6 +24,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         #region Routes
         public const string DashboardRouteGet = nameof(DashboardRouteGet);
         public const string ViewTrainingRequestRouteGet = nameof(ViewTrainingRequestRouteGet);
+        public const string CancelTrainingRequestRouteGet = nameof(CancelTrainingRequestRouteGet);
+        public const string CancelTrainingRequestRoutePost = nameof(CancelTrainingRequestRoutePost);
         public const string OverviewEmployerRequestRouteGet = nameof(OverviewEmployerRequestRouteGet);
         public const string ExistingEmployerRequestRouteGet = nameof(ExistingEmployerRequestRouteGet);
         public const string StartEmployerRequestRouteGet = nameof(StartEmployerRequestRouteGet);
@@ -64,6 +67,29 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
             var viewModel = await _orchestrator.GetViewTrainingRequestViewModel(parameters.EmployerRequestId, parameters.HashedAccountId);
 
             return View(viewModel);
+        }
+
+        [HttpGet]
+        [Route("{employerRequestId}/cancel", Name = CancelTrainingRequestRouteGet)]
+        public async Task<IActionResult> CancelTrainingRequest(CancelTrainingRequestParameters parameters)
+        {
+            var viewModel = await _orchestrator.GetCancelTrainingRequestViewModel(parameters.EmployerRequestId, parameters.HashedAccountId);
+            
+            if(viewModel.Status == RequestStatus.Cancelled)
+            {
+                return RedirectToRoute(DashboardRouteGet, new { viewModel.HashedAccountId });
+            }
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [Route("{employerRequestId}/cancel", Name = CancelTrainingRequestRoutePost)]
+        public async Task<ActionResult> CancelTrainingRequest(CancelTrainingRequestViewModel viewModel)
+        {
+            await _orchestrator.CancelTrainingRequest(viewModel.EmployerRequestId, viewModel.HashedAccountId);
+
+            return RedirectToRoute(DashboardRouteGet, new { viewModel.HashedAccountId });
         }
 
         [HttpGet]

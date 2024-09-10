@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.TestHelper.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers;
@@ -25,30 +26,24 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
     public class HomeControllerTests
     {
         private Mock<IConfiguration> _configMock;
-        private Mock<IOptions<EmployerRequestApprenticeTrainingWebConfiguration>> _optionsMock;
+        private Mock<UrlBuilder> _urlBuilderMock;
         private Mock<IHttpContextAccessor> _contextAccessorMock;
         private Mock<ILogger<HomeController>> _loggerMock;
         private Mock<IStubAuthenticationService> _stubAuthServiceMock;
-        private EmployerRequestApprenticeTrainingWebConfiguration _configuration;
         private HomeController _sut;
 
         [SetUp]
         public void Setup()
         {
             _configMock = new Mock<IConfiguration>();
-            _optionsMock = new Mock<IOptions<EmployerRequestApprenticeTrainingWebConfiguration>>();
+            _urlBuilderMock = new Mock<UrlBuilder>("LOCAL");
             _contextAccessorMock = new Mock<IHttpContextAccessor>();
             _loggerMock = new Mock<ILogger<HomeController>>();
             _stubAuthServiceMock = new Mock<IStubAuthenticationService>();
-
-            _configuration = new EmployerRequestApprenticeTrainingWebConfiguration();
-            _optionsMock
-                .Setup(m => m.Value)
-                .Returns(_configuration);
-
+            
             _sut = new HomeController(
                 _configMock.Object,
-                _optionsMock.Object,
+                _urlBuilderMock.Object,
                 _contextAccessorMock.Object,
                 _loggerMock.Object,
                 _stubAuthServiceMock.Object
@@ -89,27 +84,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
 
             // Assert
             result.Should().NotBeNull();
-        }
-
-        [TestCase("AT")]
-        [TestCase("TEST")]
-        [TestCase("TEST2")]
-        [TestCase("PROD")]
-        [TestCase("MO")]
-        public void Index_ShouldReturnRedirect_WhenNotRunningLocallyOrInDev(string environmentName)
-        {
-            // Arrange
-            _configMock
-                .Setup(p => p["EnvironmentName"])
-                .Returns(environmentName);
-
-            _configuration.EmployerAccountsBaseUrl = "http://accounts.url";
-
-            // Act
-            var result = _sut.Index() as RedirectResult;
-
-            // Assert
-            result.Url.Should().Be(_configuration.EmployerAccountsBaseUrl);
         }
 
         [Test]

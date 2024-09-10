@@ -14,7 +14,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
         Task<Dashboard> GetDashboard([Path] long accountId);
 
         [Get("/employerrequests/{employerRequestId}/training-request")]
-        Task<TrainingRequest> GetTrainingRequest([Path] Guid employerRequestId);
+        Task<TrainingRequest> GetTrainingRequest([Path] Guid employerRequestId, [Query] bool includeProviders);
 
         [Get("/employerrequests/account/{accountId}/standard/{standardReference}/existing")]
         Task<bool> GetExistingEmployerRequest([Path] long accountId, [Path] string standardReference);
@@ -27,6 +27,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
 
         [Put("/employerrequests/{employerRequestId}/acknowledge-responses")]
         Task AcknowledgeProviderResponses([Path] Guid employerRequestId, [Query] Guid acknowledgedBy);
+
+        [Put("employerrequests/{employerRequestId}/cancel-request")]
+        Task CancelEmployerRequest([Path] Guid employerRequestId, [Body] CancelEmployerRequestRequest request);
 
         [Get("/accountusers/{userId}/accounts")]
         Task<UserAccountsDetails> GetUserAccounts([Path] string userId, [Query] string email);

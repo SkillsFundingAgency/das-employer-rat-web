@@ -20,7 +20,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetTrain
         {
             await _validator.ValidateAsync(request, cancellationToken);
 
-            TrainingRequest trainingRequest = await _outerApi.GetTrainingRequest(request.EmployerRequestId);
+            TrainingRequest trainingRequest = await _outerApi.GetTrainingRequest(request.EmployerRequestId, request.IncludeProviders);
 
             return trainingRequest;
         }

@@ -87,6 +87,52 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
+        public async Task CancelTrainingRequest_ShouldReturnViewWithViewModel()
+        {
+            // Arrange
+            var parameters = new CancelTrainingRequestParameters
+            {
+                HashedAccountId = "ABC123",
+                AccountId = 123
+            };
+
+            var viewModel = new CancelTrainingRequestViewModel
+            {
+                HashedAccountId = "ABC123"
+            };
+
+            _orchestratorMock.Setup(o => o.GetCancelTrainingRequestViewModel(parameters.EmployerRequestId, parameters.HashedAccountId)).ReturnsAsync(viewModel);
+
+            // Act
+            var result = await _sut.CancelTrainingRequest(parameters) as ViewResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Model.Should().BeEquivalentTo(viewModel);
+        }
+
+        [Test]
+        public async Task CancelTrainingRequest_ShouldCancelRequestAndRedirectToDashboard()
+        {
+            // Arrange
+            var viewModel = new CancelTrainingRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                EmployerRequestId = Guid.NewGuid()
+            };
+
+            // Act
+            var result = await _sut.CancelTrainingRequest(viewModel) as RedirectToRouteResult;
+
+            // Assert
+            _orchestratorMock.Verify(o => o.CancelTrainingRequest(viewModel.EmployerRequestId, viewModel.HashedAccountId), Times.Once);
+
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.DashboardRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
+        }
+
+        [Test]
         public async Task Overview_ShouldReturnViewWithViewModel()
         {
             // Arrange

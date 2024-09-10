@@ -11,6 +11,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         Task<DashboardViewModel> GetDashboardViewModel(long accountId, string hashedAccountId);
         Task AcknowledgeProviderResponses(Guid employerRequestId);
         Task<ViewTrainingRequestViewModel> GetViewTrainingRequestViewModel(Guid employerRequestId, string hashedAccountId);
+        Task CancelTrainingRequest(Guid employerRequestId, string hashedAccountId);
+        Task<CancelTrainingRequestViewModel> GetCancelTrainingRequestViewModel(Guid employerRequestId, string hashedAccountId);
         Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(SubmitEmployerRequestParameters parameters);
         Task<bool> HasExistingEmployerRequest(long accountId, string standardId);
         Task StartEmployerRequest(string location);
