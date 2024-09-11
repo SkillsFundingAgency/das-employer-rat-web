@@ -7,6 +7,7 @@ using SFA.DAS.Employer.Shared.UI.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.AcknowledgeProviderResponses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CancelEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetCancelEmployerRequestConfirmation;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetClosestRegion;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetDashboard;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
@@ -81,6 +82,31 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 CancelledBy = GetCurrentUserId,
                 DashboardUrl = _urlBuilder.RequestApprenticeshipTrainingLink("Dashboard", hashedAccountId)
             });
+        }
+
+        public async Task<CancelConfirmationEmployerRequestViewModel> GetCancelConfirmationEmployerRequestViewModel(string hashedAccountId, Guid employerRequestId)
+        {
+            var result = await _mediator.Send(new GetCancelEmployerRequestConfirmationQuery { EmployerRequestId = employerRequestId });
+            if (result == null)
+            {
+                throw new ArgumentException($"The employer request {employerRequestId} was not found");
+            }
+
+            return new CancelConfirmationEmployerRequestViewModel
+            {
+                HashedAccountId = hashedAccountId,
+                StandardTitle = result.StandardTitle,
+                StandardLevel = result.StandardLevel,
+                NumberOfApprentices = result.NumberOfApprentices.ToString(),
+                SameLocation = result.SameLocation,
+                SingleLocation = result.SingleLocation,
+                AtApprenticesWorkplace = result.AtApprenticesWorkplace,
+                DayRelease = result.DayRelease,
+                BlockRelease = result.BlockRelease,
+                CancelledByEmail = result.CancelledByEmail,
+                FindApprenticeshipTrainingCoursesUrl = $"{_config.FindApprenticeshipTrainingBaseUrl}courses",
+                Regions = result.Regions
+            };
         }
 
         public async Task<ViewTrainingRequestViewModel> GetViewTrainingRequestViewModel(Guid employerRequestId, string hashedAccountId)

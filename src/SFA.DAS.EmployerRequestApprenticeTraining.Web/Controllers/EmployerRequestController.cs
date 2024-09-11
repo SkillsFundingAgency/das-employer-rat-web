@@ -26,6 +26,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         public const string ViewTrainingRequestRouteGet = nameof(ViewTrainingRequestRouteGet);
         public const string CancelTrainingRequestRouteGet = nameof(CancelTrainingRequestRouteGet);
         public const string CancelTrainingRequestRoutePost = nameof(CancelTrainingRequestRoutePost);
+        public const string CancelConfirmationRouteGet = nameof(CancelConfirmationRouteGet);
         public const string OverviewEmployerRequestRouteGet = nameof(OverviewEmployerRequestRouteGet);
         public const string ExistingEmployerRequestRouteGet = nameof(ExistingEmployerRequestRouteGet);
         public const string StartEmployerRequestRouteGet = nameof(StartEmployerRequestRouteGet);
@@ -89,7 +90,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         {
             await _orchestrator.CancelTrainingRequest(viewModel.EmployerRequestId, viewModel.HashedAccountId);
 
-            return RedirectToRoute(DashboardRouteGet, new { viewModel.HashedAccountId });
+            return RedirectToRoute(CancelConfirmationRouteGet, new { viewModel.HashedAccountId, viewModel.EmployerRequestId });
+        }
+
+        [HttpGet]
+        [Route("{employerRequestId}/cancel-confirmation", Name = CancelConfirmationRouteGet)]
+        public async Task<IActionResult> CancelConfirmation(string hashedAccountId, Guid employerRequestId)
+        {
+            return View(await _orchestrator.GetCancelConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId));
         }
 
         [HttpGet]
@@ -319,11 +327,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         }
 
         [HttpGet]
-        [Route("submit-confirmation/{employerRequestId}", Name = SubmitConfirmationRouteGet)]
+        [Route("{employerRequestId}/submit-confirmation", Name = SubmitConfirmationRouteGet)]
         public async Task<IActionResult> SubmitConfirmation(string hashedAccountId, Guid employerRequestId)
         {
             return View(await _orchestrator.GetSubmitConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId));
         }
-
     }
 }

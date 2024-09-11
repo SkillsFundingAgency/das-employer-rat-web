@@ -1,0 +1,67 @@
+﻿@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
+@using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
+@using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
+@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.CancelConfirmationEmployerRequestViewModel
+
+@{
+    ViewData["Title"] = "We've cancelled your request";
+    ViewBag.GaData.Vpv = "/accounts/employerrequests/cancelconfirmation";
+}
+<main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <div class="govuk-panel govuk-panel--confirmation">
+                <h1 class="govuk-panel__title">
+                    @ViewData["Title"]
+                </h1>
+            </div>
+            <p class="govuk-body">We’ve cancelled your request and it will no longer be seen by training providers.</p>
+            <p class="govuk-body">We've sent a confirmation email to <strong>@Model.CancelledByEmail</strong></p>
+            <h2 class="govuk-heading-m">
+                Request for @Model.StandardTitle (level @Model.StandardLevel)
+            </h2>
+            <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        How many apprentices
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.NumberOfApprentices
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Apprenticeship locations
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <partial name="_Locations" />
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Training options
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <partial name="_TrainingOptions" />
+                    </dd>
+                </div>
+            </dl>
+            <h2 class="govuk-heading-m">What happens next</h2>
+            <p class="govuk-body">
+                You can view your training requests or find apprenticeship training.
+            </p>
+            <p class="govuk-body">
+                <a 
+                    asp-route="@EmployerRequestController.DashboardRouteGet"
+                    asp-route-hashedAccountId="@Model.HashedAccountId"
+                   class="govuk-button">
+                    Manage requests
+                </a>
+            </p>
+            <p class="govuk-body">
+                <a href="https://dferesearch.fra1.qualtrics.com/jfe/form/SV_4SCNJixibnF1oCG" class="govuk-link" rel="noreferrer noopener" target="_blank">What did you think of this service? (opens in new tab)</a>
+            </p>
+        </div>
+    </div>
+</main>

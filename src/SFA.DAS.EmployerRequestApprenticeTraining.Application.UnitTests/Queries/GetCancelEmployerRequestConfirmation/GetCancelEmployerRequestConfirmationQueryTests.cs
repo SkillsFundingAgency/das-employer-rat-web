@@ -2,27 +2,27 @@
 using FluentValidation;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetCancelEmployerRequestConfirmation;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 
-namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Queries.GetSubmitEmployerRequestConfirmation
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Queries.GetCancelEmployerRequestConfirmation
 {
     [TestFixture]
-    public class GetSubmitEmployerRequestConfirmationQueryTests
+    public class GetCancelEmployerRequestConfirmationQueryTests
     {
         private Mock<IEmployerRequestApprenticeTrainingOuterApi> _mockOuterApi;
-        private Mock<IValidator<GetSubmitEmployerRequestConfirmationQuery>> _mockValidator;
-        private GetSubmitEmployerRequestConfirmationQueryHandler _handler;
-        private GetSubmitEmployerRequestConfirmationQuery _query;
+        private Mock<IValidator<GetCancelEmployerRequestConfirmationQuery>> _mockValidator;
+        private GetCancelEmployerRequestConfirmationQueryHandler _handler;
+        private GetCancelEmployerRequestConfirmationQuery _query;
 
         [SetUp]
         public void Setup()
         {
             _mockOuterApi = new Mock<IEmployerRequestApprenticeTrainingOuterApi>();
-            _mockValidator = new Mock<IValidator<GetSubmitEmployerRequestConfirmationQuery>>();
-            _handler = new GetSubmitEmployerRequestConfirmationQueryHandler(_mockOuterApi.Object, _mockValidator.Object);
-            _query = new GetSubmitEmployerRequestConfirmationQuery { EmployerRequestId = Guid.NewGuid() };
+            _mockValidator = new Mock<IValidator<GetCancelEmployerRequestConfirmationQuery>>();
+            _handler = new GetCancelEmployerRequestConfirmationQueryHandler(_mockOuterApi.Object, _mockValidator.Object);
+            _query = new GetCancelEmployerRequestConfirmationQuery { EmployerRequestId = Guid.NewGuid() };
         }
 
         [Test]
@@ -39,14 +39,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
         public async Task Handle_ShouldReturnEmployerRequest_WhenCalledWithValidId()
         {
             // Arrange
-            var expectedRequest = new SubmitEmployerRequestConfirmation
+            var expectedRequest = new CancelEmployerRequestConfirmation
             {
                 EmployerRequestId = _query.EmployerRequestId,
                 StandardTitle = "Title",
                 StandardLevel = 1
             };
 
-            _mockOuterApi.Setup(x => x.GetSubmitEmployerRequestConfirmation(_query.EmployerRequestId))
+            _mockOuterApi.Setup(x => x.GetCancelEmployerRequestConfirmation(_query.EmployerRequestId))
                 .ReturnsAsync(expectedRequest);
 
             // Act
@@ -54,14 +54,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
 
             // Assert
             result.Should().BeEquivalentTo(expectedRequest);
-            _mockOuterApi.Verify(x => x.GetSubmitEmployerRequestConfirmation(_query.EmployerRequestId), Times.Once);
+            _mockOuterApi.Verify(x => x.GetCancelEmployerRequestConfirmation(_query.EmployerRequestId), Times.Once);
         }
 
         [Test]
         public void Handle_WhenApiThrowsException_ShouldRethrowIt()
         {
             // Arrange
-            _mockOuterApi.Setup(x => x.GetSubmitEmployerRequestConfirmation(It.IsAny<Guid>()))
+            _mockOuterApi.Setup(x => x.GetCancelEmployerRequestConfirmation(It.IsAny<Guid>()))
                 .ThrowsAsync(new Exception("API failure"));
 
             // Act
