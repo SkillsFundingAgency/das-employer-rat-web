@@ -72,6 +72,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
 
         [HttpGet]
         [Route("{employerRequestId}/cancel", Name = CancelTrainingRequestRouteGet)]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<IActionResult> CancelTrainingRequest(CancelTrainingRequestParameters parameters)
         {
             var viewModel = await _orchestrator.GetCancelTrainingRequestViewModel(parameters.EmployerRequestId, parameters.HashedAccountId);
@@ -86,6 +87,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
 
         [HttpPost]
         [Route("{employerRequestId}/cancel", Name = CancelTrainingRequestRoutePost)]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<ActionResult> CancelTrainingRequest(CancelTrainingRequestViewModel viewModel)
         {
             await _orchestrator.CancelTrainingRequest(viewModel.EmployerRequestId, viewModel.HashedAccountId);
@@ -95,6 +97,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
 
         [HttpGet]
         [Route("{employerRequestId}/cancel-confirmation", Name = CancelConfirmationRouteGet)]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<IActionResult> CancelConfirmation(string hashedAccountId, Guid employerRequestId)
         {
             return View(await _orchestrator.GetCancelConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId));
@@ -144,6 +147,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("apprentices", Name = EnterApprenticesRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public IActionResult EnterApprentices(SubmitEmployerRequestParameters parameters)
         {
             return View(_orchestrator.GetEnterApprenticesEmployerRequestViewModel(parameters, ModelState));
@@ -152,6 +156,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpPost]
         [Route("apprentices", Name = EnterApprenticesRoutePost)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<ActionResult> EnterApprentices(EnterApprenticesEmployerRequestViewModel viewModel)
         {
             if(!await _orchestrator.ValidateEnterApprenticesEmployerRequestViewModel(viewModel, ModelState))
@@ -181,6 +186,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("same-location", Name = EnterSameLocationRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public IActionResult EnterSameLocation(SubmitEmployerRequestParameters parameters)
         {
             return View(_orchestrator.GetEnterSameLocationEmployerRequestViewModel(parameters, ModelState));
@@ -189,6 +195,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpPost]
         [Route("same-location", Name = EnterSameLocationRoutePost)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<ActionResult> EnterSameLocation(EnterSameLocationEmployerRequestViewModel viewModel)
         {
             if (!await _orchestrator.ValidateEnterSameLocationEmployerRequestViewModel(viewModel, ModelState))
@@ -218,6 +225,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("location-single", Name = EnterSingleLocationRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public IActionResult EnterSingleLocation(SubmitEmployerRequestParameters parameters)
         {
             return View(_orchestrator.GetEnterSingleLocationEmployerRequestViewModel(parameters, ModelState));
@@ -226,6 +234,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpPost]
         [Route("location-single", Name = EnterSingleLocationRoutePost)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<ActionResult> EnterSingleLocation(EnterSingleLocationEmployerRequestViewModel viewModel)
         {
             if (!await _orchestrator.ValidateEnterSingleLocationEmployerRequestViewModel(viewModel, ModelState))
@@ -248,6 +257,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("location-multiple", Name = EnterMultipleLocationsRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<IActionResult> EnterMultipleLocations(SubmitEmployerRequestParameters parameters)
         {
             return View(await _orchestrator.GetEnterMultipleLocationsEmployerRequestViewModel(parameters, ModelState));
@@ -256,6 +266,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpPost]
         [Route("location-multiple", Name = EnterMultipleLocationsRoutePost)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<ActionResult> EnterMultipleLocations(EnterMultipleLocationsEmployerRequestViewModel viewModel)
         {
             if (!await _orchestrator.ValidateEnterMultipleLocationsEmployerRequestViewModel(viewModel, ModelState))
@@ -278,6 +289,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("training-options", Name = EnterTrainingOptionsRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public IActionResult EnterTrainingOptions(SubmitEmployerRequestParameters parameters)
         {
             return View(_orchestrator.GetEnterTrainingOptionsEmployerRequestViewModel(parameters, ModelState));
@@ -286,6 +298,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpPost]
         [Route("training-options", Name = EnterTrainingOptionsRoutePost)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<ActionResult> EnterTrainingOptions(EnterTrainingOptionsEmployerRequestViewModel viewModel)
         {
             if (!await _orchestrator.ValidateEnterTrainingOptionsEmployerRequestViewModel(viewModel, ModelState))
@@ -301,6 +314,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("check-your-answers", Name = CheckYourAnswersRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<IActionResult> CheckYourAnswers(SubmitEmployerRequestParameters parameters)
         {
             return View(await _orchestrator.GetCheckYourAnswersEmployerRequestViewModel(parameters, ModelState));
@@ -309,6 +323,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpPost]
         [Route("check-your-answers", Name = CheckYourAnswersRoutePost)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<ActionResult> CheckYourAnswers(CheckYourAnswersEmployerRequestViewModel viewModel)
         {
             if (await _orchestrator.HasExistingEmployerRequest(viewModel.AccountId, viewModel.StandardId))
@@ -328,6 +343,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
 
         [HttpGet]
         [Route("{employerRequestId}/submit-confirmation", Name = SubmitConfirmationRouteGet)]
+        [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<IActionResult> SubmitConfirmation(string hashedAccountId, Guid employerRequestId)
         {
             return View(await _orchestrator.GetSubmitConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId));
