@@ -462,7 +462,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 DayRelease = viewModel.DayRelease,
                 BlockRelease = viewModel.BlockRelease,
                 RequestedBy = GetCurrentUserId,
-                ModifiedBy = GetCurrentUserId
+                ModifiedBy = GetCurrentUserId,
+                DashboardUrl = _urlBuilder.RequestApprenticeshipTrainingLink("Dashboard", viewModel.HashedAccountId)
             });
 
             ClearSessionEmployerRequest();
