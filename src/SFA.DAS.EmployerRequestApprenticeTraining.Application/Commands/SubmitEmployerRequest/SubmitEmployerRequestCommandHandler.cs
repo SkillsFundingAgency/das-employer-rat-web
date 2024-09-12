@@ -28,7 +28,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitE
                 DayRelease = command.DayRelease,
                 BlockRelease = command.BlockRelease,
                 RequestedBy = command.RequestedBy,
-                ModifiedBy = command.ModifiedBy
+                ModifiedBy = command.ModifiedBy,
+                DashboardUrl = command.DashboardUrl
             });
 
             return employerRequestId;
