@@ -15,7 +15,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Validators
     public static class EnterTrainingOptionsEmployerRequestViewModelValidatorRules
     {
         public static IRuleBuilderOptionsConditions<T, bool> ValidateTrainingOptions<T>(this IRuleBuilder<T, bool> ruleBuilder)
-            where T : IEnterTrainingOptionsEmployerRequestViewModel
+            where T : ITrainingOptionsViewModel
         {
             return ruleBuilder.Custom((value, context) =>
             {

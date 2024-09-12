@@ -12,7 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Employer.Shared.UI;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetExistingEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers;
@@ -73,7 +73,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
 
             services
                 .AddValidatorsFromAssemblyContaining<Startup>()
-                .AddValidatorsFromAssemblyContaining<GetEmployerRequestQueryValidator>();
+                .AddValidatorsFromAssemblyContaining<GetExistingEmployerRequestQueryValidator>();
 
             services
                 .AddEmployerAuthentication(_configuration)

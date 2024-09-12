@@ -1,27 +1,24 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using RestEase.HttpClientFactory;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetExistingEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.CacheStorage;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Authorization;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAuthorization;
+using SFA.DAS.GovUK.Auth.Authentication;
 using SFA.DAS.GovUK.Auth.Services;
 using SFA.DAS.Http.Configuration;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
-using SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAuthorization;
 using System.Diagnostics.CodeAnalysis;
-using SFA.DAS.GovUK.Auth.Authentication;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
-using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
-using FluentValidation;
-using MediatR;
-using Microsoft.Extensions.Options;
-using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
@@ -30,7 +27,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
     {
         public static IServiceCollection AddServiceRegistrations(this IServiceCollection services)
         {
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetEmployerRequestQuery).Assembly));
+            services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetExistingEmployerRequestQuery).Assembly));
 
             services.AddSingleton<IAuthorizationHandler, OwnerRoleAuthorizationHandler>();
             services.AddSingleton<IAuthorizationHandler, TransactorRoleAuthorizationHandler>();

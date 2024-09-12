@@ -1,0 +1,164 @@
+﻿@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
+@using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
+@using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses
+@using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
+@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.ViewTrainingRequestViewModel
+
+@{
+    ViewData["Title"] = $"{Model.StandardTitle} (level {Model.StandardLevel})";
+    ViewBag.GaData.Vpv = "/accounts/employerrequests/viewtrainingrequest";
+}
+
+<a asp-route="@EmployerRequestController.DashboardRouteGet"
+   asp-route-hashedAccountId="@Model.HashedAccountId"
+   asp-fragment="@Model.BackFragment"
+   class="govuk-back-link">
+   Back
+</a>
+
+<main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <span class="govuk-caption-xl">Training request</span>
+            <h1 class="govuk-heading-xl">@ViewData["Title"]</h1>
+
+            <h2 class="govuk-heading-m">
+                Your training request
+            </h2>
+            <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        How many apprentices
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.NumberOfApprentices
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Apprenticeship locations
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <partial name="_Locations" />
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Training options
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <partial name="_TrainingOptions" />
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Request date
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.RequestedAt.ToString("d MMM yyyy")
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Expiry date
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @if(Model.ExpiredAt.HasValue)
+                        {
+                            @Model.ExpiredAt.Value.ToString("d MMM yyyy")
+                        }
+                        else
+                        {
+                            @Model.ExpiryAt.ToString("d MMM yyyy")
+                        }
+                    </dd>
+                </div>
+            </dl>
+
+            <div class="govuk-inset-text">
+                @if(Model.Status == RequestStatus.Active)
+                {
+                    <span>
+                        If you've found a provider to run this training or want to remove the request, you can 
+                        <a asp-route="@EmployerRequestController.CancelTrainingRequestRouteGet"
+                           asp-route-hashedAccountId="@Model.HashedAccountId"
+                           asp-route-employerRequestId="@Model.EmployerRequestId"
+                           class="govuk-link govuk-link--no-visted-state">
+                           cancel your request
+                        </a>.
+                    </span>
+                }
+                else if(Model.Status == RequestStatus.Expired)
+                {
+                    <span>Your request has expired and will be removed from your training requests on @Model.RemoveAt.ToString("d MMM yyyy").</span>
+                }
+            </div>
+            
+            <h2 class="govuk-heading-m">
+                Training provider contact details
+            </h2>
+
+            @if(!Model.ProviderResponses.Any())
+            {
+                <p class="govuk-body">You do not have any responses from training providers yet.</p>
+                <p class="govuk-body">You can <a href="https://www.gov.uk/guidance/apply-to-the-apar-as-an-apprenticeship-training-provider">find out how to apply to be an employer provider</a>.</p>
+            }
+            else
+            {
+                <p class="govuk-body">These training providers have responded to your request. Contact the training providers to get more information about the apprenticeship training.</p>
+                <p class="govuk-body">We did not share your organisation name or email address with the training providers.</p>
+
+                @foreach(var providerResponse in Model.ProviderResponses.OrderByDescending(pr => pr.RespondedAt))
+                {
+                    <h3 class="govuk-heading-m">
+                        @providerResponse.ProviderName
+                    </h3>
+
+                    <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Response date
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                @providerResponse.RespondedAt.ToString("d MMM yyyy")
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Name
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                @providerResponse.ContactName
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Email address
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                @providerResponse.Email
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Telephone number
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                @providerResponse.PhoneNumber
+                            </dd>
+                        </div>
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">
+                                Website
+                            </dt>
+                            <dd class="govuk-summary-list__value">
+                                <a href="@Model.CreateAbsoluteHrefLink(providerResponse.Website)" class="govuk-link" rel="noreferrer noopener" target="_blank">@providerResponse.Website (opens in new tab)</a>
+                            </dd>
+                        </div>
+                    </dl>
+                }
+            }
+        </div>
+    </div>
+</main>
