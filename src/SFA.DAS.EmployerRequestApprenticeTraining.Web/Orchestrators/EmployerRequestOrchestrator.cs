@@ -231,7 +231,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             {
                 var newNumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
 
-                if(employerRequest.NumberOfApprentices != newNumberOfApprentices)
+                if (employerRequest.NumberOfApprentices != newNumberOfApprentices)
                 {
                     if (employerRequest.NumberOfApprentices == 1 && newNumberOfApprentices > 1)
                     {
@@ -244,7 +244,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                     }
 
                     viewModel.BackToCheckAnswers = false;
-                    employerRequest.NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
+                    employerRequest.NumberOfApprentices = newNumberOfApprentices;
                 }
             });
         }
