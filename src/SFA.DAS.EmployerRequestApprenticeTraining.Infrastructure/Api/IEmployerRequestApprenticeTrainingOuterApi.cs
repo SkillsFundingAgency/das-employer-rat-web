@@ -25,6 +25,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
         [Get("/employerrequests/{employerRequestId}/submit-confirmation")]
         Task<SubmitEmployerRequestConfirmation> GetSubmitEmployerRequestConfirmation([Path] Guid employerRequestId);
 
+        [Get("/employerrequests/{employerRequestId}/cancel-confirmation")]
+        Task<CancelEmployerRequestConfirmation> GetCancelEmployerRequestConfirmation([Path] Guid employerRequestId);
+
         [Put("/employerrequests/{employerRequestId}/acknowledge-responses")]
         Task AcknowledgeProviderResponses([Path] Guid employerRequestId, [Query] Guid acknowledgedBy);
 

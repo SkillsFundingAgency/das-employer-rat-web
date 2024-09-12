@@ -31,6 +31,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetTrainingR
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CancelEmployerRequest;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Configuration;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetCancelEmployerRequestConfirmation;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
 {
@@ -263,6 +264,62 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             await act.Should().ThrowAsync<ArgumentException>().WithMessage($"The training request for {employerRequestId} was not found");
         }
 
+        [Test]
+        public async Task GetCancelConfirmationEmployerRequestViewModel_ShouldReturnViewModel_WhenRequestExists()
+        {
+            // Arrange
+            var employerRequestId = Guid.NewGuid();
+            var hashedAccountId = "ABC123";
+
+            var confirmation = new CancelEmployerRequestConfirmation
+            {
+                StandardTitle = "StandardTitle",
+                StandardLevel = 3,
+                NumberOfApprentices = 5,
+                SameLocation = "Yes",
+                SingleLocation = "Location",
+                AtApprenticesWorkplace = true,
+                DayRelease = true,
+                BlockRelease = false,
+                CancelledByEmail = "test@example.com"
+            };
+
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<GetCancelEmployerRequestConfirmationQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(confirmation);
+
+            // Act
+            var result = await _sut.GetCancelConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.StandardTitle.Should().Be(confirmation.StandardTitle);
+            result.StandardLevel.Should().Be(confirmation.StandardLevel);
+            result.NumberOfApprentices.Should().Be(confirmation.NumberOfApprentices.ToString());
+            result.SingleLocation.Should().Be(confirmation.SingleLocation);
+            result.AtApprenticesWorkplace.Should().Be(confirmation.AtApprenticesWorkplace);
+            result.DayRelease.Should().Be(confirmation.DayRelease);
+            result.BlockRelease.Should().Be(confirmation.BlockRelease);
+            result.CancelledByEmail.Should().Be(confirmation.CancelledByEmail);
+        }
+
+        [Test]
+        public void GetCancelConfirmationEmployerRequestViewModel_ShouldThrowArgumentException_WhenRequestDoesNotExist()
+        {
+            // Arrange
+            var employerRequestId = Guid.NewGuid();
+            var hashedAccountId = "ABC123";
+
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<GetCancelEmployerRequestConfirmationQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((CancelEmployerRequestConfirmation)null);
+
+            // Act
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetCancelConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId));
+
+            // Assert
+            ex.Message.Should().Be($"The employer request {employerRequestId} was not found");
+        }
 
         [Test]
         public async Task AcknowledgeProviderResponses_ShouldCallMediator_WithCorrectParameters()
