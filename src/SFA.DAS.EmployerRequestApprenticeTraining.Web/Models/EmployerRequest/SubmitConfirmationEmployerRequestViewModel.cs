@@ -1,10 +1,8 @@
 ﻿namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
 {
-    public class SubmitConfirmationEmployerRequestViewModel : CheckYourAnswersEmployerRequestViewModel
+    public class SubmitConfirmationEmployerRequestViewModel : ConfirmationEmployerRequestViewModel
     {
-        public string FindApprenticeshipTrainingBaseUrl { get; set; }
         public string RequestedByEmail { get; set; }
-
-        public string FindApprenticeTrainingCoursesUrl => $"{FindApprenticeshipTrainingBaseUrl}courses";
+        public int ExpiryAfterMonths { get; set; }
     }
 }

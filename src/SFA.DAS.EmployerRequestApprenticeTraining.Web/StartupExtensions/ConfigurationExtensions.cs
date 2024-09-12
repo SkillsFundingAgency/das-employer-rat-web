@@ -20,7 +20,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 #endif
                 .AddEnvironmentVariables();
 
-            if (!configuration["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase))
+            if (!configuration.IsRunningInDev())
             {
                 config.AddAzureTableStorage(options =>
                     {
@@ -40,6 +40,16 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
             return configuration
                 .GetSection(typeof(T).Name)
                 .Get<T>();
+        }
+
+        public static bool IsRunningInDev(this IConfiguration configuration)
+        {
+            return configuration["EnvironmentName"].Equals("DEV", StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        public static bool IsRunningLocally(this IConfiguration configuration)
+        {
+            return configuration["EnvironmentName"].Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase);
         }
     }
 }

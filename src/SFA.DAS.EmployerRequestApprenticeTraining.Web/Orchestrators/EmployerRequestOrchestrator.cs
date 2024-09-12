@@ -1,15 +1,20 @@
 ﻿using FluentValidation;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
+using SFA.DAS.Employer.Shared.UI;
+using SFA.DAS.Employer.Shared.UI.Configuration;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.AcknowledgeProviderResponses;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CancelEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetCancelEmployerRequestConfirmation;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetClosestRegion;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetDashboard;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequests;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetExistingEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetRegions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetTrainingRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
@@ -17,7 +22,6 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionS
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers;
-using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using System;
 using System.Collections.Generic;
@@ -33,11 +37,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         private readonly ILocationService _locationService;
         private readonly EmployerRequestOrchestratorValidators _employerRequestOrchestratorValidators;
         private readonly EmployerRequestApprenticeTrainingWebConfiguration _config;
+        private readonly UrlBuilder _urlBuilder;
 
         public EmployerRequestOrchestrator(IMediator mediator, ISessionStorageService sessionStorage, 
             ILocationService locationService, IUserService userService,
             EmployerRequestOrchestratorValidators employerRequestOrchestratorValidators,
-            IOptions<EmployerRequestApprenticeTrainingWebConfiguration> options)
+            IOptions<EmployerRequestApprenticeTrainingWebConfiguration> options, UrlBuilder urlBuilder)
             : base(userService)
         {
             _mediator = mediator;
@@ -45,6 +50,118 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             _locationService = locationService;
             _employerRequestOrchestratorValidators = employerRequestOrchestratorValidators;
             _config = options?.Value;
+            _urlBuilder = urlBuilder;
+        }
+
+        public async Task<DashboardViewModel> GetDashboardViewModel(long accountId, string hashedAccountId)
+        {
+            var dashboard = await _mediator.Send(new GetDashboardQuery { AccountId = accountId });
+            return new DashboardViewModel 
+            { 
+                Dashboard = dashboard,
+                HashedAccountId = hashedAccountId,
+                FindApprenticeshipTrainingCoursesUrl = $"{_config.FindApprenticeshipTrainingBaseUrl}courses",
+                EmployerAccountDashboardUrl = _urlBuilder.AccountsLink("AccountsHome", hashedAccountId)
+            };
+        }
+
+        public async Task AcknowledgeProviderResponses(Guid employerRequestId)
+        {
+            await _mediator.Send(new AcknowledgeProviderResponsesCommand 
+            { 
+                EmployerRequestId = employerRequestId, 
+                AcknowledgedBy = GetCurrentUserId 
+            });
+        }
+
+        public async Task CancelTrainingRequest(Guid employerRequestId, string hashedAccountId)
+        {
+            await _mediator.Send(new CancelEmployerRequestCommand
+            {
+                EmployerRequestId = employerRequestId,
+                CancelledBy = GetCurrentUserId,
+                DashboardUrl = _urlBuilder.RequestApprenticeshipTrainingLink("Dashboard", hashedAccountId)
+            });
+        }
+
+        public async Task<CancelConfirmationEmployerRequestViewModel> GetCancelConfirmationEmployerRequestViewModel(string hashedAccountId, Guid employerRequestId)
+        {
+            var result = await _mediator.Send(new GetCancelEmployerRequestConfirmationQuery { EmployerRequestId = employerRequestId });
+            if (result == null)
+            {
+                throw new ArgumentException($"The employer request {employerRequestId} was not found");
+            }
+
+            return new CancelConfirmationEmployerRequestViewModel
+            {
+                HashedAccountId = hashedAccountId,
+                StandardTitle = result.StandardTitle,
+                StandardLevel = result.StandardLevel,
+                NumberOfApprentices = result.NumberOfApprentices.ToString(),
+                SameLocation = result.SameLocation,
+                SingleLocation = result.SingleLocation,
+                AtApprenticesWorkplace = result.AtApprenticesWorkplace,
+                DayRelease = result.DayRelease,
+                BlockRelease = result.BlockRelease,
+                CancelledByEmail = result.CancelledByEmail,
+                FindApprenticeshipTrainingCoursesUrl = $"{_config.FindApprenticeshipTrainingBaseUrl}courses",
+                Regions = result.Regions
+            };
+        }
+
+        public async Task<ViewTrainingRequestViewModel> GetViewTrainingRequestViewModel(Guid employerRequestId, string hashedAccountId)
+        {
+            var trainingRequest = await _mediator.Send(new GetTrainingRequestQuery { EmployerRequestId = employerRequestId, IncludeProviders = true });
+            if (trainingRequest == null)
+            {
+                throw new ArgumentException($"The training request for {employerRequestId} was not found");
+            }
+
+            return new ViewTrainingRequestViewModel
+            {
+                HashedAccountId = hashedAccountId,
+                EmployerRequestId = trainingRequest.EmployerRequestId,
+                StandardTitle = trainingRequest.StandardTitle,
+                StandardLevel = trainingRequest.StandardLevel,
+                NumberOfApprentices = trainingRequest.NumberOfApprentices,
+                SameLocation = trainingRequest.SameLocation,
+                SingleLocation = trainingRequest.SingleLocation,
+                AtApprenticesWorkplace = trainingRequest.AtApprenticesWorkplace,
+                DayRelease = trainingRequest.DayRelease,
+                BlockRelease = trainingRequest.BlockRelease,
+                RequestedAt = trainingRequest.RequestedAt,
+                Status = trainingRequest.Status,
+                ExpiredAt = trainingRequest.ExpiredAt,
+                ExpiryAt = trainingRequest.ExpiryAt,
+                RemoveAt = trainingRequest.RemoveAt,
+                Regions = trainingRequest.Regions,
+                ProviderResponses = trainingRequest.ProviderResponses
+            };
+        }
+
+        public async Task<CancelTrainingRequestViewModel> GetCancelTrainingRequestViewModel(Guid employerRequestId, string hashedAccountId)
+        {
+            var trainingRequest = await _mediator.Send(new GetTrainingRequestQuery { EmployerRequestId = employerRequestId, IncludeProviders = false });
+            if (trainingRequest == null)
+            {
+                throw new ArgumentException($"The training request for {employerRequestId} was not found");
+            }
+
+            return new CancelTrainingRequestViewModel
+            {
+                HashedAccountId = hashedAccountId,
+                EmployerRequestId = trainingRequest.EmployerRequestId,
+                StandardTitle = trainingRequest.StandardTitle,
+                StandardLevel = trainingRequest.StandardLevel,
+                NumberOfApprentices = trainingRequest.NumberOfApprentices,
+                SameLocation = trainingRequest.SameLocation,
+                SingleLocation = trainingRequest.SingleLocation,
+                AtApprenticesWorkplace = trainingRequest.AtApprenticesWorkplace,
+                DayRelease = trainingRequest.DayRelease,
+                BlockRelease = trainingRequest.BlockRelease,
+                Status = trainingRequest.Status,
+                Regions = trainingRequest.Regions
+            };
         }
 
         public async Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(SubmitEmployerRequestParameters parameters)
@@ -76,8 +193,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 throw new ArgumentException($"The standard {standardId} was not found");
             }
 
-            var employerRequest = await _mediator.Send(new GetEmployerRequestQuery { AccountId = accountId, StandardReference = standard.IfateReferenceNumber });
-            return employerRequest != null;
+            var existing = await _mediator.Send(new GetExistingEmployerRequestQuery { AccountId = accountId, StandardReference = standard.IfateReferenceNumber });
+            return existing;
         }
 
         public async Task StartEmployerRequest(string location)
@@ -353,27 +470,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return employerRequestId;
         }
 
-        public async Task<ViewEmployerRequestsViewModel> GetViewEmployerRequestsViewModel(long accountId)
-        {
-            var result = await _mediator.Send(new GetEmployerRequestsQuery { AccountId = accountId });
-
-            return new ViewEmployerRequestsViewModel()
-            {
-                EmployerRequests = result
-            };
-        }
-
-        public async Task<ViewEmployerRequestViewModel> GetViewEmployerRequestViewModel(Guid employerRequestId)
-        {
-            var result = await _mediator.Send(new GetEmployerRequestQuery { EmployerRequestId = employerRequestId });
-            return new ViewEmployerRequestViewModel
-            {
-                EmployerRequestId = result.Id,
-                AccountId = result.AccountId,
-                RequestType = result.RequestType
-            };
-        }
-
         private EmployerRequest SessionEmployerRequest
         {
             get => _sessionStorage.EmployerRequest ?? new EmployerRequest();
@@ -397,7 +493,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return modelState.IsValid;
         }
 
-        public async Task<SubmitConfirmationEmployerRequestViewModel> GetSubmitConfirmationEmployerRequestViewModel(Guid employerRequestId)
+        public async Task<SubmitConfirmationEmployerRequestViewModel> GetSubmitConfirmationEmployerRequestViewModel(string hashedAccountId, Guid employerRequestId)
         {
             var result = await _mediator.Send(new GetSubmitEmployerRequestConfirmationQuery { EmployerRequestId = employerRequestId });
             if(result == null)
@@ -407,6 +503,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
             return new SubmitConfirmationEmployerRequestViewModel
             {
+                HashedAccountId = hashedAccountId,
                 StandardTitle = result.StandardTitle,
                 StandardLevel = result.StandardLevel,
                 NumberOfApprentices = result.NumberOfApprentices.ToString(),
@@ -416,7 +513,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 DayRelease = result.DayRelease,
                 BlockRelease = result.BlockRelease,
                 RequestedByEmail = result.RequestedByEmail,
-                FindApprenticeshipTrainingBaseUrl = _config?.FindApprenticeshipTrainingBaseUrl,
+                FindApprenticeshipTrainingCoursesUrl = $"{_config.FindApprenticeshipTrainingBaseUrl}courses",
+                ExpiryAfterMonths = result.ExpiryAfterMonths,
                 Regions = result.Regions
             };
         }

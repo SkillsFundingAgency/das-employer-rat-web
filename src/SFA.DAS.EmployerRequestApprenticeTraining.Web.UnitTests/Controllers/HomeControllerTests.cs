@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.Employer.Shared.UI;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.TestHelper.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
-using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home;
 using SFA.DAS.GovUK.Auth.Services;
 using System;
 using System.Collections.Generic;
@@ -24,6 +26,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
     public class HomeControllerTests
     {
         private Mock<IConfiguration> _configMock;
+        private Mock<UrlBuilder> _urlBuilderMock;
         private Mock<IHttpContextAccessor> _contextAccessorMock;
         private Mock<ILogger<HomeController>> _loggerMock;
         private Mock<IStubAuthenticationService> _stubAuthServiceMock;
@@ -33,12 +36,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public void Setup()
         {
             _configMock = new Mock<IConfiguration>();
+            _urlBuilderMock = new Mock<UrlBuilder>("LOCAL");
             _contextAccessorMock = new Mock<IHttpContextAccessor>();
             _loggerMock = new Mock<ILogger<HomeController>>();
             _stubAuthServiceMock = new Mock<IStubAuthenticationService>();
-
+            
             _sut = new HomeController(
                 _configMock.Object,
+                _urlBuilderMock.Object,
                 _contextAccessorMock.Object,
                 _loggerMock.Object,
                 _stubAuthServiceMock.Object
@@ -52,8 +57,28 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public void Index_ShouldReturnView()
+        public void Index_ShouldReturnView_WhenRunningLocally()
         {
+            // Arrange
+            _configMock
+                .Setup(p => p["EnvironmentName"])
+                .Returns("LOCAL");
+
+            // Act
+            var result = _sut.Index() as ViewResult;
+
+            // Assert
+            result.Should().NotBeNull();
+        }
+
+        [Test]
+        public void Index_ShouldReturnView_WhenRunningInDev()
+        {
+            // Arrange
+            _configMock
+                .Setup(p => p["EnvironmentName"])
+                .Returns("DEV");
+
             // Act
             var result = _sut.Index() as ViewResult;
 
