@@ -45,7 +45,7 @@
                 </ul>
                 <div class="govuk-tabs__panel" id="active-requests">
                     <h3 class="govuk-heading-m">Active requests</h3>
-                    @if(Model.Dashboard.AggregatedEmployerRequests.Count > 0)
+                    @if(Model.Dashboard.ActiveAggregatedEmployerRequests.Count() > 0)
                     {
                         <p class="govuk-body">Training providers can see your requests and will respond if they can offer the training.</p>
 
@@ -57,7 +57,7 @@
                         </ul>
                         <p>Requests will expire after @Model.Dashboard.ExpiryAfterMonths months.</p>
                         <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-6 govuk-!-margin-bottom-6" />
-                        foreach(var request in Model.Dashboard.AggregatedEmployerRequests)
+                        foreach(var request in Model.Dashboard.ActiveAggregatedEmployerRequests)
                         {
                             if (request.NewNumberOfResponses > 0)
                             {
@@ -68,10 +68,11 @@
                             <p>
                                 <div class="govuk-body govuk-!-margin-bottom-1">
                                     <a 
-                                        asp-route="@EmployerRequestController.ViewProviderResponsesRouteGet"
+                                        asp-route="@EmployerRequestController.ViewTrainingRequestRouteGet"
                                         asp-route-hashedAccountId="@Model.HashedAccountId"
                                         asp-route-employerRequestId="@request.EmployerRequestId" 
-                                        class="govuk-link govuk-link--no-visted-state">@request.StandardTitle (level @request.StandardLevel)
+                                        class="govuk-link govuk-link--no-visted-state">
+                                        @request.StandardTitle (level @request.StandardLevel)
                                     </a>
                                 </div>
                                 <div class="govuk-hint">
@@ -94,6 +95,46 @@
                 </div>
                 <div class="govuk-tabs__panel govuk-tabs__panel--hidden" id="expired-requests">
                     <h3 class="govuk-heading-m">Expired requests</h3>
+                        @if (Model.Dashboard.ExpiredAggregatedEmployerRequests.Count() > 0)
+                        {
+                            <p class="govuk-body">These requests are expired and are no longer seen by training providers.</p>
+
+                            <p class="govuk-body">Select a training course to view training provider contact details</p>
+
+                            <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-6 govuk-!-margin-bottom-6" />
+                            foreach (var request in Model.Dashboard.ExpiredAggregatedEmployerRequests)
+                            {
+                                <p>
+                                    <div class="govuk-body govuk-!-margin-bottom-1">
+                                        <a asp-route="@EmployerRequestController.ViewTrainingRequestRouteGet"
+                                           asp-route-hashedAccountId="@Model.HashedAccountId"
+                                           asp-route-employerRequestId="@request.EmployerRequestId"
+                                           class="govuk-link govuk-link--no-visted-state">
+                                           @request.StandardTitle (level @request.StandardLevel)
+                                        </a>
+                                    </div>
+                                    <div class="govuk-hint">
+                                        <span>@request.NumberOfResponses @Model.ResponsesText(request.NumberOfResponses)</span>
+                                    </div>
+                                </p>
+                                <p>
+                                    <div class="govuk-body govuk-!-margin-bottom-1">Request made on @request.RequestedAt.ToString("d MMM yyyy")</div>
+                                    <div class="govuk-hint">
+                                        Expired @request.ExpiryAt.ToString("d MMM yyyy")
+                                    </div>
+                                </p>
+                                <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-6 govuk-!-margin-bottom-6" />
+                            }
+                        }
+                        else
+                        {
+                            <p class="govuk-body">
+                                Requests expire after @Model.Dashboard.RemovedAfterExpiryMonths months and are no longer seen by training providers.
+                            </p>
+                            <p class="govuk-body">
+                                When your requests have expired, you'll see them here
+                            </p>
+                        }
                 </div>
             </div>
             </div>
