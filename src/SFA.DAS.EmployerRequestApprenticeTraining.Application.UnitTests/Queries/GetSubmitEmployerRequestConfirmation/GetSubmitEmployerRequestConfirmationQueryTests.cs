@@ -6,7 +6,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmp
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces;
 using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types;
 
-namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Queries.GetEmployerRequest
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Queries.GetSubmitEmployerRequestConfirmation
 {
     [TestFixture]
     public class GetSubmitEmployerRequestConfirmationQueryTests

@@ -1,0 +1,67 @@
+﻿@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions
+@using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration
+@using SFA.DAS.EmployerRequestApprenticeTraining.Domain.Types
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
+@using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers
+@model SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest.CancelTrainingRequestViewModel
+
+@{
+    ViewData["Title"] = "Cancel your request";
+    ViewBag.GaData.Vpv = "/accounts/employerrequests/cancel";
+}
+<a asp-route="@EmployerRequestController.ViewTrainingRequestRouteGet"
+   asp-route-employerRequestId="@Model.EmployerRequestId"
+   asp-route-hashedAccountId="@Model.HashedAccountId"
+   class="govuk-back-link">Back</a>
+
+<main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <partial name="_ValidationSummary" />
+            <h1 class="govuk-heading-xl">@ViewData["Title"]</h1>
+            <p class="govuk-text">
+                We'll cancel your request and it will no longer be seen by training providers.
+            </p>
+            <h2 class="govuk-heading-m">
+                Request for @Model.StandardTitle (level @Model.StandardLevel)
+            </h2>
+            <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        How many apprentices
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.NumberOfApprentices
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Apprenticeship locations
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <partial name="_Locations" />
+                    </dd>
+                </div>
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Training options
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        <partial name="_TrainingOptions" />
+                    </dd>
+                </div>
+            </dl>
+
+            <form asp-route="@EmployerRequestController.CheckYourAnswersRoutePost" method="post">
+                @Html.HiddenFor(model => model.HashedAccountId)
+                @Html.HiddenFor(model => model.EmployerRequestId)
+                
+                <div class="govuk-button-group">
+                    <button type="submit" class="govuk-button govuk-button--warning" data-module="govuk-button">
+                        Cancel request
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
