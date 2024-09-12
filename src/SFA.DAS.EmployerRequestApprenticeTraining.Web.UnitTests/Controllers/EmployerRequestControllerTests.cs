@@ -87,6 +87,78 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
+        public async Task CancelTrainingRequest_ShouldReturnViewWithViewModel()
+        {
+            // Arrange
+            var parameters = new CancelTrainingRequestParameters
+            {
+                HashedAccountId = "ABC123",
+                AccountId = 123
+            };
+
+            var viewModel = new CancelTrainingRequestViewModel
+            {
+                HashedAccountId = "ABC123"
+            };
+
+            _orchestratorMock.Setup(o => o.GetCancelTrainingRequestViewModel(parameters.EmployerRequestId, parameters.HashedAccountId)).ReturnsAsync(viewModel);
+
+            // Act
+            var result = await _sut.CancelTrainingRequest(parameters) as ViewResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Model.Should().BeEquivalentTo(viewModel);
+        }
+
+        [Test]
+        public async Task CancelTrainingRequest_ShouldCancelRequestAndRedirectToCancelConfirmation()
+        {
+            // Arrange
+            var viewModel = new CancelTrainingRequestViewModel
+            {
+                HashedAccountId = "ABC123",
+                EmployerRequestId = Guid.NewGuid()
+            };
+
+            // Act
+            var result = await _sut.CancelTrainingRequest(viewModel) as RedirectToRouteResult;
+
+            // Assert
+            _orchestratorMock.Verify(o => o.CancelTrainingRequest(viewModel.EmployerRequestId, viewModel.HashedAccountId), Times.Once);
+
+            result.Should().NotBeNull();
+            result.RouteName.Should().Be(EmployerRequestController.CancelConfirmationRouteGet);
+            result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
+            result.RouteValues["employerRequestId"].Should().Be(viewModel.EmployerRequestId);
+        }
+
+        [Test]
+        public async Task CancelConfirmation_ShouldReturnViewWithViewModel()
+        {
+            // Arrange
+            var employerRequestId = Guid.NewGuid();
+            var hashedAccountId = "ABC123";
+
+            var viewModel = new CancelConfirmationEmployerRequestViewModel
+            {
+                HashedAccountId = hashedAccountId,
+                CancelledByEmail = "test@test.com"
+            };
+
+            _orchestratorMock
+                .Setup(o => o.GetCancelConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId))
+                .ReturnsAsync(viewModel);
+
+            // Act
+            var result = await _sut.CancelConfirmation(hashedAccountId, employerRequestId) as ViewResult;
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Model.Should().BeEquivalentTo(viewModel);
+        }
+
+        [Test]
         public async Task Overview_ShouldReturnViewWithViewModel()
         {
             // Arrange

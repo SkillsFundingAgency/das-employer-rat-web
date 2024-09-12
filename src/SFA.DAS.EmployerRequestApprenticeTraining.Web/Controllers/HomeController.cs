@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home;
@@ -26,9 +26,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
     public class HomeController : Controller
     {
         private readonly IConfiguration _config;
-        private readonly EmployerRequestApprenticeTrainingWebConfiguration _configuration;
+        private readonly UrlBuilder _urlBuilder;
         private readonly IHttpContextAccessor _contextAccessor;
         private readonly ILogger<HomeController> _logger;
+        
         private readonly IStubAuthenticationService _stubAuthenticationService;
 
         #region Routes
@@ -37,12 +38,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         public const string ErrorRouteGet = nameof(ErrorRouteGet);
         #endregion Routes
 
-        public HomeController(IConfiguration config, IOptions<EmployerRequestApprenticeTrainingWebConfiguration> options,
+        public HomeController(IConfiguration config, UrlBuilder urlBuilder, 
             IHttpContextAccessor contextAccessor, ILogger<HomeController> logger, 
             IStubAuthenticationService stubAuthenticationService)
         {
             _config = config;
-            _configuration = options.Value;
+            _urlBuilder = urlBuilder;
             _contextAccessor = contextAccessor;
             _logger = logger;
             _stubAuthenticationService = stubAuthenticationService;
@@ -55,7 +56,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
                 return View();
             }
 
-            return Redirect(_configuration.EmployerAccountsBaseUrl);
+            return Redirect(_urlBuilder.AccountsLink());
         }
 
         [HttpGet("~/error/403")]

@@ -1,25 +1,25 @@
 ﻿using FluentValidation.TestHelper;
 using NUnit.Framework;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetCancelEmployerRequestConfirmation;
 
-namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Queries.GetSubmitEmployerRequestConfirmation
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Queries.GetCancelEmployerRequestConfirmation
 {
     [TestFixture]
-    public class GetSubmitEmployerRequestConfirmationQueryValidatorTests
+    public class GetCancelEmployerRequestConfirmationQueryValidatorTests
     {
-        private GetSubmitEmployerRequestConfirmationQueryValidator _validator;
+        private GetCancelEmployerRequestConfirmationQueryValidator _validator;
 
         [SetUp]
         public void Setup()
         {
-            _validator = new GetSubmitEmployerRequestConfirmationQueryValidator();
+            _validator = new GetCancelEmployerRequestConfirmationQueryValidator();
         }
 
         [Test]
         public void Validate_ShouldHaveValidationError_WhenEmployerRequestIdIsEmpty()
         {
             // Arrange
-            var query = new GetSubmitEmployerRequestConfirmationQuery { EmployerRequestId = Guid.Empty };
+            var query = new GetCancelEmployerRequestConfirmationQuery { EmployerRequestId = Guid.Empty };
 
             // Act
             var result = _validator.TestValidate(query);
@@ -33,7 +33,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
         public void Validate_ShouldNotHaveValidationError_WhenEmployerRequestIdIsValid()
         {
             // Arrange
-            var query = new GetSubmitEmployerRequestConfirmationQuery { EmployerRequestId = Guid.NewGuid() };
+            var query = new GetCancelEmployerRequestConfirmationQuery { EmployerRequestId = Guid.NewGuid() };
 
             // Act
             var result = _validator.TestValidate(query);

@@ -2,14 +2,19 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
+using SFA.DAS.Employer.Shared.UI;
+using SFA.DAS.Employer.Shared.UI.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.AcknowledgeProviderResponses;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CancelEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetExistingEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetCancelEmployerRequestConfirmation;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetClosestRegion;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetDashboard;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetExistingEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetRegions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetTrainingRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.Locations;
@@ -22,8 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetTrainingRequest;
-using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 {
@@ -34,11 +37,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         private readonly ILocationService _locationService;
         private readonly EmployerRequestOrchestratorValidators _employerRequestOrchestratorValidators;
         private readonly EmployerRequestApprenticeTrainingWebConfiguration _config;
+        private readonly UrlBuilder _urlBuilder;
 
         public EmployerRequestOrchestrator(IMediator mediator, ISessionStorageService sessionStorage, 
             ILocationService locationService, IUserService userService,
             EmployerRequestOrchestratorValidators employerRequestOrchestratorValidators,
-            IOptions<EmployerRequestApprenticeTrainingWebConfiguration> options)
+            IOptions<EmployerRequestApprenticeTrainingWebConfiguration> options, UrlBuilder urlBuilder)
             : base(userService)
         {
             _mediator = mediator;
@@ -46,6 +50,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             _locationService = locationService;
             _employerRequestOrchestratorValidators = employerRequestOrchestratorValidators;
             _config = options?.Value;
+            _urlBuilder = urlBuilder;
         }
 
         public async Task<DashboardViewModel> GetDashboardViewModel(long accountId, string hashedAccountId)
@@ -56,7 +61,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 Dashboard = dashboard,
                 HashedAccountId = hashedAccountId,
                 FindApprenticeshipTrainingCoursesUrl = $"{_config.FindApprenticeshipTrainingBaseUrl}courses",
-                EmployerAccountDashboardUrl = $"{_config.EmployerAccountsBaseUrl}accounts\\{hashedAccountId}\\teams",
+                EmployerAccountDashboardUrl = _urlBuilder.AccountsLink("AccountsHome", hashedAccountId)
             };
         }
 
@@ -64,13 +69,49 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         {
             await _mediator.Send(new AcknowledgeProviderResponsesCommand 
             { 
-                EmployerRequestId = employerRequestId, AcknowledgedBy = GetCurrentUserId 
+                EmployerRequestId = employerRequestId, 
+                AcknowledgedBy = GetCurrentUserId 
             });
+        }
+
+        public async Task CancelTrainingRequest(Guid employerRequestId, string hashedAccountId)
+        {
+            await _mediator.Send(new CancelEmployerRequestCommand
+            {
+                EmployerRequestId = employerRequestId,
+                CancelledBy = GetCurrentUserId,
+                DashboardUrl = _urlBuilder.RequestApprenticeshipTrainingLink("Dashboard", hashedAccountId)
+            });
+        }
+
+        public async Task<CancelConfirmationEmployerRequestViewModel> GetCancelConfirmationEmployerRequestViewModel(string hashedAccountId, Guid employerRequestId)
+        {
+            var result = await _mediator.Send(new GetCancelEmployerRequestConfirmationQuery { EmployerRequestId = employerRequestId });
+            if (result == null)
+            {
+                throw new ArgumentException($"The employer request {employerRequestId} was not found");
+            }
+
+            return new CancelConfirmationEmployerRequestViewModel
+            {
+                HashedAccountId = hashedAccountId,
+                StandardTitle = result.StandardTitle,
+                StandardLevel = result.StandardLevel,
+                NumberOfApprentices = result.NumberOfApprentices.ToString(),
+                SameLocation = result.SameLocation,
+                SingleLocation = result.SingleLocation,
+                AtApprenticesWorkplace = result.AtApprenticesWorkplace,
+                DayRelease = result.DayRelease,
+                BlockRelease = result.BlockRelease,
+                CancelledByEmail = result.CancelledByEmail,
+                FindApprenticeshipTrainingCoursesUrl = $"{_config.FindApprenticeshipTrainingBaseUrl}courses",
+                Regions = result.Regions
+            };
         }
 
         public async Task<ViewTrainingRequestViewModel> GetViewTrainingRequestViewModel(Guid employerRequestId, string hashedAccountId)
         {
-            var trainingRequest = await _mediator.Send(new GetTrainingRequestQuery { EmployerRequestId = employerRequestId });
+            var trainingRequest = await _mediator.Send(new GetTrainingRequestQuery { EmployerRequestId = employerRequestId, IncludeProviders = true });
             if (trainingRequest == null)
             {
                 throw new ArgumentException($"The training request for {employerRequestId} was not found");
@@ -95,6 +136,31 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 RemoveAt = trainingRequest.RemoveAt,
                 Regions = trainingRequest.Regions,
                 ProviderResponses = trainingRequest.ProviderResponses
+            };
+        }
+
+        public async Task<CancelTrainingRequestViewModel> GetCancelTrainingRequestViewModel(Guid employerRequestId, string hashedAccountId)
+        {
+            var trainingRequest = await _mediator.Send(new GetTrainingRequestQuery { EmployerRequestId = employerRequestId, IncludeProviders = false });
+            if (trainingRequest == null)
+            {
+                throw new ArgumentException($"The training request for {employerRequestId} was not found");
+            }
+
+            return new CancelTrainingRequestViewModel
+            {
+                HashedAccountId = hashedAccountId,
+                EmployerRequestId = trainingRequest.EmployerRequestId,
+                StandardTitle = trainingRequest.StandardTitle,
+                StandardLevel = trainingRequest.StandardLevel,
+                NumberOfApprentices = trainingRequest.NumberOfApprentices,
+                SameLocation = trainingRequest.SameLocation,
+                SingleLocation = trainingRequest.SingleLocation,
+                AtApprenticesWorkplace = trainingRequest.AtApprenticesWorkplace,
+                DayRelease = trainingRequest.DayRelease,
+                BlockRelease = trainingRequest.BlockRelease,
+                Status = trainingRequest.Status,
+                Regions = trainingRequest.Regions
             };
         }
 

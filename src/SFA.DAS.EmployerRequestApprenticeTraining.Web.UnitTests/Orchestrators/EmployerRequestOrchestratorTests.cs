@@ -28,6 +28,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetTrainingRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CancelEmployerRequest;
+using SFA.DAS.Employer.Shared.UI;
+using SFA.DAS.Employer.Shared.UI.Configuration;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetCancelEmployerRequestConfirmation;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
 {
@@ -47,6 +51,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         private Mock<IOptions<EmployerRequestApprenticeTrainingWebConfiguration>> _optionsMock;
         private EmployerRequestOrchestrator _sut;
         private EmployerRequestApprenticeTrainingWebConfiguration _config;
+        private UrlBuilder _urlBuilder;
 
         [SetUp]
         public void Setup()
@@ -55,6 +60,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _sessionStorageMock = new Mock<ISessionStorageService>();
             _locationServiceMock = new Mock<ILocationService>();
             _userServiceMock = new Mock<IUserService>();
+            _urlBuilder = new UrlBuilder("LOCAL");
 
             _enterApprenticesEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterApprenticesEmployerRequestViewModel>>();
             _enterSameLocationEmployerRequestViewModelValidatorMock = new Mock<IValidator<EnterSameLocationEmployerRequestViewModel>>();
@@ -82,7 +88,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
 
             _sut = new EmployerRequestOrchestrator(_mediatorMock.Object, _sessionStorageMock.Object, 
                 _locationServiceMock.Object,  _userServiceMock.Object, 
-                employerRequestOrchestratorValidators, _optionsMock.Object);
+                employerRequestOrchestratorValidators, _optionsMock.Object,
+                _urlBuilder);
         }
 
         [Test, MoqAutoData]
@@ -101,7 +108,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             result.Dashboard.Should().Be(dashboard);
             result.HashedAccountId.Should().Be(hashedAccountId);
             result.FindApprenticeshipTrainingCoursesUrl.Should().Be($"{_config.FindApprenticeshipTrainingBaseUrl}courses");
-            result.EmployerAccountDashboardUrl.Should().Be($"{_config.EmployerAccountsBaseUrl}accounts\\{hashedAccountId}\\teams");
+            result.EmployerAccountDashboardUrl.Should().Be(_urlBuilder.AccountsLink("AccountsHome", hashedAccountId));
         }
 
         [Test]
@@ -178,6 +185,141 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             await act.Should().ThrowAsync<ArgumentException>().WithMessage($"The training request for {employerRequestId} was not found");
         }
 
+        [Test]
+        public async Task CancelTrainingRequest_ShouldCallMediatorWithCorrectCommandAndCancelledBy()
+        {
+            // Arrange
+            var employerRequestId = Guid.NewGuid();
+            var hashedAccountId = "ABC123";
+            var userId = Guid.NewGuid();
+
+            _userServiceMock.Setup(x => x.GetUserId()).Returns(userId.ToString());
+
+            // Act
+            await _sut.CancelTrainingRequest(employerRequestId, hashedAccountId);
+
+            // Assert
+            _mediatorMock.Verify(m => m.Send(It.Is<CancelEmployerRequestCommand>(cmd =>
+                cmd.EmployerRequestId == employerRequestId && cmd.CancelledBy == userId),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GetCancelTrainingRequestViewModel_ShouldReturnViewModel_WhenTrainingRequestExists()
+        {
+            // Arrange
+            var employerRequestId = Guid.NewGuid();
+            var hashedAccountId = "ABC123";
+            var trainingRequest = new TrainingRequest
+            {
+                EmployerRequestId = employerRequestId,
+                StandardTitle = "StandardTitle",
+                StandardLevel = 3,
+                NumberOfApprentices = 5,
+                SameLocation = "Yes",
+                SingleLocation = "Location",
+                AtApprenticesWorkplace = true,
+                DayRelease = true,
+                BlockRelease = false,
+                Status = RequestStatus.Active,
+                Regions = new List<Region>
+            {
+                new Region { Id = 1, RegionName = "Region1", SubregionName = "Subregion1" }
+            }
+            };
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetTrainingRequestQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(trainingRequest);
+
+            // Act
+            var result = await _sut.GetCancelTrainingRequestViewModel(employerRequestId, hashedAccountId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.EmployerRequestId.Should().Be(trainingRequest.EmployerRequestId);
+            result.StandardTitle.Should().Be(trainingRequest.StandardTitle);
+            result.StandardLevel.Should().Be(trainingRequest.StandardLevel);
+            result.NumberOfApprentices.Should().Be(trainingRequest.NumberOfApprentices);
+            result.SameLocation.Should().Be(trainingRequest.SameLocation);
+            result.SingleLocation.Should().Be(trainingRequest.SingleLocation);
+            result.AtApprenticesWorkplace.Should().Be(trainingRequest.AtApprenticesWorkplace);
+            result.DayRelease.Should().Be(trainingRequest.DayRelease);
+            result.BlockRelease.Should().Be(trainingRequest.BlockRelease);
+            result.Status.Should().Be(trainingRequest.Status);
+            result.Regions.Should().BeEquivalentTo(trainingRequest.Regions);
+        }
+
+        [Test]
+        public async Task GetCancelTrainingRequestViewModel_ShouldThrowArgumentException_WhenTrainingRequestDoesNotExist()
+        {
+            // Arrange
+            var employerRequestId = Guid.NewGuid();
+            var hashedAccountId = "ABC123";
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<GetTrainingRequestQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync((TrainingRequest)null);
+
+            // Act
+            Func<Task> act = async () => await _sut.GetCancelTrainingRequestViewModel(employerRequestId, hashedAccountId);
+
+            // Assert
+            await act.Should().ThrowAsync<ArgumentException>().WithMessage($"The training request for {employerRequestId} was not found");
+        }
+
+        [Test]
+        public async Task GetCancelConfirmationEmployerRequestViewModel_ShouldReturnViewModel_WhenRequestExists()
+        {
+            // Arrange
+            var employerRequestId = Guid.NewGuid();
+            var hashedAccountId = "ABC123";
+
+            var confirmation = new CancelEmployerRequestConfirmation
+            {
+                StandardTitle = "StandardTitle",
+                StandardLevel = 3,
+                NumberOfApprentices = 5,
+                SameLocation = "Yes",
+                SingleLocation = "Location",
+                AtApprenticesWorkplace = true,
+                DayRelease = true,
+                BlockRelease = false,
+                CancelledByEmail = "test@example.com"
+            };
+
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<GetCancelEmployerRequestConfirmationQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(confirmation);
+
+            // Act
+            var result = await _sut.GetCancelConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.StandardTitle.Should().Be(confirmation.StandardTitle);
+            result.StandardLevel.Should().Be(confirmation.StandardLevel);
+            result.NumberOfApprentices.Should().Be(confirmation.NumberOfApprentices.ToString());
+            result.SingleLocation.Should().Be(confirmation.SingleLocation);
+            result.AtApprenticesWorkplace.Should().Be(confirmation.AtApprenticesWorkplace);
+            result.DayRelease.Should().Be(confirmation.DayRelease);
+            result.BlockRelease.Should().Be(confirmation.BlockRelease);
+            result.CancelledByEmail.Should().Be(confirmation.CancelledByEmail);
+        }
+
+        [Test]
+        public void GetCancelConfirmationEmployerRequestViewModel_ShouldThrowArgumentException_WhenRequestDoesNotExist()
+        {
+            // Arrange
+            var employerRequestId = Guid.NewGuid();
+            var hashedAccountId = "ABC123";
+
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<GetCancelEmployerRequestConfirmationQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((CancelEmployerRequestConfirmation)null);
+
+            // Act
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetCancelConfirmationEmployerRequestViewModel(hashedAccountId, employerRequestId));
+
+            // Assert
+            ex.Message.Should().Be($"The employer request {employerRequestId} was not found");
+        }
 
         [Test]
         public async Task AcknowledgeProviderResponses_ShouldCallMediator_WithCorrectParameters()

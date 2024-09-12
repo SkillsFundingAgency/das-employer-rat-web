@@ -44,10 +44,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
             // Arrange
             var employerRequestId = Guid.NewGuid();
             var trainingRequest = new TrainingRequest() { EmployerRequestId = employerRequestId };
-            var query = new GetTrainingRequestQuery { EmployerRequestId = employerRequestId };
+            var query = new GetTrainingRequestQuery { EmployerRequestId = employerRequestId, IncludeProviders = true };
 
             _mockValidator.Setup(v => v.ValidateAsync(query, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
-            _outerApiMock.Setup(api => api.GetTrainingRequest(employerRequestId)).ReturnsAsync(trainingRequest);
+            _outerApiMock.Setup(api => api.GetTrainingRequest(employerRequestId, true)).ReturnsAsync(trainingRequest);
 
             // Act
             var result = await _handler.Handle(query, CancellationToken.None);
@@ -64,7 +64,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
             var query = new GetTrainingRequestQuery { EmployerRequestId = employerRequestId };
 
             _mockValidator.Setup(v => v.ValidateAsync(query, It.IsAny<CancellationToken>())).ReturnsAsync(new ValidationResult());
-            _outerApiMock.Setup(api => api.GetTrainingRequest(employerRequestId)).ReturnsAsync((TrainingRequest?)null);
+            _outerApiMock.Setup(api => api.GetTrainingRequest(employerRequestId, true)).ReturnsAsync((TrainingRequest?)null);
 
             // Act
             var result = await _handler.Handle(query, CancellationToken.None);

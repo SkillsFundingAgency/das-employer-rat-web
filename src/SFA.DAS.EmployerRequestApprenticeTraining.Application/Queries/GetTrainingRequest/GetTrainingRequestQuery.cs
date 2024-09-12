@@ -6,5 +6,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetTrain
     public class GetTrainingRequestQuery : IRequest<TrainingRequest>
     {
         public Guid EmployerRequestId { get; set; }
+        public bool IncludeProviders { get; set; }
     }
 }
