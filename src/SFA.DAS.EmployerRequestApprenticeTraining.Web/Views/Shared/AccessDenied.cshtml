@@ -1,18 +1,23 @@
 ﻿@inject SFA.DAS.Employer.Shared.UI.UrlBuilder UrlBuilder
 
 @{
-    ViewBag.Title = "Access denied";
-    ViewData["Title"] = ViewBag.Title;
+    ViewData["Title"] = "You need different access to view this page";
     ViewBag.GaData.Vpv = "/error/403";
 }
+<main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">@ViewData["Title"]</h1>
 
-<h1 class="govuk-heading-xl">@ViewBag.Title</h1>
-<p class="govuk-body">Your account does not have sufficient privileges.</p>
+            <p class="govuk-body">
+                To continue, contact the employer account owner who can change what they allow you to do.
+            </p>
 
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-        <p>If you are experiencing difficulty accessing the area of the site you need, first contact an/the account owner to ensure you have the correct role assigned to your account.</p>
+            <p class="govuk-body">
+                If you came here by mistake, go back to the <a class="govuk-link" href="@UrlBuilder.AccountsLink()">homepage of this service</a>.
+            </p>
+        </div>
     </div>
-</div>
+</main>
 
-<a class="govuk-button" href="@UrlBuilder.AccountsLink()">Go back to the service home page</a>
+

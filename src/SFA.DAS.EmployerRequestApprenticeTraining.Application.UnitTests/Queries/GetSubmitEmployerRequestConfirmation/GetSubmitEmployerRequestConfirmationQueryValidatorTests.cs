@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetSubmitEmployerRequestConfirmation;
 
-namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Queries.GetEmployerRequest
+namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Queries.GetSubmitEmployerRequestConfirmation
 {
     [TestFixture]
     public class GetSubmitEmployerRequestConfirmationQueryValidatorTests

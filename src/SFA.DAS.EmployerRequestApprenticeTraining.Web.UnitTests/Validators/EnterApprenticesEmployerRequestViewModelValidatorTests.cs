@@ -76,5 +76,21 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Validators
             result.ShouldHaveValidationErrorFor(x => x.NumberOfApprentices)
                   .WithErrorMessage("Enter a number between 1 and 9999");
         }
+
+        [TestCase("5.5")]
+        [TestCase("1000.1")]
+        [TestCase("9999.9")]
+        public void Should_Have_Error_When_NumberOfApprentices_Is_Not_A_Whole_Number(string invalidNumber)
+        {
+            // Arrange
+            var model = new EnterApprenticesEmployerRequestViewModel { NumberOfApprentices = invalidNumber };
+
+            // Act
+            var result = _sut.TestValidate(model);
+
+            // Assert
+            result.ShouldHaveValidationErrorFor(x => x.NumberOfApprentices)
+                  .WithErrorMessage("Enter a whole number");
+        }
     }
 }

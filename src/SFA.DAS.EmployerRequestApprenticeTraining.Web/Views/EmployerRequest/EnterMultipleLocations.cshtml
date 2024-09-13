@@ -20,13 +20,14 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
             <partial name="_ValidationSummary" />
-            <h1 class="govuk-label-wrapper">
-                <label class="govuk-label govuk-label--l" for="MultipleLocations">
-                    @ViewData["Title"]
-                </label>
-            </h1>
-            <p class="govuk-body">You have told us you have more than one apprentice in different locations.</p>
-            <p class="govuk-body">Choose the regions where you require the apprentice training.</p>
+            <fieldset class="govuk-fieldset">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+                    <h1 class="govuk-fieldset__heading">
+                        @ViewData["Title"]
+                    </h1>
+                </legend>
+            <p class="govuk-body">You have told us that you have more than one apprentice in different locations.</p>
+            <p class="govuk-body">Select all the locations where you require apprenticeship training:</p>
             <form asp-route="@EmployerRequestController.EnterMultipleLocationsRoutePost" method="post">
                 @Html.HiddenFor(model => model.HashedAccountId)
                 @Html.HiddenFor(model => model.StandardId)
@@ -34,13 +35,13 @@
                 @Html.HiddenFor(model => model.Location)
                 @Html.HiddenFor(model => model.BackToCheckAnswers)
                 <div class="govuk-form-group" das-highlight-error-for="MultipleLocations" error-class="govuk-form-group--error">
-                    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-                    <div class="govuk-form-group" esfa-validation-marker-for="MultipleLocations">
-                        <span class="govuk-error-message" asp-validation-for="MultipleLocations"></span>
-                    </div>
+                    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">                   
+                    <p das-validation-for="MultipleLocations" class="govuk-error-message"></p>
+
+                    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
                     @foreach (var region in Model.SubregionsGroupedByRegions)
                     {
-                        <h3 class="govuk-heading-m">@region.Key</h3>
+                        <h2 class="govuk-heading-m">@region.Key</h2>
                         <ul class="govuk-list govuk-grid-row">
                             @foreach (var location in region.OrderBy(x => x.RegionName))
                             {
@@ -60,6 +61,7 @@
                         </ul>
                         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
                     }
+                    </div>
                 </div>
                 <div class="govuk-button-group">
                     <button type="submit" class="govuk-button" data-module="govuk-button">
@@ -74,6 +76,7 @@
                     </a>
                 </div>
             </form>
+            </fieldset>
         </div>
     </div>
 </main>

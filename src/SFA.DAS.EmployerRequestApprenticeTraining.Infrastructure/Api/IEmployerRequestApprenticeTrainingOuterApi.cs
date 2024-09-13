@@ -10,20 +10,29 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
 {
     public interface IEmployerRequestApprenticeTrainingOuterApi
     {
-        [Get("/employerrequests/{employerRequestId}")]
-        Task<EmployerRequest> GetEmployerRequest([Path] Guid employerRequestId);
+        [Get("/employerrequests/account/{accountId}/dashboard")]
+        Task<Dashboard> GetDashboard([Path] long accountId);
 
-        [Get("/employerrequests/account/{accountId}/standard/{standardReference}")]
-        Task<EmployerRequest> GetEmployerRequest([Path] long accountId, [Path] string standardReference);
+        [Get("/employerrequests/{employerRequestId}/training-request")]
+        Task<TrainingRequest> GetTrainingRequest([Path] Guid employerRequestId, [Query] bool includeProviders);
 
-        [Get("/employerrequests/account/{accountId}")]
-        Task<List<EmployerRequest>> GetEmployerRequests([Path] long accountId);
+        [Get("/employerrequests/account/{accountId}/standard/{standardReference}/existing")]
+        Task<bool> GetExistingEmployerRequest([Path] long accountId, [Path] string standardReference);
 
-        [Post("/employerrequests")]
-        Task<Guid> SubmitEmployerRequest([Body] SubmitEmployerRequestRequest request);
+        [Post("/employerrequests/account/{accountId}/submit-request")]
+        Task<Guid> SubmitEmployerRequest([Path] long accountId, [Body] SubmitEmployerRequestRequest request);
 
         [Get("/employerrequests/{employerRequestId}/submit-confirmation")]
         Task<SubmitEmployerRequestConfirmation> GetSubmitEmployerRequestConfirmation([Path] Guid employerRequestId);
+
+        [Get("/employerrequests/{employerRequestId}/cancel-confirmation")]
+        Task<CancelEmployerRequestConfirmation> GetCancelEmployerRequestConfirmation([Path] Guid employerRequestId);
+
+        [Put("/employerrequests/{employerRequestId}/acknowledge-responses")]
+        Task AcknowledgeProviderResponses([Path] Guid employerRequestId, [Query] Guid acknowledgedBy);
+
+        [Put("employerrequests/{employerRequestId}/cancel-request")]
+        Task CancelEmployerRequest([Path] Guid employerRequestId, [Body] CancelEmployerRequestRequest request);
 
         [Get("/accountusers/{userId}/accounts")]
         Task<UserAccountsDetails> GetUserAccounts([Path] string userId, [Query] string email);
