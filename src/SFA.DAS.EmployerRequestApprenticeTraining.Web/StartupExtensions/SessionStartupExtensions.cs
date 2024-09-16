@@ -9,7 +9,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
     [ExcludeFromCodeCoverage]
     public static class SessionStartupExtensions
     {
-        public static IServiceCollection AddSession(this IServiceCollection services, EmployerRequestApprenticeTrainingWebConfiguration configWeb)
+        public static IServiceCollection AddSessionOptions(this IServiceCollection services)
         {
             services.AddSession(opt =>
             {
@@ -17,6 +17,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
                 opt.Cookie = new CookieBuilder()
                 {
                     Name = ".EmployerRequestApprenticeTraining.Session",
+                    SecurePolicy = CookieSecurePolicy.Always,
+                    SameSite = SameSiteMode.Strict,
                     HttpOnly = true
                 };
             });
