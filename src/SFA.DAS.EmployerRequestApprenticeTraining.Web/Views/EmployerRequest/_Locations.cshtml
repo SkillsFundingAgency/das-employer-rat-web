@@ -6,10 +6,18 @@
 }
 else if(Model.Regions != null)
 {
-    <ul class="govuk-list govuk-list--bullet">
-        @foreach (var location in Model.GetMultipleLocations())
-        {
-            <li>@location</li>
-        }
-    </ul>
+    var locations = Model.GetMultipleLocations();
+    if(locations.Count > 1)
+    {
+        <ul class="govuk-list govuk-list--bullet">
+            @foreach (var location in locations)
+            {
+                <li>@location</li>
+            }
+        </ul>
+    }
+    else
+    {
+        @locations[0]
+    }
 }
