@@ -18,10 +18,15 @@
             </div>
             <p class="govuk-body">We've cancelled your request and it will no longer be seen by training providers.</p>
             <p class="govuk-body">We've sent a confirmation email to <strong>@Model.CancelledByEmail</strong></p>
-            <h2 class="govuk-heading-m">
-                Request for @Model.StandardTitle (level @Model.StandardLevel)
-            </h2>
             <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__key">
+                        Apprenticeship training course
+                    </dt>
+                    <dd class="govuk-summary-list__value">
+                        @Model.StandardTitle (level @Model.StandardLevel)
+                    </dd>
+                </div>
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__key">
                         How many apprentices
