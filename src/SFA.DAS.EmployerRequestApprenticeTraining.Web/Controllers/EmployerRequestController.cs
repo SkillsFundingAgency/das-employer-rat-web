@@ -106,11 +106,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("overview", Name = OverviewEmployerRequestRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public async Task<IActionResult> Overview(SubmitEmployerRequestParameters parameters)
+        public async Task<IActionResult> Overview(OverviewParameters parameters)
         {
-            if (await _orchestrator.HasExistingEmployerRequest(parameters.AccountId, parameters.StandardId))
+            var standard = await _orchestrator.GetStandardAndStartSession(parameters);
+
+            if (await _orchestrator.HasExistingEmployerRequest(parameters.AccountId, standard.StandardReference))
             {
-                return RedirectToRoute(ExistingEmployerRequestRouteGet, new { parameters.HashedAccountId, parameters.RequestType, parameters.StandardId, parameters.Location });
+                return RedirectToRoute(ExistingEmployerRequestRouteGet, new { parameters.HashedAccountId });
             }
 
             var viewModel = await _orchestrator.GetOverviewEmployerRequestViewModel(parameters);
@@ -120,7 +122,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("existing", Name = ExistingEmployerRequestRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public async Task<IActionResult> Existing(SubmitEmployerRequestParameters parameters)
+        public async Task<IActionResult> Existing(OverviewParameters parameters)
         {
             var viewModel = await _orchestrator.GetOverviewEmployerRequestViewModel(parameters);
             return View(viewModel);
@@ -131,17 +133,15 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
         public async Task<IActionResult> Start(SubmitEmployerRequestParameters parameters)
         {
-            await _orchestrator.StartEmployerRequest(parameters.Location);
-            return RedirectToRoute(EnterApprenticesRouteGet, new { parameters.HashedAccountId, parameters.RequestType, parameters.StandardId, parameters.Location, BackToCheckAnswers=false });
+            return RedirectToRoute(EnterApprenticesRouteGet, new { parameters.HashedAccountId, BackToCheckAnswers=false });
         }
 
         [HttpGet]
         [Route("cancel", Name = CancelEmployerRequestRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public async Task<IActionResult> Cancel(SubmitEmployerRequestParameters parameters)
+        public async Task<IActionResult> Cancel(OverviewParameters parameters)
         {
-            await _orchestrator.StartEmployerRequest(parameters.Location);
-            return RedirectToRoute(OverviewEmployerRequestRouteGet, new { parameters.HashedAccountId, parameters.RequestType, parameters.StandardId, parameters.Location, BackToCheckAnswers = false });
+            return RedirectToRoute("OverviewEmployerRequestRouteGet", new { parameters.HashedAccountId });
         }
 
         [HttpGet]
@@ -161,24 +161,24 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         {
             if(!await _orchestrator.ValidateEnterApprenticesEmployerRequestViewModel(viewModel, ModelState))
             {
-                return RedirectToRoute(EnterApprenticesRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location, viewModel.BackToCheckAnswers });
+                return RedirectToRoute(EnterApprenticesRouteGet, new { viewModel.HashedAccountId, viewModel.BackToCheckAnswers });
             }
             
             _orchestrator.UpdateNumberOfApprenticesForEmployerRequest(viewModel);
 
             if (viewModel.BackToCheckAnswers)
             {
-                return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId });
             }
             else
             {
                 if (viewModel.NumberOfApprentices == 1.ToString())
                 {
-                    return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                    return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId });
                 }
                 else
                 {
-                    return RedirectToRoute(EnterSameLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                    return RedirectToRoute(EnterSameLocationRouteGet, new { viewModel.HashedAccountId });
                 }
             }
         }
@@ -200,24 +200,24 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         {
             if (!await _orchestrator.ValidateEnterSameLocationEmployerRequestViewModel(viewModel, ModelState))
             {
-                return RedirectToRoute(EnterSameLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location, viewModel.BackToCheckAnswers });
+                return RedirectToRoute(EnterSameLocationRouteGet, new { viewModel.HashedAccountId, viewModel.BackToCheckAnswers });
             }
 
             _orchestrator.UpdateSameLocationForEmployerRequest(viewModel);
 
             if (viewModel.BackToCheckAnswers)
             {
-                return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId});
             }
             else
             {
                 if (viewModel.SameLocation == "Yes")
                 {
-                    return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                    return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId });
                 }
                 else
                 {
-                    return RedirectToRoute(EnterMultipleLocationsRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                    return RedirectToRoute(EnterMultipleLocationsRouteGet, new { viewModel.HashedAccountId });
                 }
             }
         }
@@ -239,18 +239,18 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         {
             if (!await _orchestrator.ValidateEnterSingleLocationEmployerRequestViewModel(viewModel, ModelState))
             {
-                return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location, viewModel.BackToCheckAnswers });
+                return RedirectToRoute(EnterSingleLocationRouteGet, new { viewModel.HashedAccountId, viewModel.BackToCheckAnswers });
             }
 
             _orchestrator.UpdateSingleLocationForEmployerRequest(viewModel);
 
             if (viewModel.BackToCheckAnswers)
             {
-                return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId });
             }
             else
             {
-                return RedirectToRoute(EnterTrainingOptionsRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                return RedirectToRoute(EnterTrainingOptionsRouteGet, new { viewModel.HashedAccountId });
             }
         }
 
@@ -271,18 +271,18 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         {
             if (!await _orchestrator.ValidateEnterMultipleLocationsEmployerRequestViewModel(viewModel, ModelState))
             {
-                return RedirectToRoute(EnterMultipleLocationsRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location, viewModel.BackToCheckAnswers });
+                return RedirectToRoute(EnterMultipleLocationsRouteGet, new { viewModel.HashedAccountId, viewModel.BackToCheckAnswers });
             }
 
             await _orchestrator.UpdateMultipleLocationsForEmployerRequest(viewModel);
 
             if (viewModel.BackToCheckAnswers)
             {
-                return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId });
             }
             else
             {
-                return RedirectToRoute(EnterTrainingOptionsRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                return RedirectToRoute(EnterTrainingOptionsRouteGet, new { viewModel.HashedAccountId });
             }
         }
 
@@ -303,12 +303,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         {
             if (!await _orchestrator.ValidateEnterTrainingOptionsEmployerRequestViewModel(viewModel, ModelState))
             {
-                return RedirectToRoute(EnterTrainingOptionsRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location, viewModel.BackToCheckAnswers });
+                return RedirectToRoute(EnterTrainingOptionsRouteGet, new { viewModel.HashedAccountId, viewModel.BackToCheckAnswers });
             }
 
             _orchestrator.UpdateTrainingOptionsForEmployerRequest(viewModel);
 
-            return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+            return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId });
         }
 
         [HttpGet]
@@ -328,12 +328,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         {
             if (await _orchestrator.HasExistingEmployerRequest(viewModel.AccountId, viewModel.StandardId))
             {
-                return RedirectToRoute(ExistingEmployerRequestRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                return RedirectToRoute(ExistingEmployerRequestRouteGet, new { viewModel.HashedAccountId });
             }
 
             if (!await _orchestrator.ValidateCheckYourAnswersEmployerRequestViewModel(viewModel, ModelState))
             {
-                return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId, viewModel.RequestType, viewModel.StandardId, viewModel.Location });
+                return RedirectToRoute(CheckYourAnswersRouteGet, new { viewModel.HashedAccountId });
             }
 
             var employerRequestId = await _orchestrator.SubmitEmployerRequest(viewModel);

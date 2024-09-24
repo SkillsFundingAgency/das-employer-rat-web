@@ -32,6 +32,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CancelEmplo
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetCancelEmployerRequestConfirmation;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.PostStandard;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
 {
@@ -342,17 +343,23 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public async Task GetOverviewEmployerRequestViewModel_ShouldReturnViewModel_WhenStandardExists()
         {
             // Arrange
-            var parameters = new SubmitEmployerRequestParameters
+            var parameters = new OverviewParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
+                StandardId = "245",
                 Location = "London"
             };
-            
-            var standard = new Standard { Title = "Title", Level = 3, LarsCode = 123 };
-
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync(standard);
+            var employerRequest = new EmployerRequest
+            {
+                RequestType = RequestType.Shortlist,
+                StandardReference = "ST0123",
+                StandardTitle = "Title",
+                StandardLevel = 2,
+                StandardLarsCode = 245,
+                Location = "London",
+            };
+            _sessionStorageMock.Setup(x => x.EmployerRequest).Returns(employerRequest);
 
             // Act
             var result = await _sut.GetOverviewEmployerRequestViewModel(parameters);
@@ -361,34 +368,34 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             result.Should().NotBeNull();
             result.HashedAccountId.Should().Be(parameters.HashedAccountId);
             result.RequestType.Should().Be(parameters.RequestType);
-            result.StandardId.Should().Be(parameters.StandardId);
+            result.StandardId.Should().Be(employerRequest.StandardReference);
             result.Location.Should().Be(parameters.Location);
-            result.StandardTitle.Should().Be(standard.Title);
-            result.StandardLevel.Should().Be(standard.Level);
-            result.StandardLarsCode.Should().Be(standard.LarsCode);
+            result.StandardTitle.Should().Be(employerRequest.StandardTitle);
+            result.StandardLevel.Should().Be(employerRequest.StandardLevel);
+            result.StandardLarsCode.Should().Be(int.Parse(parameters.StandardId));
             result.FindApprenticeshipTrainingBaseUrl.Should().Be(_config.FindApprenticeshipTrainingBaseUrl);
         }
 
-        [Test]
-        public void GetOverviewEmployerRequestViewModel_ShouldThrowArgumentException_WhenStandardDoesNotExist()
-        {
-            // Arrange
-            var parameters = new SubmitEmployerRequestParameters
-            {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
-            };
+        //[Test]
+        //public void GetOverviewEmployerRequestViewModel_ShouldThrowArgumentException_WhenStandardDoesNotExist()
+        //{
+        //    // Arrange
+        //    var parameters = new SubmitEmployerRequestParameters
+        //    {
+        //        HashedAccountId = "ABC123",
+        //        RequestType = RequestType.Shortlist,
+        //        StandardId = "ST0123",
+        //        Location = "London"
+        //    };
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync((Standard)null);
+        //    _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync((Standard)null);
 
-            // Act
-            var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetOverviewEmployerRequestViewModel(parameters));
+        //    // Act
+        //    var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetOverviewEmployerRequestViewModel(parameters));
 
-            // Assert
-            ex.Message.Should().Be($"The standard {parameters.StandardId} was not found");
-        }
+        //    // Assert
+        //    ex.Message.Should().Be($"The standard {parameters.StandardId} was not found");
+        //}
 
         [Test]
         public async Task HasExistingEmployerRequest_ShouldReturnTrue_WhenEmployerRequestExists()
@@ -396,7 +403,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var accountId = 12345;
             var standardId = "ST0123";
-            var standard = new Standard { IfateReferenceNumber = standardId };
+            var standard = new Standard { StandardReference = standardId };
 
             _mediatorMock.Setup(m => m.Send(It.Is<GetStandardQuery>(p => p.StandardId == standardId), default)).ReturnsAsync(standard);
             _mediatorMock.Setup(m => m.Send(It.Is<GetExistingEmployerRequestQuery>(p => p.AccountId == accountId && p.StandardReference == standardId), default)).ReturnsAsync(true);
@@ -414,7 +421,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var accountId = 12345;
             var standardId = "ST0123";
-            var standard = new Standard { IfateReferenceNumber = standardId };
+            var standard = new Standard { StandardReference = standardId };
 
             _mediatorMock.Setup(m => m.Send(It.Is<GetStandardQuery>(p => p.StandardId == standardId), default)).ReturnsAsync(standard);
             _mediatorMock.Setup(m => m.Send(It.Is<GetExistingEmployerRequestQuery>(p => p.AccountId == accountId && p.StandardReference == standardId), default)).ReturnsAsync(false);
@@ -426,30 +433,50 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             result.Should().BeFalse();
         }
 
+        //[Test]
+        //public void HasExistingEmployerRequest_ShouldThrowArgumentException_WhenStandardDoesNotExist()
+        //{
+        //    // Arrange
+        //    var accountId = 123;
+        //    var standardId = "ST0123";
+
+        //    _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync((Standard)null);
+
+        //    // Act
+        //    var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.HasExistingEmployerRequest(accountId, standardId));
+
+        //    // Assert
+        //    ex.Message.Should().Be($"The standard {standardId} was not found");
+        //}
+
         [Test]
-        public void HasExistingEmployerRequest_ShouldThrowArgumentException_WhenStandardDoesNotExist()
+        public async Task GetStandardAndStartSession_ShouldSetEmployerRequestInSession()
         {
-            // Arrange
-            var accountId = 123;
+            //Arrange
             var standardId = "ST0123";
-
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync((Standard)null);
+            var standard = new Standard { StandardReference = standardId };
+            _mediatorMock.Setup(m => m.Send(It.IsAny<PostStandardCommand>(), default)).ReturnsAsync(standard);
 
             // Act
-            var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.HasExistingEmployerRequest(accountId, standardId));
-
-            // Assert
-            ex.Message.Should().Be($"The standard {standardId} was not found");
-        }
-
-        [Test]
-        public async Task StartEmployerRequest_ShouldSetEmployerRequestInSession()
-        {
-            // Act
-            await _sut.StartEmployerRequest("Some Location");
+            await _sut.GetStandardAndStartSession(new OverviewParameters { StandardId = "12345"});
 
             // Assert
             _sessionStorageMock.VerifySet(x => x.EmployerRequest = It.IsAny<EmployerRequest>(), Times.Once);
+        }
+
+        [Test]
+        public async Task GetStandardAndStartSession_ShouldThrowArgumentException_WhenStandardDoesNotExist()
+        {
+            //Arrange
+            var standardId = "ST0123";
+            var standard = new Standard { StandardReference = standardId };
+            _mediatorMock.Setup(m => m.Send(It.IsAny<PostStandardCommand>(), default)).ReturnsAsync((Standard)null);
+
+            // Act
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetStandardAndStartSession(new OverviewParameters() { StandardId = standardId }));
+
+            // Assert
+            ex.Message.Should().Be($"The standard {standardId} was not found");
         }
 
         [Test]
@@ -459,9 +486,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = false
             };
             var employerRequest = new EmployerRequest { NumberOfApprentices = 5 };
@@ -474,9 +498,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Assert
             result.Should().NotBeNull();
             result.HashedAccountId.Should().Be(parameters.HashedAccountId);
-            result.StandardId.Should().Be(parameters.StandardId);
-            result.RequestType.Should().Be(parameters.RequestType);
-            result.Location.Should().Be(parameters.Location);
             result.BackToCheckAnswers.Should().BeFalse();
             result.NumberOfApprentices.Should().Be(employerRequest.NumberOfApprentices.ToString());
         }
@@ -488,9 +509,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = true
             };
 
@@ -502,9 +520,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Assert
             result.Should().NotBeNull();
             result.HashedAccountId.Should().Be(parameters.HashedAccountId);
-            result.StandardId.Should().Be(parameters.StandardId);
-            result.RequestType.Should().Be(parameters.RequestType);
-            result.Location.Should().Be(parameters.Location);
             result.BackToCheckAnswers.Should().BeTrue();
             result.NumberOfApprentices.Should().Be(string.Empty);
         }
@@ -599,12 +614,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var parameters = new SubmitEmployerRequestParameters
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
-            var employerRequest = new EmployerRequest { SameLocation = "Yes" };
+            var employerRequest = new EmployerRequest { Location = "location", SameLocation = "Yes" };
             var modelState = new ModelStateDictionary();
 
             _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
@@ -615,9 +627,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Assert
             result.Should().NotBeNull();
             result.HashedAccountId.Should().Be(parameters.HashedAccountId);
-            result.StandardId.Should().Be(parameters.StandardId);
-            result.RequestType.Should().Be(parameters.RequestType);
-            result.Location.Should().Be(parameters.Location);
             result.SameLocation.Should().Be(employerRequest.SameLocation);
         }
 
@@ -710,9 +719,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
             };
 
             var regions = new List<Region>
@@ -727,7 +733,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _mediatorMock.Setup(m => m.Send(It.IsAny<GetClosestRegionQuery>(), default)).ReturnsAsync(closestRegion);
 
             var employerRequest = new EmployerRequest();
-
+            employerRequest.Location = "Location";
             _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
 
             // Act
@@ -736,9 +742,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Assert
             result.Should().NotBeNull();
             result.HashedAccountId.Should().Be(parameters.HashedAccountId);
-            result.StandardId.Should().Be(parameters.StandardId);
-            result.RequestType.Should().Be(parameters.RequestType);
-            result.Location.Should().Be(parameters.Location);
             result.SubregionsGroupedByRegions.Should().HaveCount(1);
             result.MultipleLocations.Should().Contain(closestRegion.Id.ToString());
         }
@@ -794,9 +797,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var parameters = new SubmitEmployerRequestParameters
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123"
+                HashedAccountId = "ABC123"
             };
 
             var regions = new List<Region>
@@ -814,9 +815,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Assert
             result.Should().NotBeNull();
             result.HashedAccountId.Should().Be(parameters.HashedAccountId);
-            result.StandardId.Should().Be(parameters.StandardId);
-            result.RequestType.Should().Be(parameters.RequestType);
-            result.Location.Should().Be(parameters.Location);
             result.SubregionsGroupedByRegions.Should().HaveCount(1);
             result.MultipleLocations.Should().HaveCount(0);
         }
@@ -881,6 +879,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
                 RequestType = RequestType.Shortlist,
                 HashedAccountId = "ABC123",
                 AccountId = 12345,
+                StandardReference = "ST0222",
                 StandardTitle = "Title",
                 StandardId = "123",
                 StandardLevel = 3,
@@ -892,7 +891,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             };
             var employerRequestId = Guid.NewGuid();
 
-            var standard = new Standard { Title = "Title", Level = 3, LarsCode = 123, IfateReferenceNumber = "ST0222" };
+            var standard = new Standard { StandardTitle = "Title", StandardLevel = 3, StandardReference = "ST0222" };
             _mediatorMock
                 .Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default))
                 .ReturnsAsync(standard);
@@ -956,12 +955,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var parameters = new SubmitEmployerRequestParameters
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
-            var employerRequest = new EmployerRequest { SingleLocation = "Location1" };
+            var employerRequest = new EmployerRequest { SingleLocation = "Location1", Location = "Location1" };
             var modelState = new ModelStateDictionary();
 
             _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
@@ -972,9 +968,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Assert
             result.Should().NotBeNull();
             result.HashedAccountId.Should().Be(parameters.HashedAccountId);
-            result.StandardId.Should().Be(parameters.StandardId);
-            result.RequestType.Should().Be(parameters.RequestType);
-            result.Location.Should().Be(parameters.Location);
             result.SingleLocation.Should().Be(employerRequest.SingleLocation);
         }
 
@@ -985,9 +978,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = true
 
             };
@@ -1001,9 +991,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Assert
             result.Should().NotBeNull();
             result.HashedAccountId.Should().Be(parameters.HashedAccountId);
-            result.StandardId.Should().Be(parameters.StandardId);
-            result.RequestType.Should().Be(parameters.RequestType);
-            result.Location.Should().Be(parameters.Location);
             result.BackToCheckAnswers.Should().BeTrue();
             result.SingleLocation.Should().BeNull();
         }
@@ -1097,9 +1084,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = true
             };
             var employerRequest = new EmployerRequest
@@ -1115,9 +1099,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
 
             // Assert
             result.HashedAccountId.Should().Be(parameters.HashedAccountId);
-            result.StandardId.Should().Be(parameters.StandardId);
-            result.RequestType.Should().Be(parameters.RequestType);
-            result.Location.Should().Be(parameters.Location);
             result.BackToCheckAnswers.Should().BeTrue();
             result.AtApprenticesWorkplace.Should().BeTrue();
             result.DayRelease.Should().BeTrue();
@@ -1191,21 +1172,20 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var parameters = new SubmitEmployerRequestParameters
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
-            var standard = new Standard { Title = "Title", Level = 3, LarsCode = 123 };
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync(standard);
             var employerRequest = new EmployerRequest
             {
                 NumberOfApprentices = 5,
                 SingleLocation = "Location1",
                 AtApprenticesWorkplace = true,
                 DayRelease = true,
-                BlockRelease = false
+                BlockRelease = false,
+                StandardTitle = "Title",
+                StandardReference = "ST001",
+                StandardLevel = 3,
+                StandardLarsCode = 547,
             };
             _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
 
@@ -1215,11 +1195,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Assert
             result.Should().NotBeNull();
             result.HashedAccountId.Should().Be(parameters.HashedAccountId);
-            result.StandardId.Should().Be(parameters.StandardId);
-            result.RequestType.Should().Be(parameters.RequestType);
-            result.Location.Should().Be(parameters.Location);
-            result.StandardTitle.Should().Be(standard.Title);
-            result.StandardLevel.Should().Be(standard.Level);
+            result.RequestType.Should().Be(employerRequest.RequestType);
+            result.Location.Should().Be(employerRequest.Location);
+            result.StandardReference.Should().Be(employerRequest.StandardReference);
+            result.StandardTitle.Should().Be(employerRequest.StandardTitle);
+            result.StandardLevel.Should().Be(employerRequest.StandardLevel);
             result.NumberOfApprentices.Should().Be(employerRequest.NumberOfApprentices.ToString());
             result.SingleLocation.Should().Be(employerRequest.SingleLocation);
             result.AtApprenticesWorkplace.Should().BeTrue();

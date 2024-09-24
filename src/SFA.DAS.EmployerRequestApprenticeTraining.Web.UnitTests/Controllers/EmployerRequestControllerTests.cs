@@ -157,17 +157,53 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.Model.Should().BeEquivalentTo(viewModel);
         }
-
         [Test]
-        public async Task Overview_ShouldReturnViewWithViewModel()
+        public async Task Overview_ShouldCall_GetStandardAndStartSession()
         {
             // Arrange
-            var parameters = new SubmitEmployerRequestParameters
+            var parameters = new OverviewParameters
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
                 StandardId = "ST0123",
                 Location = "London"
+            };
+
+            var standardModel = new Standard
+            {
+                StandardLevel = 1,
+                StandardReference = parameters.StandardId,
+                StandardSector = "Sector A",
+                StandardTitle = "Standard A",
+            };
+
+            _orchestratorMock.Setup(o => o.GetStandardAndStartSession(parameters)).ReturnsAsync(standardModel);
+
+            // Act
+            await _sut.Overview(parameters);
+
+            // Assert
+            _orchestratorMock.Verify(o => o.GetStandardAndStartSession(parameters), Times.Once);
+        }
+
+        [Test]
+        public async Task Overview_ShouldReturnViewWithViewModel()
+        {
+            // Arrange
+            var parameters = new OverviewParameters
+            {
+                HashedAccountId = "ABC123",
+                RequestType = RequestType.Shortlist,
+                StandardId = "ST0123",
+                Location = "London"
+            };
+
+            var standardModel = new Standard
+            {
+                StandardLevel = 1,
+                StandardReference = parameters.StandardId,
+                StandardSector = "Sector A",
+                StandardTitle = "Standard A",
             };
 
             var viewModel = new OverviewEmployerRequestViewModel
@@ -175,9 +211,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
                 StandardId = "ST0123",
-                Location = "London"
+                Location = "London",
+                StandardTitle = standardModel.StandardTitle,
+                StandardLevel = standardModel.StandardLevel,
+                StandardLarsCode = 123,
+                FindApprenticeshipTrainingBaseUrl = "http:///www.thsite.com"
             };
 
+            _orchestratorMock.Setup(o => o.GetStandardAndStartSession(parameters)).ReturnsAsync(standardModel);
             _orchestratorMock.Setup(o => o.GetOverviewEmployerRequestViewModel(parameters)).ReturnsAsync(viewModel);
 
             // Act
@@ -192,16 +233,25 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public async Task Overview_ShouldRedirectToExisting_WhenEmployerRequestExists()
         {
             // Arrange
-            var parameters = new SubmitEmployerRequestParameters
+            var parameters = new OverviewParameters
             {
+                AccountId = 10022856,
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
-                AccountId = 123
+                StandardId = "1234",
+                Location = "London"
             };
 
-            _orchestratorMock.Setup(o => o.HasExistingEmployerRequest(parameters.AccountId, parameters.StandardId)).ReturnsAsync(true);
+            var standardModel = new Standard
+            {
+                StandardLevel = 1,
+                StandardReference = "ST0001",
+                StandardSector = "Sector A",
+                StandardTitle = "Standard A",
+            };
+
+            _orchestratorMock.Setup(o => o.GetStandardAndStartSession(parameters)).ReturnsAsync(standardModel);
+            _orchestratorMock.Setup(o => o.HasExistingEmployerRequest(parameters.AccountId, standardModel.StandardReference)).ReturnsAsync(true);
 
             // Act
             var result = await _sut.Overview(parameters) as RedirectToRouteResult;
@@ -210,28 +260,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.ExistingEmployerRequestRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(parameters.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(parameters.RequestType);
-            result.RouteValues["standardId"].Should().Be(parameters.StandardId);
-            result.RouteValues["location"].Should().Be(parameters.Location);
-        }
-
-        [Test]
-        public async Task Start_ShouldCallStartEmployerRequest()
-        {
-            // Arrange
-            var parameters = new SubmitEmployerRequestParameters
-            {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
-            };
-
-            // Act
-            await _sut.Start(parameters);
-
-            // Assert
-            _orchestratorMock.Verify(o => o.StartEmployerRequest(parameters.Location), Times.Once);
         }
 
         [Test]
@@ -240,10 +268,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var parameters = new SubmitEmployerRequestParameters
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             // Act
@@ -253,40 +278,48 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterApprenticesRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(parameters.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(parameters.RequestType);
-            result.RouteValues["standardId"].Should().Be(parameters.StandardId);
-            result.RouteValues["location"].Should().Be(parameters.Location);
+            result.RouteValues["backToCheckAnswers"].Should().Be(false);
         }
 
-        [Test]
-        public async Task Cancel_ShouldCallStartEmployerRequest()
-        {
-            // Arrange
-            var parameters = new SubmitEmployerRequestParameters
-            {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
-            };
+        //[Test]
+        //public async Task Cancel_ShouldCallStartEmployerRequest()
+        //{
+        //    // Arrange
+        //    var parameters = new SubmitEmployerRequestParameters
+        //    {
+        //        HashedAccountId = "ABC123"
+        //    };
 
-            // Act
-            await _sut.Cancel(parameters);
+        //    // Act
+        //    await _sut.Cancel(parameters);
 
-            // Assert
-            _orchestratorMock.Verify(o => o.StartEmployerRequest(parameters.Location), Times.Once);
-        }
+        //    // Assert
+        //    _orchestratorMock.Verify(o => o.StartEmployerRequest(parameters), Times.Once);
+        //}
+
+        //[Test]
+        //public async Task Cancel_ShouldCall_GetStandardAndStartSession()
+        //{
+        //    // Arrange
+        //    var parameters = new SubmitEmployerRequestParameters
+        //    {
+        //        HashedAccountId = "ABC123"
+        //    };
+
+        //    // Act
+        //    await _sut.Cancel(parameters);
+
+        //    // Assert
+        //    _orchestratorMock.Verify(o => o.GetStandardAndStartSession(parameters), Times.Once);
+        //}
 
         [Test]
         public async Task Cancel_ShouldRedirectToOverview()
         {
             // Arrange
-            var parameters = new SubmitEmployerRequestParameters
+            var parameters = new OverviewParameters
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             // Act
@@ -296,9 +329,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.OverviewEmployerRequestRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(parameters.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(parameters.RequestType);
-            result.RouteValues["standardId"].Should().Be(parameters.StandardId);
-            result.RouteValues["location"].Should().Be(parameters.Location);
+            result.RouteValues["backToCheckAnswers"].Should().Be(false);
         }
 
         [Test]
@@ -307,10 +338,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var parameters = new SubmitEmployerRequestParameters
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             var viewModel = new EnterApprenticesEmployerRequestViewModel();
@@ -331,10 +359,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var viewModel = new EnterApprenticesEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             _orchestratorMock.Setup(o => o.ValidateEnterApprenticesEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(false);
@@ -346,9 +371,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterApprenticesRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -357,10 +379,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var viewModel = new EnterApprenticesEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             _orchestratorMock.Setup(o => o.ValidateEnterApprenticesEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(true);
@@ -379,9 +398,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var viewModel = new EnterApprenticesEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = false,
                 NumberOfApprentices = "1"
             };
@@ -395,9 +411,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterSingleLocationRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -407,9 +420,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var viewModel = new EnterApprenticesEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = false,
                 NumberOfApprentices = "2"
             };
@@ -423,9 +433,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterSameLocationRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -435,9 +442,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var viewModel = new EnterApprenticesEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = true
             };
 
@@ -450,9 +454,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.CheckYourAnswersRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -461,10 +462,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var parameters = new SubmitEmployerRequestParameters
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             var viewModel = new EnterSameLocationEmployerRequestViewModel();
@@ -485,10 +483,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var viewModel = new EnterSameLocationEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             _orchestratorMock.Setup(o => o.ValidateEnterSameLocationEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(false);
@@ -500,9 +495,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterSameLocationRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -511,10 +503,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var viewModel = new EnterSameLocationEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             _orchestratorMock.Setup(o => o.ValidateEnterSameLocationEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(true);
@@ -533,9 +522,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var viewModel = new EnterSameLocationEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = false,
                 SameLocation = "Yes"
             };
@@ -549,9 +535,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterSingleLocationRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -561,9 +544,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var viewModel = new EnterSameLocationEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = false,
                 SameLocation = "No"
             };
@@ -577,9 +557,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterMultipleLocationsRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -589,9 +566,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var viewModel = new EnterSameLocationEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = true
             };
 
@@ -604,9 +578,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.CheckYourAnswersRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -615,10 +586,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var parameters = new SubmitEmployerRequestParameters
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
             var viewModel = new EnterMultipleLocationsEmployerRequestViewModel();
 
@@ -640,10 +608,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var viewModel = new EnterMultipleLocationsEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             _orchestratorMock
@@ -657,9 +622,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterMultipleLocationsRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -668,10 +630,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var viewModel = new EnterMultipleLocationsEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             _orchestratorMock
@@ -692,9 +651,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var viewModel = new EnterMultipleLocationsEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = false
             };
 
@@ -709,9 +665,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterTrainingOptionsRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -720,10 +673,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var parameters = new SubmitEmployerRequestParameters
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             var viewModel = new EnterSingleLocationEmployerRequestViewModel();
@@ -744,10 +694,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var viewModel = new EnterSingleLocationEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             _orchestratorMock.Setup(o => o.ValidateEnterSingleLocationEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(false);
@@ -759,9 +706,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterSingleLocationRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -770,10 +714,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var viewModel = new EnterSingleLocationEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             _orchestratorMock.Setup(o => o.ValidateEnterSingleLocationEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(true);
@@ -792,9 +733,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var viewModel = new EnterSingleLocationEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = false
             };
 
@@ -807,9 +745,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterTrainingOptionsRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -819,9 +754,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var viewModel = new EnterSingleLocationEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 BackToCheckAnswers = true
             };
 
@@ -834,9 +766,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.CheckYourAnswersRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -845,10 +774,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var parameters = new SubmitEmployerRequestParameters
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
             var viewModel = new EnterTrainingOptionsEmployerRequestViewModel();
 
@@ -871,9 +797,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var viewModel = new EnterTrainingOptionsEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
             };
 
             _orchestratorMock
@@ -887,9 +810,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.EnterTrainingOptionsRouteGet);
             result.RouteValues["HashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["RequestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["StandardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["Location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -898,10 +818,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var viewModel = new EnterTrainingOptionsEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             _orchestratorMock
@@ -917,9 +834,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.CheckYourAnswersRouteGet);
             result.RouteValues["HashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["RequestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["StandardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["Location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -929,9 +843,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
             };
             var viewModel = new CheckYourAnswersEmployerRequestViewModel();
 
@@ -954,13 +865,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var viewModel = new CheckYourAnswersEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
                 AccountId = 123
             };
 
-            _orchestratorMock.Setup(o => o.HasExistingEmployerRequest(viewModel.AccountId, viewModel.StandardId)).ReturnsAsync(true);
+            _orchestratorMock.Setup(o => o.HasExistingEmployerRequest(viewModel.AccountId, It.IsAny<string>())).ReturnsAsync(true);
             _orchestratorMock.Setup(o => o.ValidateCheckYourAnswersEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>())).ReturnsAsync(true);
 
             // Act
@@ -970,9 +878,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.ExistingEmployerRequestRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["requestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["standardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["location"].Should().Be(viewModel.Location);
         }
 
 
@@ -982,10 +887,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Arrange
             var viewModel = new CheckYourAnswersEmployerRequestViewModel
             {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London"
+                HashedAccountId = "ABC123"
             };
 
             _orchestratorMock
@@ -999,9 +901,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.CheckYourAnswersRouteGet);
             result.RouteValues["HashedAccountId"].Should().Be(viewModel.HashedAccountId);
-            result.RouteValues["RequestType"].Should().Be(viewModel.RequestType);
-            result.RouteValues["StandardId"].Should().Be(viewModel.StandardId);
-            result.RouteValues["Location"].Should().Be(viewModel.Location);
         }
 
         [Test]
@@ -1011,13 +910,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             var viewModel = new CheckYourAnswersEmployerRequestViewModel
             {
                 HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
-                Location = "London",
+                StandardReference = "ST0002",
                 AccountId = 123
             };
 
-            _orchestratorMock.Setup(o => o.HasExistingEmployerRequest(viewModel.AccountId, viewModel.StandardId)).ReturnsAsync(false);
+            _orchestratorMock.Setup(o => o.HasExistingEmployerRequest(viewModel.AccountId, viewModel.StandardReference)).ReturnsAsync(false);
             _orchestratorMock
                 .Setup(o => o.ValidateCheckYourAnswersEmployerRequestViewModel(viewModel, It.IsAny<ModelStateDictionary>()))
                 .ReturnsAsync(true);

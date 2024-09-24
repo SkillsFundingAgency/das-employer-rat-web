@@ -6,6 +6,7 @@ using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.AcknowledgeProviderResponses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CancelEmployerRequest;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.PostStandard;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetCancelEmployerRequestConfirmation;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetClosestRegion;
@@ -22,6 +23,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionS
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Extensions;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Helpers;
+using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using System;
 using System.Collections.Generic;
@@ -164,45 +166,53 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             };
         }
 
-        public async Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(SubmitEmployerRequestParameters parameters)
+        public async Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(OverviewParameters parameters)
         {
-            var standard = await _mediator.Send(new GetStandardQuery(parameters.StandardId));
-            if (standard == null)
-            {
-                throw new ArgumentException($"The standard {parameters.StandardId} was not found");
-            }
-
             return new OverviewEmployerRequestViewModel
             {
                 HashedAccountId = parameters.HashedAccountId,
-                RequestType = parameters.RequestType,
-                StandardId = parameters.StandardId,
-                Location = parameters.Location,
-                StandardTitle = standard.Title,
-                StandardLevel = standard.Level,
-                StandardLarsCode = standard.LarsCode,
+                RequestType = SessionEmployerRequest.RequestType,
+                StandardId = SessionEmployerRequest.StandardReference,
+                Location = SessionEmployerRequest.Location,
+                StandardTitle = SessionEmployerRequest.StandardTitle,
+                StandardLevel = SessionEmployerRequest.StandardLevel,
+                StandardLarsCode = SessionEmployerRequest.StandardLarsCode,
                 FindApprenticeshipTrainingBaseUrl = _config?.FindApprenticeshipTrainingBaseUrl
             };
         }
 
-        public async Task<bool> HasExistingEmployerRequest(long accountId, string standardId)
+        public async Task<Standard> GetStandardAndStartSession(OverviewParameters parameters)
         {
-            var standard = await _mediator.Send(new GetStandardQuery(standardId));
-            if (standard == null)
+            if (string.IsNullOrEmpty(parameters.StandardId))
             {
-                throw new ArgumentException($"The standard {standardId} was not found");
+                parameters.StandardId = SessionEmployerRequest.StandardLarsCode.ToString();
+                parameters.Location = SessionEmployerRequest.Location;
+                parameters.RequestType = SessionEmployerRequest.RequestType;  
             }
 
-            var existing = await _mediator.Send(new GetExistingEmployerRequestQuery { AccountId = accountId, StandardReference = standard.IfateReferenceNumber });
-            return existing;
-        }
-
-        public async Task StartEmployerRequest(string location)
-        {
+            var standard = await _mediator.Send(new PostStandardCommand(parameters.StandardId));
+            if (standard == null)
+            {
+                throw new ArgumentException($"The standard {parameters.StandardId} was not found");
+            }
             _sessionStorage.EmployerRequest = new EmployerRequest
             {
-                SingleLocation = await _locationService.CheckLocationExists(location) ? location : string.Empty
+                SingleLocation = await _locationService.CheckLocationExists(parameters.Location) ? parameters.Location : string.Empty,
+                Location = parameters.Location,
+                RequestType = parameters.RequestType,
+                StandardLarsCode = int.Parse(parameters.StandardId),
+                StandardReference = standard.StandardReference,
+                StandardTitle = standard.StandardTitle,
+                StandardLevel = standard.StandardLevel,
             };
+
+            return standard;
+        }
+
+        public async Task<bool> HasExistingEmployerRequest(long accountId, string standardReference)
+        {
+            var existing = await _mediator.Send(new GetExistingEmployerRequestQuery { AccountId = accountId, StandardReference = standardReference });
+            return existing;
         }
 
         public EnterApprenticesEmployerRequestViewModel GetEnterApprenticesEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
@@ -210,9 +220,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return new EnterApprenticesEmployerRequestViewModel
             {
                 HashedAccountId = parameters.HashedAccountId,
-                StandardId = parameters.StandardId,
-                RequestType = parameters.RequestType,
-                Location = parameters.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
                 NumberOfApprentices = SessionEmployerRequest.NumberOfApprentices != 0 
                     ? SessionEmployerRequest.NumberOfApprentices.ToString() 
@@ -254,9 +261,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return new EnterSameLocationEmployerRequestViewModel
             {
                 HashedAccountId = parameters.HashedAccountId,
-                StandardId = parameters.StandardId,
-                RequestType = parameters.RequestType,
-                Location = parameters.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
                 SameLocation = SessionEmployerRequest.SameLocation
             };
@@ -296,9 +300,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return new EnterSingleLocationEmployerRequestViewModel
             {
                 HashedAccountId = parameters.HashedAccountId,
-                StandardId = parameters.StandardId,
-                RequestType = parameters.RequestType,
-                Location = parameters.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
                 // this is a special case where the attempted value will not automatically populate the input element as the input element
                 // is being replaced with an autocomplete using javascript
@@ -324,9 +325,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         {
             var regions = await _mediator.Send(new GetRegionsQuery());
 
-            if(!string.IsNullOrEmpty(parameters.Location) && !(SessionEmployerRequest.Regions?.Any() ?? false)) 
+            if(!string.IsNullOrEmpty(SessionEmployerRequest.Location) && !(SessionEmployerRequest.Regions?.Any() ?? false)) 
             {
-                var closestRegion = await _mediator.Send(new GetClosestRegionQuery {  Location = parameters.Location });
+                var closestRegion = await _mediator.Send(new GetClosestRegionQuery {  Location = SessionEmployerRequest.Location });
                 if (closestRegion != null)
                 {
                     UpdateSessionEmployerRequest((employerRequest) =>
@@ -339,9 +340,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return new EnterMultipleLocationsEmployerRequestViewModel(regions.Select(r => (RegionViewModel)r).ToList())
             {
                 HashedAccountId = parameters.HashedAccountId,
-                StandardId = parameters.StandardId,
-                RequestType = parameters.RequestType,
-                Location = parameters.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
                 // this is a special case where the attempted value will not automatically populate the input elements as the input elements are
                 // radio buttons which are dynamically created from a list
@@ -384,9 +382,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return new EnterTrainingOptionsEmployerRequestViewModel
             {
                 HashedAccountId = parameters.HashedAccountId,
-                StandardId = parameters.StandardId,
-                RequestType = parameters.RequestType,
-                Location = parameters.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
                 AtApprenticesWorkplace = SessionEmployerRequest.AtApprenticesWorkplace,
                 DayRelease = SessionEmployerRequest.DayRelease,
@@ -412,22 +407,16 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
         public async Task<CheckYourAnswersEmployerRequestViewModel> GetCheckYourAnswersEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
         {
-            var standard = await _mediator.Send(new GetStandardQuery(parameters.StandardId));
-            if (standard == null)
-            {
-                throw new ArgumentException($"The standard {parameters.StandardId} was not found");
-            }
-
             var employerRequest = SessionEmployerRequest;
 
             return new CheckYourAnswersEmployerRequestViewModel
             {
                 HashedAccountId = parameters.HashedAccountId,
-                StandardId = parameters.StandardId,
-                RequestType = parameters.RequestType,
-                Location = parameters.Location,
-                StandardTitle = standard.Title,
-                StandardLevel = standard.Level,
+                StandardReference = SessionEmployerRequest.StandardReference,
+                RequestType = SessionEmployerRequest.RequestType,
+                Location = SessionEmployerRequest.Location,
+                StandardTitle = SessionEmployerRequest.StandardTitle,
+                StandardLevel = SessionEmployerRequest.StandardLevel,
                 NumberOfApprentices = employerRequest.NumberOfApprentices > 0 ? employerRequest.NumberOfApprentices.ToString() : string.Empty,
                 SameLocation = employerRequest.SameLocation,
                 SingleLocation = employerRequest.SingleLocation,
@@ -445,15 +434,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         }
 
         public async Task<Guid> SubmitEmployerRequest(CheckYourAnswersEmployerRequestViewModel viewModel)
-        {
-            var standard = await _mediator.Send(new GetStandardQuery(viewModel.StandardId));
-
+        { 
             var employerRequestId = await _mediator.Send(new SubmitEmployerRequestCommand
             {
-                OriginalLocation = viewModel.Location,
-                RequestType = viewModel.RequestType,
+                OriginalLocation = SessionEmployerRequest.Location,
+                RequestType = SessionEmployerRequest.RequestType,
                 AccountId = viewModel.AccountId,
-                StandardReference = standard.IfateReferenceNumber,
+                StandardReference = SessionEmployerRequest.StandardReference,
                 NumberOfApprentices = int.Parse(viewModel.NumberOfApprentices),
                 SameLocation = viewModel.SameLocation,
                 SingleLocation = viewModel.SingleLocation,

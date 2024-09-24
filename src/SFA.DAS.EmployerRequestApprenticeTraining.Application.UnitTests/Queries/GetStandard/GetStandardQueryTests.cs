@@ -44,11 +44,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
             // Arrange
             var standard = new Standard
             {
-                StandardUId = "ST0100_1.0",
-                IfateReferenceNumber = "ST0100",
-                LarsCode = 543,
-                Level = 2,
-                Title = "Interesting standard"
+                StandardReference = "ST0100",
+                StandardLevel = 2,
+                StandardTitle = "Interesting standard"
             };
 
             _mockOuterApi
@@ -73,11 +71,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
             // Arrange
             var standard = new Standard
             {
-                StandardUId = "ST0100_1.0",
-                IfateReferenceNumber = "ST0100",
-                LarsCode = 543,
-                Level = 2,
-                Title = "Interesting standard"
+                StandardReference = "ST0100",
+                StandardLevel = 2,
+                StandardTitle = "Interesting standard"
             };
 
             _mockCacheStorageService

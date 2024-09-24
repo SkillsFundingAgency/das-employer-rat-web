@@ -40,8 +40,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
         [Get("/locations")]
         Task<List<LocationSearchResult>> GetLocations([Query] string searchTerm, [Query] bool exactMatch);
 
-        [Get("/standards/{standardId}")]
-        Task<Standard> GetStandard([Path] string standardId);
+        [Get("/standards/{standardReference}")]
+        Task<Standard> GetStandard([Path] string standardReference);
+
+        [Post("/standards/{standardId}")]
+        Task<Standard> PostStandard([Path] string standardId);
 
         [Get("/regions")]
         Task<List<Region>> GetRegions();

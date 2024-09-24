@@ -12,9 +12,6 @@
 
 <a asp-route="@Model.BackRoute"
    asp-route-hashedAccountId="@Model.HashedAccountId"
-   asp-route-requestType="@Model.RequestType"
-   asp-route-standardId="@Model.StandardId"
-   asp-route-location="@Model.Location"
    class="govuk-back-link">Back</a>
 
 <main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
@@ -23,9 +20,6 @@
             <partial name="_ValidationSummary" />
             <form asp-route="@EmployerRequestController.EnterTrainingOptionsRoutePost" method="post">
                 @Html.HiddenFor(model => model.HashedAccountId)
-                @Html.HiddenFor(model => model.StandardId)
-                @Html.HiddenFor(model => model.RequestType)
-                @Html.HiddenFor(model => model.Location)
                 @Html.HiddenFor(model => model.BackToCheckAnswers)
 
                 <div class="govuk-form-group" das-highlight-error-for="AtApprenticesWorkplace" error-class="govuk-form-group--error">
@@ -75,10 +69,7 @@
                         Continue
                     </button>
                     <a class="govuk-link" id="cancel" asp-route="@EmployerRequestController.CancelEmployerRequestRouteGet" 
-                        asp-route-hashedAccountId="@Model.HashedAccountId"
-                        asp-route-requestType="@Model.RequestType"
-                        asp-route-standardId="@Model.StandardId"
-                        asp-route-location="@Model.Location">
+                        asp-route-hashedAccountId="@Model.HashedAccountId">
                         Cancel
                     </a>
                 </div>

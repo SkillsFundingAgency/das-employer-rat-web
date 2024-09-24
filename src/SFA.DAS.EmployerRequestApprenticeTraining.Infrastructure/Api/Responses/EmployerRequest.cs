@@ -9,10 +9,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses
     {
         public Guid Id { get; set; }
         public RequestType RequestType { get; set; }
+        public string Location { get; set; }
         public long AccountId { get; set; }
         public string StandardReference { get; set; }
         public string StandardTitle { get; set; }
         public int StandardLevel { get; set; }
+        public int StandardLarsCode { get; set; }
         public int NumberOfApprentices { get; set; }
         public string SameLocation { get; set; }
         public string SingleLocation { get; set; }
