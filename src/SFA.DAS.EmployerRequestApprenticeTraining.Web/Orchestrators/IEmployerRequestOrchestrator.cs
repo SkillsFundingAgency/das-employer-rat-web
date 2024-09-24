@@ -17,7 +17,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         Task<CancelConfirmationEmployerRequestViewModel> GetCancelConfirmationEmployerRequestViewModel(string hashedAccountId, Guid employerRequestId);
         Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(OverviewParameters parameters);
         Task<bool> HasExistingEmployerRequest(long accountId, string standardReference);
-        //Task StartEmployerRequest(SubmitEmployerRequestParameters location);
         EnterApprenticesEmployerRequestViewModel GetEnterApprenticesEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState);
         Task<bool> ValidateEnterApprenticesEmployerRequestViewModel(EnterApprenticesEmployerRequestViewModel viewModel, ModelStateDictionary modelState);
         void UpdateNumberOfApprenticesForEmployerRequest(EnterApprenticesEmployerRequestViewModel viewModel);

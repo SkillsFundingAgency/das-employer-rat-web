@@ -30,7 +30,6 @@ using System.Threading.Tasks;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetTrainingRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CancelEmployerRequest;
 using SFA.DAS.Employer.Shared.UI;
-using SFA.DAS.Employer.Shared.UI.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetCancelEmployerRequestConfirmation;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.PostStandard;
 
@@ -376,26 +375,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             result.FindApprenticeshipTrainingBaseUrl.Should().Be(_config.FindApprenticeshipTrainingBaseUrl);
         }
 
-        //[Test]
-        //public void GetOverviewEmployerRequestViewModel_ShouldThrowArgumentException_WhenStandardDoesNotExist()
-        //{
-        //    // Arrange
-        //    var parameters = new SubmitEmployerRequestParameters
-        //    {
-        //        HashedAccountId = "ABC123",
-        //        RequestType = RequestType.Shortlist,
-        //        StandardId = "ST0123",
-        //        Location = "London"
-        //    };
-
-        //    _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync((Standard)null);
-
-        //    // Act
-        //    var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetOverviewEmployerRequestViewModel(parameters));
-
-        //    // Assert
-        //    ex.Message.Should().Be($"The standard {parameters.StandardId} was not found");
-        //}
 
         [Test]
         public async Task HasExistingEmployerRequest_ShouldReturnTrue_WhenEmployerRequestExists()
@@ -420,64 +399,21 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         {
             // Arrange
             var accountId = 12345;
-            var standardId = "ST0123";
-            var standard = new Standard { StandardReference = standardId };
+            var standardReference = "ST0123";
+            var standard = new Standard { StandardReference = standardReference };
 
-            _mediatorMock.Setup(m => m.Send(It.Is<GetStandardQuery>(p => p.StandardId == standardId), default)).ReturnsAsync(standard);
-            _mediatorMock.Setup(m => m.Send(It.Is<GetExistingEmployerRequestQuery>(p => p.AccountId == accountId && p.StandardReference == standardId), default)).ReturnsAsync(false);
+            _mediatorMock.Setup(m => m.Send(It.Is<GetStandardQuery>(p => p.StandardId == standardReference), default)).ReturnsAsync(standard);
+            _mediatorMock.Setup(m => m.Send(It.Is<GetExistingEmployerRequestQuery>(p => p.AccountId == accountId && p.StandardReference == standardReference), default)).ReturnsAsync(false);
 
             // Act
-            var result = await _sut.HasExistingEmployerRequest(accountId, standardId);
+            var result = await _sut.HasExistingEmployerRequest(accountId, standardReference);
 
             // Assert
             result.Should().BeFalse();
         }
 
-        //[Test]
-        //public void HasExistingEmployerRequest_ShouldThrowArgumentException_WhenStandardDoesNotExist()
-        //{
-        //    // Arrange
-        //    var accountId = 123;
-        //    var standardId = "ST0123";
 
-        //    _mediatorMock.Setup(m => m.Send(It.IsAny<GetStandardQuery>(), default)).ReturnsAsync((Standard)null);
-
-        //    // Act
-        //    var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.HasExistingEmployerRequest(accountId, standardId));
-
-        //    // Assert
-        //    ex.Message.Should().Be($"The standard {standardId} was not found");
-        //}
-
-        [Test]
-        public async Task GetStandardAndStartSession_ShouldSetEmployerRequestInSession()
-        {
-            //Arrange
-            var standardId = "ST0123";
-            var standard = new Standard { StandardReference = standardId };
-            _mediatorMock.Setup(m => m.Send(It.IsAny<PostStandardCommand>(), default)).ReturnsAsync(standard);
-
-            // Act
-            await _sut.GetStandardAndStartSession(new OverviewParameters { StandardId = "12345"});
-
-            // Assert
-            _sessionStorageMock.VerifySet(x => x.EmployerRequest = It.IsAny<EmployerRequest>(), Times.Once);
-        }
-
-        [Test]
-        public async Task GetStandardAndStartSession_ShouldThrowArgumentException_WhenStandardDoesNotExist()
-        {
-            //Arrange
-            var standardId = "ST0123";
-            var standard = new Standard { StandardReference = standardId };
-            _mediatorMock.Setup(m => m.Send(It.IsAny<PostStandardCommand>(), default)).ReturnsAsync((Standard)null);
-
-            // Act
-            var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetStandardAndStartSession(new OverviewParameters() { StandardId = standardId }));
-
-            // Assert
-            ex.Message.Should().Be($"The standard {standardId} was not found");
-        }
+        
 
         [Test]
         public void GetEnterApprenticesEmployerRequestViewModel_ShouldReturnViewModel_WhenSessionHasEmployerRequest()
@@ -1304,6 +1240,74 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
 
             // Assert
             ex.Message.Should().Be($"The employer request {employerRequestId} was not found");
+        }
+
+        [Test]
+        public async Task GetStandardAndStartSession_ShouldGetStandardAndCreateNewSessionObject_WhenSessionIdIsMissing()
+        {
+            //Arrange
+            var employerRequest = new EmployerRequest { StandardLarsCode = 123, RequestType = RequestType.Providers, Location = "Telford"};
+            _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
+
+            Standard standard = new Standard { StandardReference = "ST0002", StandardLevel = 1, StandardSector = "Sector A", StandardTitle = "Standard Title" };
+            _mediatorMock.Setup(m => m.Send(It.Is<PostStandardCommand>( c => c.StandardId == employerRequest.StandardLarsCode.ToString()), default)).ReturnsAsync(standard);
+
+            OverviewParameters fromCancel = new OverviewParameters { HashedAccountId= "ABCDE", StandardId = null };
+
+            // Act
+            var standardResponse = await _sut.GetStandardAndStartSession(fromCancel);
+
+            // Assert
+            standardResponse.Should().BeEquivalentTo(standard);
+            _sessionStorageMock.VerifySet(x => x.EmployerRequest = It.Is<EmployerRequest>(er => 
+                er.Location == employerRequest.Location &&
+                er.RequestType == employerRequest.RequestType &&
+                er.Location == employerRequest.Location &&
+                er.StandardLarsCode == employerRequest.StandardLarsCode &&
+                er.StandardTitle == standard.StandardTitle &&
+                er.StandardReference == standard.StandardReference &&
+                er.StandardLevel == standard.StandardLevel), Times.Once);
+        }
+
+        [Test, MoqAutoData]
+        public async Task GetStandardAndStartSession_ShouldGetStandardAndCreateNewSessionObject_WhenSessionIdPresent(int larsCode, Standard standard)
+        {
+            //Arrange
+            _mediatorMock.Setup(m => m.Send(It.Is<PostStandardCommand>(c => c.StandardId == larsCode.ToString()), default)).ReturnsAsync(standard);
+
+            OverviewParameters param = new OverviewParameters { HashedAccountId = "ABCDE", StandardId = larsCode.ToString(), Location = "Manchester", RequestType = RequestType.Providers};
+
+            // Act
+            var standardResponse = await _sut.GetStandardAndStartSession(param);
+
+            // Assert
+            standardResponse.Should().BeEquivalentTo(standard);
+            _sessionStorageMock.VerifySet(x => x.EmployerRequest = It.Is<EmployerRequest>(er =>
+                er.Location == param.Location &&
+                er.RequestType == param.RequestType &&
+                er.Location == param.Location &&
+                er.StandardLarsCode.ToString() == param.StandardId &&
+                er.StandardTitle == standard.StandardTitle &&
+                er.StandardReference == standard.StandardReference &&
+                er.StandardLevel == standard.StandardLevel), Times.Once);
+        }
+
+        [Test]
+        public async Task GetStandardAndStartSession_ShouldThrowException_WhenStandardNotFound()
+        {
+            // Arrange
+            var accountId = 123;
+            var standardId = "147";
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<PostStandardCommand>(), default)).ReturnsAsync((Standard)null);
+
+            var overviewParameters = new OverviewParameters { AccountId = accountId, StandardId = standardId};
+
+            // Act
+            var ex = Assert.ThrowsAsync<ArgumentException>(() => _sut.GetStandardAndStartSession(overviewParameters));
+
+            // Assert
+            ex.Message.Should().Be($"The standard {standardId} was not found");
         }
     }
 }

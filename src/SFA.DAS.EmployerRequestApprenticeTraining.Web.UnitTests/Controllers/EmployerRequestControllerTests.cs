@@ -281,38 +281,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.RouteValues["backToCheckAnswers"].Should().Be(false);
         }
 
-        //[Test]
-        //public async Task Cancel_ShouldCallStartEmployerRequest()
-        //{
-        //    // Arrange
-        //    var parameters = new SubmitEmployerRequestParameters
-        //    {
-        //        HashedAccountId = "ABC123"
-        //    };
-
-        //    // Act
-        //    await _sut.Cancel(parameters);
-
-        //    // Assert
-        //    _orchestratorMock.Verify(o => o.StartEmployerRequest(parameters), Times.Once);
-        //}
-
-        //[Test]
-        //public async Task Cancel_ShouldCall_GetStandardAndStartSession()
-        //{
-        //    // Arrange
-        //    var parameters = new SubmitEmployerRequestParameters
-        //    {
-        //        HashedAccountId = "ABC123"
-        //    };
-
-        //    // Act
-        //    await _sut.Cancel(parameters);
-
-        //    // Assert
-        //    _orchestratorMock.Verify(o => o.GetStandardAndStartSession(parameters), Times.Once);
-        //}
-
         [Test]
         public async Task Cancel_ShouldRedirectToOverview()
         {
@@ -329,7 +297,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.OverviewEmployerRequestRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(parameters.HashedAccountId);
-            result.RouteValues["backToCheckAnswers"].Should().Be(false);
         }
 
         [Test]
