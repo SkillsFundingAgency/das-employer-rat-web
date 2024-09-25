@@ -31,7 +31,8 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetTrainingR
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CancelEmployerRequest;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetCancelEmployerRequestConfirmation;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.PostStandard;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CacheStandard;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Types;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
 {
@@ -367,7 +368,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             result.Should().NotBeNull();
             result.HashedAccountId.Should().Be(parameters.HashedAccountId);
             result.RequestType.Should().Be(parameters.RequestType);
-            result.StandardId.Should().Be(employerRequest.StandardReference);
+            result.StandardReference.Should().Be(employerRequest.StandardReference);
             result.Location.Should().Be(parameters.Location);
             result.StandardTitle.Should().Be(employerRequest.StandardTitle);
             result.StandardLevel.Should().Be(employerRequest.StandardLevel);
@@ -381,14 +382,12 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         {
             // Arrange
             var accountId = 12345;
-            var standardId = "ST0123";
-            var standard = new Standard { StandardReference = standardId };
+            var standardReference = "123";
 
-            _mediatorMock.Setup(m => m.Send(It.Is<GetStandardQuery>(p => p.StandardId == standardId), default)).ReturnsAsync(standard);
-            _mediatorMock.Setup(m => m.Send(It.Is<GetExistingEmployerRequestQuery>(p => p.AccountId == accountId && p.StandardReference == standardId), default)).ReturnsAsync(true);
+            _mediatorMock.Setup(m => m.Send(It.Is<GetExistingEmployerRequestQuery>(p => p.AccountId == accountId && p.StandardReference == standardReference), default)).ReturnsAsync(true);
 
             // Act
-            var result = await _sut.HasExistingEmployerRequest(accountId, standardId);
+            var result = await _sut.HasExistingEmployerRequest(accountId, standardReference);
 
             // Assert
             result.Should().BeTrue();
@@ -400,9 +399,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Arrange
             var accountId = 12345;
             var standardReference = "ST0123";
-            var standard = new Standard { StandardReference = standardReference };
 
-            _mediatorMock.Setup(m => m.Send(It.Is<GetStandardQuery>(p => p.StandardId == standardReference), default)).ReturnsAsync(standard);
             _mediatorMock.Setup(m => m.Send(It.Is<GetExistingEmployerRequestQuery>(p => p.AccountId == accountId && p.StandardReference == standardReference), default)).ReturnsAsync(false);
 
             // Act
@@ -411,9 +408,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Assert
             result.Should().BeFalse();
         }
-
-
-        
 
         [Test]
         public void GetEnterApprenticesEmployerRequestViewModel_ShouldReturnViewModel_WhenSessionHasEmployerRequest()
@@ -817,7 +811,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
                 AccountId = 12345,
                 StandardReference = "ST0222",
                 StandardTitle = "Title",
-                StandardId = "123",
+                StandardLarsCode = "167",
                 StandardLevel = 3,
                 NumberOfApprentices = "1",
                 AtApprenticesWorkplace = true,
@@ -1250,7 +1244,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
 
             Standard standard = new Standard { StandardReference = "ST0002", StandardLevel = 1, StandardSector = "Sector A", StandardTitle = "Standard Title" };
-            _mediatorMock.Setup(m => m.Send(It.Is<PostStandardCommand>( c => c.StandardId == employerRequest.StandardLarsCode.ToString()), default)).ReturnsAsync(standard);
+            _mediatorMock.Setup(m => m.Send(It.Is<CacheStandardCommand>( c => c.StandardLarsCode == employerRequest.StandardLarsCode.ToString()), default)).ReturnsAsync(standard);
 
             OverviewParameters fromCancel = new OverviewParameters { HashedAccountId= "ABCDE", StandardId = null };
 
@@ -1273,7 +1267,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         public async Task GetStandardAndStartSession_ShouldGetStandardAndCreateNewSessionObject_WhenSessionIdPresent(int larsCode, Standard standard)
         {
             //Arrange
-            _mediatorMock.Setup(m => m.Send(It.Is<PostStandardCommand>(c => c.StandardId == larsCode.ToString()), default)).ReturnsAsync(standard);
+            _mediatorMock.Setup(m => m.Send(It.Is<CacheStandardCommand>(c => c.StandardLarsCode == larsCode.ToString()), default)).ReturnsAsync(standard);
 
             OverviewParameters param = new OverviewParameters { HashedAccountId = "ABCDE", StandardId = larsCode.ToString(), Location = "Manchester", RequestType = RequestType.Providers};
 
@@ -1299,7 +1293,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             var accountId = 123;
             var standardId = "147";
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<PostStandardCommand>(), default)).ReturnsAsync((Standard)null);
+            _mediatorMock.Setup(m => m.Send(It.IsAny<CacheStandardCommand>(), default)).ReturnsAsync((Standard)null);
 
             var overviewParameters = new OverviewParameters { AccountId = accountId, StandardId = standardId};
 

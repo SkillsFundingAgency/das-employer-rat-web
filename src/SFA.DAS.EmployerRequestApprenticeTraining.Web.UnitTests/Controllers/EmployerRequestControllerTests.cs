@@ -165,14 +165,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
+                StandardId = "123",
                 Location = "London"
             };
 
             var standardModel = new Standard
             {
                 StandardLevel = 1,
-                StandardReference = parameters.StandardId,
+                StandardReference = "ST0123",
                 StandardSector = "Sector A",
                 StandardTitle = "Standard A",
             };
@@ -194,14 +194,14 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
+                StandardId = "123",
                 Location = "London"
             };
 
             var standardModel = new Standard
             {
                 StandardLevel = 1,
-                StandardReference = parameters.StandardId,
+                StandardReference = "ST0123",
                 StandardSector = "Sector A",
                 StandardTitle = "Standard A",
             };
@@ -210,7 +210,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             {
                 HashedAccountId = "ABC123",
                 RequestType = RequestType.Shortlist,
-                StandardId = "ST0123",
+                StandardReference = "ST0123",
                 Location = "London",
                 StandardTitle = standardModel.StandardTitle,
                 StandardLevel = standardModel.StandardLevel,
@@ -285,7 +285,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         public async Task Cancel_ShouldRedirectToOverview()
         {
             // Arrange
-            var parameters = new OverviewParameters
+            var parameters = new SubmitEmployerRequestParameters
             {
                 HashedAccountId = "ABC123"
             };

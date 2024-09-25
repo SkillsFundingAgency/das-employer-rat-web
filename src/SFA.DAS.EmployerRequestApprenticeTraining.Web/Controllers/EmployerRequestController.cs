@@ -139,7 +139,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [HttpGet]
         [Route("cancel", Name = CancelEmployerRequestRouteGet)]
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
-        public async Task<IActionResult> Cancel(OverviewParameters parameters)
+        public async Task<IActionResult> Cancel(SubmitEmployerRequestParameters parameters)
         {
             return RedirectToRoute("OverviewEmployerRequestRouteGet", new { parameters.HashedAccountId });
         }
@@ -326,7 +326,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [Authorize(Policy = PolicyNames.TransactorRole)]
         public async Task<ActionResult> CheckYourAnswers(CheckYourAnswersEmployerRequestViewModel viewModel)
         {
-            if (await _orchestrator.HasExistingEmployerRequest(viewModel.AccountId, viewModel.StandardId))
+            if (await _orchestrator.HasExistingEmployerRequest(viewModel.AccountId, viewModel.StandardReference))
             {
                 return RedirectToRoute(ExistingEmployerRequestRouteGet, new { viewModel.HashedAccountId });
             }

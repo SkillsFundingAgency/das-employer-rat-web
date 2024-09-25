@@ -50,7 +50,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
             };
 
             _mockOuterApi
-                .Setup(x => x.GetStandard(_query.StandardId))
+                .Setup(x => x.GetStandard(_query.StandardReference))
                 .ReturnsAsync(standard);
 
             _mockCacheStorageService
@@ -62,7 +62,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
 
             // Assert
             result.Should().BeEquivalentTo(standard);
-            _mockOuterApi.Verify(x => x.GetStandard(_query.StandardId), Times.Once);
+            _mockOuterApi.Verify(x => x.GetStandard(_query.StandardReference), Times.Once);
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
             };
 
             _mockCacheStorageService
-                .Setup(x => x.RetrieveFromCache<Standard?>($"GetStandard:{_query.StandardId}"))
+                .Setup(x => x.RetrieveFromCache<Standard?>($"GetStandard:{_query.StandardReference}"))
                 .ReturnsAsync(standard);
 
             // Act
@@ -85,7 +85,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
 
             // Assert
             result.Should().BeEquivalentTo(standard);
-            _mockOuterApi.Verify(x => x.GetStandard(_query.StandardId), Times.Never);
+            _mockOuterApi.Verify(x => x.GetStandard(_query.StandardReference), Times.Never);
         }
 
         [Test]

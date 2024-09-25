@@ -6,7 +6,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmplo
     {
         public GetStandardQueryValidator()
         {
-            RuleFor(x => x.StandardId).NotEmpty();
+            RuleFor(x => x.StandardReference).NotEmpty();
         }
     }
 }

@@ -5,11 +5,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmplo
 {
     public class GetStandardQuery : IRequest<Standard>
     {
-        public GetStandardQuery(string standardId)
+        public GetStandardQuery(string standardReference)
         {
-            StandardId = standardId;
+            StandardReference = standardReference;
         }
 
-        public string StandardId { get; private set; }
+        public string StandardReference { get; private set; }
     }
 }

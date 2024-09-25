@@ -10,9 +10,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
         
         [AutoDecode(nameof(HashedAccountId), EncodingType.AccountId)]
         public long AccountId { get; set; }
-        
         public RequestType RequestType { get; set; }
-        public string StandardId { get; set; }
+        public string StandardLarsCode { get; set; }
+        public string StandardReference { get; set; }
         public string Location { get; set; }
         public bool BackToCheckAnswers { get; set; }
     }

@@ -43,8 +43,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Domain.Interfaces
         [Get("/standards/{standardReference}")]
         Task<Standard> GetStandard([Path] string standardReference);
 
-        [Post("/standards/{standardId}")]
-        Task<Standard> PostStandard([Path] string standardId);
+        [Post("/standards/{standardLarsCode}")]
+        Task<Standard> CacheStandard([Path] string standardLarsCode);
 
         [Get("/regions")]
         Task<List<Region>> GetRegions();

@@ -6,7 +6,7 @@ using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.AcknowledgeProviderResponses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CancelEmployerRequest;
-using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.PostStandard;
+using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.CacheStandard;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Commands.SubmitEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetCancelEmployerRequestConfirmation;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetClosestRegion;
@@ -29,6 +29,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Types;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 {
@@ -172,7 +173,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             {
                 HashedAccountId = parameters.HashedAccountId,
                 RequestType = SessionEmployerRequest.RequestType,
-                StandardId = SessionEmployerRequest.StandardReference,
+                StandardReference = SessionEmployerRequest.StandardReference,
                 Location = SessionEmployerRequest.Location,
                 StandardTitle = SessionEmployerRequest.StandardTitle,
                 StandardLevel = SessionEmployerRequest.StandardLevel,
@@ -190,7 +191,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 parameters.RequestType = SessionEmployerRequest.RequestType;  
             }
 
-            var standard = await _mediator.Send(new PostStandardCommand(parameters.StandardId));
+            var standard = await _mediator.Send(new CacheStandardCommand(parameters.StandardId));
             if (standard == null)
             {
                 throw new ArgumentException($"The standard {parameters.StandardId} was not found");

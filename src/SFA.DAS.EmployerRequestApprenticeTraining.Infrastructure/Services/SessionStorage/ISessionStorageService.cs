@@ -1,4 +1,4 @@
-﻿using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
+﻿using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Types;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage
 {
