@@ -23,19 +23,19 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetEmplo
         {
             await _validator.ValidateAsync(request, cancellationToken);
 
-            var standardCacheKey = $"GetStandard:{request.StandardId}";
+            var standardCacheKey = $"GetStandard:{request.StandardReference}";
             var standard = await _cacheStorageService.RetrieveFromCache<Standard?>(standardCacheKey);
             
             if (standard == null)
             {
                 try
                 {
-                    standard = await _outerApi.GetStandard(request.StandardId);
+                    standard = await _outerApi.GetStandard(request.StandardReference);
                     await _cacheStorageService.SaveToCache(standardCacheKey, standard, 1);
                 }
                 catch(RestEase.ApiException ex)
                 {
-                    throw new InvalidOperationException($"The standard {request.StandardId} cannot be found", ex);
+                    throw new InvalidOperationException($"The standard {request.StandardReference} cannot be found", ex);
                 }
             }
 
