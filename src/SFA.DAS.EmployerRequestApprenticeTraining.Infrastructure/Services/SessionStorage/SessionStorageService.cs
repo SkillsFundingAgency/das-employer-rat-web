@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Types;
 using System.Text;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage
