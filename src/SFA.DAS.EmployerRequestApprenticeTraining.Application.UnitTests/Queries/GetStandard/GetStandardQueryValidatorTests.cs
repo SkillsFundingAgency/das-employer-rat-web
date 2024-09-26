@@ -13,6 +13,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Application.UnitTests.Querie
         public void Setup()
         {
             _validator = new GetStandardQueryValidator();
+
         }
 
         [Test]
