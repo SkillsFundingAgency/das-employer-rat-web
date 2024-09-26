@@ -120,7 +120,7 @@
                                 <p>
                                     <div class="govuk-body govuk-!-margin-bottom-1">Request made on @request.RequestedAt.ToString("d MMM yyyy")</div>
                                     <div class="govuk-hint">
-                                        Expired @request.ExpiryAt.ToString("d MMM yyyy")
+                                        Expired @request.ExpiredAt.Value.ToString("d MMM yyyy")
                                     </div>
                                 </p>
                                 <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-6 govuk-!-margin-bottom-6" />
