@@ -340,7 +340,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         }
 
         [Test]
-        public async Task GetOverviewEmployerRequestViewModel_ShouldReturnViewModel_WhenStandardExists()
+        public void GetOverviewEmployerRequestViewModel_ShouldReturnViewModel_WhenStandardExists()
         {
             // Arrange
             var parameters = new OverviewParameters
@@ -362,7 +362,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _sessionStorageMock.Setup(x => x.EmployerRequest).Returns(employerRequest);
 
             // Act
-            var result = await _sut.GetOverviewEmployerRequestViewModel(parameters);
+            var result = _sut.GetOverviewEmployerRequestViewModel(parameters);
 
             // Assert
             result.Should().NotBeNull();
@@ -811,7 +811,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
                 AccountId = 12345,
                 StandardReference = "ST0222",
                 StandardTitle = "Title",
-                StandardLarsCode = "167",
+                StandardLarsCode = 167,
                 StandardLevel = 3,
                 NumberOfApprentices = "1",
                 AtApprenticesWorkplace = true,
@@ -1097,7 +1097,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         }
 
         [Test]
-        public async Task GetCheckYourAnswersEmployerRequestViewModel_ShouldReturnViewModel_WhenStandardExists()
+        public void GetCheckYourAnswersEmployerRequestViewModel_ShouldReturnViewModel_WhenStandardExists()
         {
             // Arrange
             var parameters = new SubmitEmployerRequestParameters
@@ -1120,7 +1120,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             _sessionStorageMock.Setup(s => s.EmployerRequest).Returns(employerRequest);
 
             // Act
-            var result = await _sut.GetCheckYourAnswersEmployerRequestViewModel(parameters, new ModelStateDictionary());
+            var result = _sut.GetCheckYourAnswersEmployerRequestViewModel(parameters, new ModelStateDictionary());
 
             // Assert
             result.Should().NotBeNull();
@@ -1287,7 +1287,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
         }
 
         [Test]
-        public async Task GetStandardAndStartSession_ShouldThrowException_WhenStandardNotFound()
+        public void GetStandardAndStartSession_ShouldThrowException_WhenStandardNotFound()
         {
             // Arrange
             var accountId = 123;

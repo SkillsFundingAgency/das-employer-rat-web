@@ -219,7 +219,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             };
 
             _orchestratorMock.Setup(o => o.GetStandardAndStartSession(parameters)).ReturnsAsync(standardModel);
-            _orchestratorMock.Setup(o => o.GetOverviewEmployerRequestViewModel(parameters)).ReturnsAsync(viewModel);
+            _orchestratorMock.Setup(o => o.GetOverviewEmployerRequestViewModel(parameters)).Returns(viewModel);
 
             // Act
             var result = await _sut.Overview(parameters) as ViewResult;
@@ -259,43 +259,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             // Assert
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.ExistingEmployerRequestRouteGet);
-            result.RouteValues["hashedAccountId"].Should().Be(parameters.HashedAccountId);
-        }
-
-        [Test]
-        public async Task Start_ShouldRedirectToEnterApprentices()
-        {
-            // Arrange
-            var parameters = new SubmitEmployerRequestParameters
-            {
-                HashedAccountId = "ABC123"
-            };
-
-            // Act
-            var result = await _sut.Start(parameters) as RedirectToRouteResult;
-
-            // Assert
-            result.Should().NotBeNull();
-            result.RouteName.Should().Be(EmployerRequestController.EnterApprenticesRouteGet);
-            result.RouteValues["hashedAccountId"].Should().Be(parameters.HashedAccountId);
-            result.RouteValues["backToCheckAnswers"].Should().Be(false);
-        }
-
-        [Test]
-        public async Task Cancel_ShouldRedirectToOverview()
-        {
-            // Arrange
-            var parameters = new SubmitEmployerRequestParameters
-            {
-                HashedAccountId = "ABC123"
-            };
-
-            // Act
-            var result = await _sut.Cancel(parameters) as RedirectToRouteResult;
-
-            // Assert
-            result.Should().NotBeNull();
-            result.RouteName.Should().Be(EmployerRequestController.OverviewEmployerRequestRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(parameters.HashedAccountId);
         }
 
@@ -804,7 +767,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
         }
 
         [Test]
-        public async Task CheckYourAnswers_Get_ShouldReturnViewWithViewModel()
+        public void CheckYourAnswers_Get_ShouldReturnViewWithViewModel()
         {
             // Arrange
             var parameters = new SubmitEmployerRequestParameters
@@ -815,10 +778,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
 
             _orchestratorMock
                 .Setup(o => o.GetCheckYourAnswersEmployerRequestViewModel(parameters, It.IsAny<ModelStateDictionary>()))
-                .ReturnsAsync(viewModel);
+                .Returns(viewModel);
 
             // Act
-            var result = await _sut.CheckYourAnswers(parameters) as ViewResult;
+            var result = _sut.CheckYourAnswers(parameters) as ViewResult;
 
             // Assert
             result.Should().NotBeNull();

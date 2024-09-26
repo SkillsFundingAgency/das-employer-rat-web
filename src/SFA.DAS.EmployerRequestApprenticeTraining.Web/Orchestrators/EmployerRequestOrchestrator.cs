@@ -167,7 +167,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             };
         }
 
-        public async Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(OverviewParameters parameters)
+        public OverviewEmployerRequestViewModel GetOverviewEmployerRequestViewModel(OverviewParameters parameters)
         {
             return new OverviewEmployerRequestViewModel
             {
@@ -221,6 +221,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return new EnterApprenticesEmployerRequestViewModel
             {
                 HashedAccountId = parameters.HashedAccountId,
+                RequestType = SessionEmployerRequest.RequestType,
+                StandardLarsCode = SessionEmployerRequest.StandardLarsCode,
+                Location = SessionEmployerRequest.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
                 NumberOfApprentices = SessionEmployerRequest.NumberOfApprentices != 0 
                     ? SessionEmployerRequest.NumberOfApprentices.ToString() 
@@ -262,6 +265,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return new EnterSameLocationEmployerRequestViewModel
             {
                 HashedAccountId = parameters.HashedAccountId,
+                RequestType = SessionEmployerRequest.RequestType,
+                StandardLarsCode = SessionEmployerRequest.StandardLarsCode,
+                Location = SessionEmployerRequest.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
                 SameLocation = SessionEmployerRequest.SameLocation
             };
@@ -301,6 +307,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return new EnterSingleLocationEmployerRequestViewModel
             {
                 HashedAccountId = parameters.HashedAccountId,
+                RequestType = SessionEmployerRequest.RequestType,
+                StandardLarsCode = SessionEmployerRequest.StandardLarsCode,
+                Location = SessionEmployerRequest.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
                 // this is a special case where the attempted value will not automatically populate the input element as the input element
                 // is being replaced with an autocomplete using javascript
@@ -341,6 +350,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return new EnterMultipleLocationsEmployerRequestViewModel(regions.Select(r => (RegionViewModel)r).ToList())
             {
                 HashedAccountId = parameters.HashedAccountId,
+                RequestType = SessionEmployerRequest.RequestType,
+                StandardLarsCode = SessionEmployerRequest.StandardLarsCode,
+                Location = SessionEmployerRequest.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
                 // this is a special case where the attempted value will not automatically populate the input elements as the input elements are
                 // radio buttons which are dynamically created from a list
@@ -383,6 +395,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             return new EnterTrainingOptionsEmployerRequestViewModel
             {
                 HashedAccountId = parameters.HashedAccountId,
+                RequestType = SessionEmployerRequest.RequestType,
+                StandardLarsCode = SessionEmployerRequest.StandardLarsCode,
+                Location = SessionEmployerRequest.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
                 AtApprenticesWorkplace = SessionEmployerRequest.AtApprenticesWorkplace,
                 DayRelease = SessionEmployerRequest.DayRelease,
@@ -406,7 +421,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
             });
         }
 
-        public async Task<CheckYourAnswersEmployerRequestViewModel> GetCheckYourAnswersEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
+        public CheckYourAnswersEmployerRequestViewModel GetCheckYourAnswersEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState)
         {
             var employerRequest = SessionEmployerRequest;
 
@@ -415,6 +430,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 HashedAccountId = parameters.HashedAccountId,
                 StandardReference = SessionEmployerRequest.StandardReference,
                 RequestType = SessionEmployerRequest.RequestType,
+                StandardLarsCode = SessionEmployerRequest.StandardLarsCode,
                 Location = SessionEmployerRequest.Location,
                 StandardTitle = SessionEmployerRequest.StandardTitle,
                 StandardLevel = SessionEmployerRequest.StandardLevel,

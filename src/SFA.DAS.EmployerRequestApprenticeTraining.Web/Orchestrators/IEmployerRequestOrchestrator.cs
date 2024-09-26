@@ -15,7 +15,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         Task CancelTrainingRequest(Guid employerRequestId, string hashedAccountId);
         Task<CancelTrainingRequestViewModel> GetCancelTrainingRequestViewModel(Guid employerRequestId, string hashedAccountId);
         Task<CancelConfirmationEmployerRequestViewModel> GetCancelConfirmationEmployerRequestViewModel(string hashedAccountId, Guid employerRequestId);
-        Task<OverviewEmployerRequestViewModel> GetOverviewEmployerRequestViewModel(OverviewParameters parameters);
+        OverviewEmployerRequestViewModel GetOverviewEmployerRequestViewModel(OverviewParameters parameters);
         Task<bool> HasExistingEmployerRequest(long accountId, string standardReference);
         EnterApprenticesEmployerRequestViewModel GetEnterApprenticesEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState);
         Task<bool> ValidateEnterApprenticesEmployerRequestViewModel(EnterApprenticesEmployerRequestViewModel viewModel, ModelStateDictionary modelState);
@@ -32,7 +32,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         EnterTrainingOptionsEmployerRequestViewModel GetEnterTrainingOptionsEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState);
         Task<bool> ValidateEnterTrainingOptionsEmployerRequestViewModel(EnterTrainingOptionsEmployerRequestViewModel viewModel, ModelStateDictionary modelState);
         void UpdateTrainingOptionsForEmployerRequest(EnterTrainingOptionsEmployerRequestViewModel viewModel);
-        Task<CheckYourAnswersEmployerRequestViewModel> GetCheckYourAnswersEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState);
+        CheckYourAnswersEmployerRequestViewModel GetCheckYourAnswersEmployerRequestViewModel(SubmitEmployerRequestParameters parameters, ModelStateDictionary modelState);
         Task<bool> ValidateCheckYourAnswersEmployerRequestViewModel(CheckYourAnswersEmployerRequestViewModel viewModel, ModelStateDictionary modelState);
         Task<Guid> SubmitEmployerRequest(CheckYourAnswersEmployerRequestViewModel viewModel);
         Task<SubmitConfirmationEmployerRequestViewModel> GetSubmitConfirmationEmployerRequestViewModel(string hashedAccountId, Guid employerRequestId);

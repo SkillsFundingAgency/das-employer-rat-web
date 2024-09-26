@@ -36,8 +36,11 @@
                     <button type="submit" class="govuk-button" data-module="govuk-button">
                         Continue
                     </button>
-                    <a class="govuk-link" id="cancel" asp-route="@EmployerRequestController.CancelEmployerRequestRouteGet" 
-                        asp-route-hashedAccountId="@Model.HashedAccountId">
+                    <a class="govuk-link" id="cancel" asp-route="@EmployerRequestController.OverviewEmployerRequestRouteGet"
+                       asp-route-hashedAccountId="@Model.HashedAccountId"
+                       asp-route-requestType="@Model.RequestType"
+                       asp-route-standardId="@Model.StandardLarsCode"
+                       asp-route-location="@Model.Location">
                         Cancel
                     </a>
                 </div>
