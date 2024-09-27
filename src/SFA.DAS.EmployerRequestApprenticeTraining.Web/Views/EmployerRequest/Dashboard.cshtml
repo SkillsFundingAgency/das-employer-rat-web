@@ -80,9 +80,9 @@
                                 </div>
                             </p>
                             <p>
-                                <div class="govuk-body govuk-!-margin-bottom-1">Request made on @request.RequestedAt.ToString("d MMM yyyy")</div>
+                                <div class="govuk-body govuk-!-margin-bottom-1">Request made on @request.RequestedAt.ToString("d MMMM yyyy")</div>
                                 <div class="govuk-hint">
-                                    Expires in @Model.ExpiryDays(request.ExpiryAt) @Model.DaysText(Model.ExpiryDays(request.ExpiryAt)) (@request.ExpiryAt.ToString("d MMM yyyy"))
+                                    Expires in @Model.ExpiryDays(request.ExpiryAt) @Model.DaysText(Model.ExpiryDays(request.ExpiryAt)) (@request.ExpiryAt.ToString("d MMMM yyyy"))
                                 </div>
                             </p>
                             <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-6 govuk-!-margin-bottom-6" />
@@ -97,9 +97,9 @@
                     <h3 class="govuk-heading-m">Expired requests</h3>
                         @if (Model.Dashboard.ExpiredAggregatedEmployerRequests.Count() > 0)
                         {
-                            <p class="govuk-body">These requests are expired and are no longer seen by training providers.</p>
+                            <p class="govuk-body">These requests have expired and are no longer seen by training providers.</p>
 
-                            <p class="govuk-body">Select a training course to view training provider contact details</p>
+                            <p class="govuk-body">Select a training course with responses to view training provider contact details.</p>
 
                             <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-6 govuk-!-margin-bottom-6" />
                             foreach (var request in Model.Dashboard.ExpiredAggregatedEmployerRequests)
@@ -118,9 +118,9 @@
                                     </div>
                                 </p>
                                 <p>
-                                    <div class="govuk-body govuk-!-margin-bottom-1">Request made on @request.RequestedAt.ToString("d MMM yyyy")</div>
+                                    <div class="govuk-body govuk-!-margin-bottom-1">Request made on @request.RequestedAt.ToString("d MMMM yyyy")</div>
                                     <div class="govuk-hint">
-                                        Expired @request.ExpiryAt.ToString("d MMM yyyy")
+                                        Expired @request.ExpiryAt.ToString("d MMMM yyyy")
                                     </div>
                                 </p>
                                 <hr class="govuk-section-break govuk-section-break--visible govuk-!-margin-top-6 govuk-!-margin-bottom-6" />
@@ -129,10 +129,8 @@
                         else
                         {
                             <p class="govuk-body">
-                                Requests expire after @Model.Dashboard.RemovedAfterExpiryMonths months and are no longer seen by training providers.
-                            </p>
-                            <p class="govuk-body">
-                                When your requests have expired, you'll see them here
+                                Requests expire after @Model.Dashboard.RemovedAfterExpiryMonths months and are no longer seen by training 
+                                providers. When your requests have expired, you'll see them here.
                             </p>
                         }
                 </div>
