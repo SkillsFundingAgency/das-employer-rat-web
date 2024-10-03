@@ -84,9 +84,7 @@
                         <a asp-route="@EmployerRequestController.CancelTrainingRequestRouteGet"
                            asp-route-hashedAccountId="@Model.HashedAccountId"
                            asp-route-employerRequestId="@Model.EmployerRequestId"
-                           class="govuk-link govuk-link--no-visted-state">
-                           cancel your request
-                        </a>.
+                           class="govuk-link govuk-link--no-visted-state">cancel your request</a>.
                     </span>
                 }
                 else if(Model.Status == RequestStatus.Expired)
