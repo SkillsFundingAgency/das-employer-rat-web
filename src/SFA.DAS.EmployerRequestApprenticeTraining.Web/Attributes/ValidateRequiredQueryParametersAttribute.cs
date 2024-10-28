@@ -1,12 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers;
-using System;
-using System.Linq;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Attributes
 {
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true, Inherited = true)]
     public class ValidateRequiredQueryParametersAttribute : ActionFilterAttribute
     {
         public const string MissingRequireQueryParameterMessage = "Missing required query parameter: ";

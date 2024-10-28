@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.SessionStorage;
 using System;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Types;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Services.SessionStorage
 {
@@ -37,7 +38,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         public void EmployerRequest_Get_ShouldReturnEmployerRequestFromSession()
         {
             // Arrange
-            var expectedEmployerRequest = new EmployerRequest { Id = Guid.NewGuid(), AccountId = 123, RequestType = RequestType.Shortlist, NumberOfApprentices = 10 };
+            var expectedEmployerRequest = new EmployerRequest { RequestType = RequestType.Shortlist, NumberOfApprentices = 10 };
             var serializedValue = JsonConvert.SerializeObject(expectedEmployerRequest);
             var byteArray = System.Text.Encoding.UTF8.GetBytes(serializedValue);
 
@@ -55,7 +56,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         public void EmployerRequest_Set_ShouldStoreEmployerRequestInSession()
         {
             // Arrange
-            var employerRequest = new EmployerRequest { Id = Guid.NewGuid(), AccountId = 123, RequestType = RequestType.Shortlist, NumberOfApprentices = 10 };
+            var employerRequest = new EmployerRequest { RequestType = RequestType.Shortlist, NumberOfApprentices = 10 };
             var serializedValue = JsonConvert.SerializeObject(employerRequest);
             var byteArray = System.Text.Encoding.UTF8.GetBytes(serializedValue);
 

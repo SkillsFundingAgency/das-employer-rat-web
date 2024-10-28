@@ -7,7 +7,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest
         public string FindApprenticeshipTrainingBaseUrl { get; set; }
         public string StandardTitle { get; set; }
         public int StandardLevel { get; set; }
-        public int StandardLarsCode { get; set; }
 
         public string BackLink 
         { 

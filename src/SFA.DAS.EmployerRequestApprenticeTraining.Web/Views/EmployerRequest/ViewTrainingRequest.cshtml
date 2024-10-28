@@ -56,7 +56,7 @@
                         Request date
                     </dt>
                     <dd class="govuk-summary-list__value">
-                        @Model.RequestedAt.ToString("d MMM yyyy")
+                        @Model.RequestedAt.ToString("d MMMM yyyy")
                     </dd>
                 </div>
                 <div class="govuk-summary-list__row">
@@ -66,11 +66,11 @@
                     <dd class="govuk-summary-list__value">
                         @if(Model.ExpiredAt.HasValue)
                         {
-                            @Model.ExpiredAt.Value.ToString("d MMM yyyy")
+                            @Model.ExpiredAt.Value.ToString("d MMMM yyyy")
                         }
                         else
                         {
-                            @Model.ExpiryAt.ToString("d MMM yyyy")
+                            @Model.ExpiryAt.ToString("d MMMM yyyy")
                         }
                     </dd>
                 </div>
@@ -84,14 +84,12 @@
                         <a asp-route="@EmployerRequestController.CancelTrainingRequestRouteGet"
                            asp-route-hashedAccountId="@Model.HashedAccountId"
                            asp-route-employerRequestId="@Model.EmployerRequestId"
-                           class="govuk-link govuk-link--no-visted-state">
-                           cancel your request
-                        </a>.
+                           class="govuk-link govuk-link--no-visted-state">cancel your request</a>.
                     </span>
                 }
                 else if(Model.Status == RequestStatus.Expired)
                 {
-                    <span>Your request has expired and will be removed from your training requests on @Model.RemoveAt.ToString("d MMM yyyy").</span>
+                    <span>Your request has expired and will be removed from your training requests on @Model.RemoveAt.ToString("d MMMM yyyy").</span>
                 }
             </div>
             
@@ -121,7 +119,7 @@
                                 Response date
                             </dt>
                             <dd class="govuk-summary-list__value">
-                                @providerResponse.RespondedAt.ToString("d MMM yyyy")
+                                @providerResponse.RespondedAt.ToString("d MMMM yyyy")
                             </dd>
                         </div>
                         <div class="govuk-summary-list__row">

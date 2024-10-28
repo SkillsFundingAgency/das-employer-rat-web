@@ -11,9 +11,6 @@
 }
 <a asp-route="@EmployerRequestController.EnterTrainingOptionsRouteGet"
    asp-route-hashedAccountId="@Model.HashedAccountId"
-   asp-route-requestType="@Model.RequestType"
-   asp-route-standardId="@Model.StandardId"
-   asp-route-location="@Model.Location" 
    class="govuk-back-link">Back</a>
 <main class="govuk-main-wrapper govuk-main-wrapper--auto-spacing" id="main-content">
     <div class="govuk-grid-row">
@@ -38,9 +35,6 @@
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link" id="NumberOfApprentices-change" asp-route="@EmployerRequestController.EnterApprenticesRouteGet"
                            asp-route-hashedAccountId="@Model.HashedAccountId"
-                           asp-route-requestType="@Model.RequestType"
-                           asp-route-standardId="@Model.StandardId"
-                           asp-route-location="@Model.Location"
                            asp-route-backToCheckAnswers="true">
                            Change<span class="govuk-visually-hidden"> how many apprentices</span>
                         </a>
@@ -59,9 +53,6 @@
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link" id="SameLocation-change" asp-route="@EmployerRequestController.EnterSameLocationRouteGet"
                            asp-route-hashedAccountId="@Model.HashedAccountId"
-                           asp-route-requestType="@Model.RequestType"
-                           asp-route-standardId="@Model.StandardId"
-                           asp-route-location="@Model.Location"
                            asp-route-backToCheckAnswers="true">
                             Change<span class="govuk-visually-hidden"> one apprenticeship location</span>
                         </a>
@@ -97,9 +88,6 @@
                         {
                             <a class="govuk-link" id="SingleLocation-change" asp-route="@EmployerRequestController.EnterSingleLocationRouteGet"
                             asp-route-hashedAccountId="@Model.HashedAccountId"
-                            asp-route-requestType="@Model.RequestType"
-                            asp-route-standardId="@Model.StandardId"
-                            asp-route-location="@Model.Location"
                             asp-route-backToCheckAnswers="true">
                                 Change<span class="govuk-visually-hidden"> apprenticeship locations</span>
                             </a>
@@ -108,9 +96,6 @@
                         {
                             <a class="govuk-link" id="MultipleLocations-change" asp-route="@EmployerRequestController.EnterMultipleLocationsRouteGet"
                                asp-route-hashedAccountId="@Model.HashedAccountId"
-                               asp-route-requestType="@Model.RequestType"
-                               asp-route-standardId="@Model.StandardId"
-                               asp-route-location="@Model.Location"
                                asp-route-backToCheckAnswers="true">
                                 Change<span class="govuk-visually-hidden"> apprenticeship locations</span>
                             </a>
@@ -128,9 +113,6 @@
                     <dd class="govuk-summary-list__actions">
                         <a class="govuk-link" id="AtApprenticesWorkplace-change" asp-route="@EmployerRequestController.EnterTrainingOptionsRouteGet"
                            asp-route-hashedAccountId="@Model.HashedAccountId"
-                           asp-route-requestType="@Model.RequestType"
-                           asp-route-standardId="@Model.StandardId"
-                           asp-route-location="@Model.Location"
                            asp-route-backToCheckAnswers="true">
                             Change<span class="govuk-visually-hidden"> training options</span>
                         </a>
@@ -141,9 +123,7 @@
 
             <form asp-route="@EmployerRequestController.CheckYourAnswersRoutePost" method="post">
                 @Html.HiddenFor(model => model.HashedAccountId)
-                @Html.HiddenFor(model => model.StandardId)
-                @Html.HiddenFor(model => model.RequestType)
-                @Html.HiddenFor(model => model.Location)
+                @Html.HiddenFor(model => model.StandardReference)
                 @Html.HiddenFor(model => model.NumberOfApprentices)
                 @Html.HiddenFor(model => model.SameLocation)
                 @Html.HiddenFor(model => model.SingleLocation)
@@ -154,13 +134,13 @@
 
                 <div class="govuk-button-group">
                     <button type="submit" class="govuk-button" data-module="govuk-button">
-                        Continue
+                        Submit
                     </button>
-                    <a class="govuk-link" id="cancel" asp-route="@EmployerRequestController.CancelEmployerRequestRouteGet" 
-                        asp-route-hashedAccountId="@Model.HashedAccountId"
-                        asp-route-requestType="@Model.RequestType"
-                        asp-route-standardId="@Model.StandardId"
-                        asp-route-location="@Model.Location">
+                    <a class="govuk-link" id="cancel" asp-route="@EmployerRequestController.OverviewEmployerRequestRouteGet"
+                       asp-route-hashedAccountId="@Model.HashedAccountId"
+                       asp-route-requestType="@Model.RequestType"
+                       asp-route-standardId="@Model.StandardLarsCode"
+                       asp-route-location="@Model.Location">
                         Cancel
                     </a>
                 </div>

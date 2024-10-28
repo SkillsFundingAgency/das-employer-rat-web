@@ -31,11 +31,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             var key = "testKey";
             var item = new Standard
             {
-                StandardUId = "StandardUId",
-                IfateReferenceNumber = "IfateRef123",
-                LarsCode = 123,
-                Title = "Test Title",
-                Level = 3
+                StandardReference = "IfateRef123",
+                StandardTitle = "Test Title",
+                StandardLevel = 3
             };
 
             var expirationInHours = 1;
@@ -62,11 +60,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             var key = "testKey";
             var expectedItem = new Standard
             {
-                StandardUId = "StandardUId",
-                IfateReferenceNumber = "IfateRef123",
-                LarsCode = 123,
-                Title = "Test Title",
-                Level = 3
+                StandardReference = "IfateRef123",
+                StandardTitle = "Test Title",
+                StandardLevel = 3
             };
 
             var json = JsonConvert.SerializeObject(expectedItem);
