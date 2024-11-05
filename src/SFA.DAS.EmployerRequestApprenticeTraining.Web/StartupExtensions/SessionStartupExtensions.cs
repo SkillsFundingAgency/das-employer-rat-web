@@ -1,8 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
@@ -16,11 +15,16 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
                 opt.IdleTimeout = TimeSpan.FromMinutes(20);
                 opt.Cookie = new CookieBuilder()
                 {
-                    Name = ".EmployerRequestApprenticeTraining.Session",
                     SecurePolicy = CookieSecurePolicy.Always,
                     SameSite = SameSiteMode.Strict,
-                    HttpOnly = true
+                    HttpOnly = true,
+                    IsEssential = true
                 };
+            });
+
+            services.AddAntiforgery(opt =>
+            {
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             });
 
             return services;
