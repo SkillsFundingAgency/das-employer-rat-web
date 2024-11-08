@@ -16,7 +16,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
                 opt.Cookie = new CookieBuilder()
                 {
                     SecurePolicy = CookieSecurePolicy.Always,
-                    SameSite = SameSiteMode.Strict,
                     HttpOnly = true,
                     IsEssential = true
                 };
