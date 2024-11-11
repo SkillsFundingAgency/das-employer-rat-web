@@ -15,7 +15,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
                 opt.IdleTimeout = TimeSpan.FromMinutes(20);
                 opt.Cookie = new CookieBuilder()
                 {
-                    SecurePolicy = CookieSecurePolicy.Always,
+                    //SecurePolicy = CookieSecurePolicy.Always,
                     HttpOnly = true,
                     IsEssential = true
                 };
