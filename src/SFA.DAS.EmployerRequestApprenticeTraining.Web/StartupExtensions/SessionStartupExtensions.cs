@@ -1,24 +1,29 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
     [ExcludeFromCodeCoverage]
     public static class SessionStartupExtensions
     {
-        public static IServiceCollection AddSession(this IServiceCollection services, EmployerRequestApprenticeTrainingWebConfiguration configWeb)
+        public static IServiceCollection AddSessionOptions(this IServiceCollection services)
         {
             services.AddSession(opt =>
             {
                 opt.IdleTimeout = TimeSpan.FromMinutes(20);
                 opt.Cookie = new CookieBuilder()
                 {
-                    Name = ".EmployerRequestApprenticeTraining.Session",
-                    HttpOnly = true
+                    //SecurePolicy = CookieSecurePolicy.Always,
+                    HttpOnly = true,
+                    IsEssential = true
                 };
+            });
+
+            services.AddAntiforgery(opt =>
+            {
+                opt.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             });
 
             return services;

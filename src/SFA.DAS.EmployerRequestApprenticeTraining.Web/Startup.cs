@@ -78,7 +78,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
             services
                 .AddEmployerAuthentication(_configuration)
                 .AddAuthorizationPolicies()
-                .AddSession()
+                .AddSessionOptions()
                 .AddCache(_environment, configurationWeb)
                 .AddMemoryCache()
                 .AddCookieTempDataProvider()
