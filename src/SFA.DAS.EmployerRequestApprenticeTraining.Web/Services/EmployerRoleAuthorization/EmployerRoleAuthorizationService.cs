@@ -1,10 +1,7 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Types;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Authorization;
 using System;
 using System.Collections.Generic;
@@ -12,16 +9,18 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using SFA.DAS.GovUK.Auth.Employer;
+using EmployerClaims = SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration.EmployerClaims;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAuthorization
 {
     public class EmployerRoleAuthorizationService : IEmployerRoleAuthorizationService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IUserAccountsService _userAccountsService;
+        private readonly IGovAuthEmployerAccountService _userAccountsService;
         private readonly ILogger<EmployerRoleAuthorizationService> _logger;
 
-        public EmployerRoleAuthorizationService(IHttpContextAccessor httpContextAccessor, IUserAccountsService userAccountsService, ILogger<EmployerRoleAuthorizationService> logger)
+        public EmployerRoleAuthorizationService(IHttpContextAccessor httpContextAccessor, IGovAuthEmployerAccountService userAccountsService, ILogger<EmployerRoleAuthorizationService> logger)
         {
             _httpContextAccessor = httpContextAccessor;
             _userAccountsService = userAccountsService;
@@ -41,11 +40,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAut
             if (associatedAccountsClaim?.Value == null)
                 return false;
 
-            Dictionary<string, EmployerUserAccount> employerAccounts;
+            Dictionary<string, EmployerUserAccountItem> employerAccounts;
 
             try
             {
-                employerAccounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccount>>(associatedAccountsClaim.Value);
+                employerAccounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(associatedAccountsClaim.Value);
             }
             catch (JsonSerializationException e)
             {
@@ -53,7 +52,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAut
                 return false;
             }
 
-            EmployerUserAccount employerIdentifier = null;
+            EmployerUserAccountItem employerIdentifier = null;
 
             if (employerAccounts != null)
             {
@@ -76,7 +75,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAut
                 var userId = userIdClaim.Value;
 
                 var employerUser = await _userAccountsService.GetUserAccounts(userId, email);
-                var employerUserAccounts = employerUser.EmployerUserAccounts.ToDictionary(k => k.AccountId);
+                var employerUserAccounts = employerUser.EmployerAccounts.ToDictionary(k => k.AccountId);
                 var employerUserAccountsAsJson = JsonConvert.SerializeObject(employerUserAccounts);
 
                 userIdClaim.Subject.RemoveClaim(associatedAccountsClaim);
@@ -94,7 +93,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAut
             return CheckUserRoleForAccess(employerIdentifier, minimumAllowedRole);
         }
 
-        private static bool CheckUserRoleForAccess(EmployerUserAccount employerIdentifier, UserRole minimumAllowedRole)
+        private static bool CheckUserRoleForAccess(EmployerUserAccountItem employerIdentifier, UserRole minimumAllowedRole)
         {
             bool tryParse = Enum.TryParse<UserRole>(employerIdentifier.Role, true, out var userRole);
 

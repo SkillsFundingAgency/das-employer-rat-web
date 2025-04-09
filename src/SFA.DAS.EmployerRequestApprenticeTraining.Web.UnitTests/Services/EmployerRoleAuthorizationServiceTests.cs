@@ -6,7 +6,6 @@ using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Types;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Authorization;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Services.EmployerRoleAuthorization;
@@ -14,6 +13,8 @@ using SFA.DAS.Testing.AutoFixture;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using SFA.DAS.GovUK.Auth.Employer;
+using EmployerClaims = SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration.EmployerClaims;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
 {
@@ -44,7 +45,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             UserRole minimumRole,
             bool accessResult,
             string roleInClaims,
-            EmployerUserAccount employerUserAccount,
+            EmployerUserAccountItem employerUserAccount,
             [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
             EmployerRoleAuthorizationService employerRoleAuthorizationService)
         {
@@ -70,9 +71,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             string accountId,
             string userId,
             string email,
-            EmployerUserAccount employerUserAccount,
+            EmployerUserAccountItem employerUserAccount,
             [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-            [Frozen] Mock<IUserAccountsService> userAccountsService,
+            [Frozen] Mock<IGovAuthEmployerAccountService> userAccountsService,
             EmployerRoleAuthorizationService employerRoleAuthorizationService)
         {
             // Arrange
@@ -80,9 +81,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             employerUserAccount.Role = "Owner";
 
             userAccountsService.Setup(x => x.GetUserAccounts(userId, email))
-                .ReturnsAsync(new EmployerUser
+                .ReturnsAsync(new EmployerUserAccounts()
                 {
-                    EmployerUserAccounts = new List<EmployerUserAccount>
+                    EmployerAccounts = new List<EmployerUserAccountItem>
                     {
                         employerUserAccount // user has no role for route accountId
                     }
@@ -106,9 +107,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             string accountId,
             string userId,
             string email,
-            EmployerUserAccount employerUserAccount,
+            EmployerUserAccountItem employerUserAccount,
             [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-            [Frozen] Mock<IUserAccountsService> userAccountsService,
+            [Frozen] Mock<IGovAuthEmployerAccountService> userAccountsService,
             EmployerRoleAuthorizationService employerRoleAuthorizationService)
         {
             // Arrange
@@ -116,11 +117,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             employerUserAccount.Role = "Owner";
 
             userAccountsService.Setup(x => x.GetUserAccounts(userId, email))
-                .ReturnsAsync(new EmployerUser
+                .ReturnsAsync(new EmployerUserAccounts
                 {
-                    EmployerUserAccounts = new List<EmployerUserAccount>
+                    EmployerAccounts = new List<EmployerUserAccountItem>
                     {
-                        new EmployerUserAccount
+                        new EmployerUserAccountItem
                         {
                             AccountId = accountId.ToUpper(), // user has Owner role for route accountId
                             Role = employerUserAccount.Role
@@ -143,7 +144,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
 
         [Test, MoqAutoData]
         public async Task Given_AccountId_NotInUrl_Then_ReturnsFalse(
-            EmployerUserAccount employerUserAccount,
+            EmployerUserAccountItem employerUserAccount,
             [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
             EmployerRoleAuthorizationService employerRoleAuthorizationService)
         {
@@ -166,7 +167,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
 
         [Test, MoqAutoData]
         public async Task Given_NoMatchingAccountsIdentifierClaimFound_Then_ReturnsFalse(
-            EmployerUserAccount employerUserAccount,
+            EmployerUserAccountItem employerUserAccount,
             [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
             EmployerRoleAuthorizationService employerRoleAuthorizationService)
         {
@@ -174,7 +175,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             employerUserAccount.AccountId = employerUserAccount.AccountId.ToUpper();
             employerUserAccount.Role = "Owner";
 
-            var employerAccounts = new Dictionary<string, EmployerUserAccount> { { employerUserAccount.AccountId, employerUserAccount } };
+            var employerAccounts = new Dictionary<string, EmployerUserAccountItem> { { employerUserAccount.AccountId, employerUserAccount } };
             var employerAccountClaim = new Claim("Not_UserAssociatedAccountsClaimsTypeIdentifier", JsonConvert.SerializeObject(employerAccounts));
             var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[]
             {
@@ -197,7 +198,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
         [Test, MoqAutoData]
         public async Task Given_RouteAccountNotInAccountsClaim_And_NoMatchingNameIdentifierClaimFound_ThenReturnsFalse(
             string accountId,
-            EmployerUserAccount employerUserAccount,
+            EmployerUserAccountItem employerUserAccount,
             [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
             EmployerRoleAuthorizationService employerRoleAuthorizationService)
         {
@@ -205,7 +206,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             employerUserAccount.AccountId = employerUserAccount.AccountId.ToUpper();
             employerUserAccount.Role = "Owner";
 
-            var employerAccounts = new Dictionary<string, EmployerUserAccount> { { employerUserAccount.AccountId, employerUserAccount } };
+            var employerAccounts = new Dictionary<string, EmployerUserAccountItem> { { employerUserAccount.AccountId, employerUserAccount } };
             var employerAccountClaim = new Claim(EmployerClaims.UserAssociatedAccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
             var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[]
             {
@@ -228,7 +229,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
         [Test, MoqAutoData]
         public async Task Given_RouteAccountNotInAccountsClaim_And_NoMatchingEmailClaimFound_ThenReturnsFalse(
             string accountId,
-            EmployerUserAccount employerUserAccount,
+            EmployerUserAccountItem employerUserAccount,
             [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
             EmployerRoleAuthorizationService employerRoleAuthorizationService)
         {
@@ -236,7 +237,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             employerUserAccount.AccountId = employerUserAccount.AccountId.ToUpper();
             employerUserAccount.Role = "Owner";
 
-            var employerAccounts = new Dictionary<string, EmployerUserAccount> { { employerUserAccount.AccountId, employerUserAccount } };
+            var employerAccounts = new Dictionary<string, EmployerUserAccountItem> { { employerUserAccount.AccountId, employerUserAccount } };
             var employerAccountClaim = new Claim(EmployerClaims.UserAssociatedAccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
             var claimsPrinciple = new ClaimsPrincipal(new[] { new ClaimsIdentity(new[]
             {
@@ -256,9 +257,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Services
             actual.Should().BeFalse();
         }
 
-        private ClaimsPrincipal GetClaims(string userId, string email, EmployerUserAccount employerUserAccount)
+        private ClaimsPrincipal GetClaims(string userId, string email, EmployerUserAccountItem employerUserAccount)
         {
-            var employerAccounts = new Dictionary<string, EmployerUserAccount> { { employerUserAccount.AccountId, employerUserAccount } };
+            var employerAccounts = new Dictionary<string, EmployerUserAccountItem> { { employerUserAccount.AccountId, employerUserAccount } };
             var employerAccountClaim = new Claim(EmployerClaims.UserAssociatedAccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
 
             return new ClaimsPrincipal(new[] { new ClaimsIdentity(new[]

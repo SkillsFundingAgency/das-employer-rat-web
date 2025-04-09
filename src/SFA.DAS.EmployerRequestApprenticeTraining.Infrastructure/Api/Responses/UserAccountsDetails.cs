@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using SFA.DAS.GovUK.Auth.Employer;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses
 {
@@ -25,5 +26,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses
         public string EmployerName { get; set; }
         [JsonProperty("role")]
         public string Role { get; set; }
+        [JsonProperty("apprenticeshipEmployerType")]
+        public ApprenticeshipEmployerType ApprenticeshipEmployerType { get; set; }
     }
 }

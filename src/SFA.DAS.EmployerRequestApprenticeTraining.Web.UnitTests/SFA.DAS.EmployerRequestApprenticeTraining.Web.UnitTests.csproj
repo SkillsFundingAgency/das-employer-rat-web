@@ -25,7 +25,6 @@
 
   <ItemGroup>
     <Compile Include="Extensions\StringExtensionsTests.cs" />
-    <Compile Include="StartupExtensions\PostAuthenticationClaimsHandlerTests.cs" />
   </ItemGroup>
 
   <ItemGroup>
