@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
 using System;
 using System.Collections.Generic;
@@ -9,6 +8,8 @@ using System.Net;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using SFA.DAS.GovUK.Auth.Employer;
+using EmployerClaims = SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration.EmployerClaims;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home
 {
@@ -45,20 +46,20 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.Home
             return replacedUrl;
         }
 
-        public List<EmployerUserAccount> GetAccounts()
+        public List<EmployerUserAccountItem> GetAccounts()
         {
             var associatedAccountsClaim = _claimsPrinciple.Claims.FirstOrDefault(c => c.Type.Equals(EmployerClaims.UserAssociatedAccountsClaimsTypeIdentifier))?.Value;
             if (string.IsNullOrEmpty(associatedAccountsClaim))
-                return new List<EmployerUserAccount>();
+                return new List<EmployerUserAccountItem>();
 
             try
             {
-                var accountsDictionary = JsonSerializer.Deserialize<Dictionary<string, EmployerUserAccount>>(associatedAccountsClaim);
-                return accountsDictionary?.Values.ToList() ?? new List<EmployerUserAccount>();
+                var accountsDictionary = JsonSerializer.Deserialize<Dictionary<string, EmployerUserAccountItem>>(associatedAccountsClaim);
+                return accountsDictionary?.Values.ToList() ?? new List<EmployerUserAccountItem>();
             }
             catch (JsonException)
             {
-                return new List<EmployerUserAccount>();
+                return new List<EmployerUserAccountItem>();
             }
         }
     }

@@ -7,8 +7,9 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService;
+using SFA.DAS.GovUK.Auth.Employer;
+using EmployerClaims = SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration.EmployerClaims;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Services.User
 {
@@ -51,9 +52,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         {
             // Arrange
             var accountId = "account123";
-            var claimsData = new Dictionary<string, EmployerUserAccount>
+            var claimsData = new Dictionary<string, EmployerUserAccountItem>
             {
-                { accountId, new EmployerUserAccount { Role = "Owner" } }
+                { accountId, new EmployerUserAccountItem { Role = "Owner" } }
             };
             
             var claimsJson = JsonConvert.SerializeObject(claimsData);
@@ -71,9 +72,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
         {
             // Arrange
             var accountId = "account123";
-            var claimsData = new Dictionary<string, EmployerUserAccount>
+            var claimsData = new Dictionary<string, EmployerUserAccountItem>
             {
-                { accountId, new EmployerUserAccount { Role = "Viewer" } }
+                { accountId, new EmployerUserAccountItem { Role = "Viewer" } }
             };
             
             var claimsJson = JsonConvert.SerializeObject(claimsData);

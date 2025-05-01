@@ -5,8 +5,9 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Types;
-using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
+using SFA.DAS.GovUK.Auth.Employer;
+using EmployerClaims = SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration.EmployerClaims;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserService
 {
@@ -39,7 +40,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.User
             
             try
             {
-                var employerAccounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccount>>(associatedAccountsClaim);
+                var employerAccounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(associatedAccountsClaim);
                 var tryParse = Enum.TryParse<UserRole>(employerAccounts[accountId].Role, true, out var userRole);
 
                 if (!tryParse)
@@ -70,7 +71,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.User
 
             try
             {
-                var employerAccounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccount>>(associatedAccountsClaim);
+                var employerAccounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(associatedAccountsClaim);
 
                 return employerAccounts.Values
                     .Where(c => c.Role.Equals("Owner", StringComparison.CurrentCultureIgnoreCase) ||

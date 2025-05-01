@@ -1,3 +1,4 @@
+using System;
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using Moq;
@@ -8,8 +9,10 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Responses;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
 using SFA.DAS.Testing.AutoFixture;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using SFA.DAS.GovUK.Auth.Employer;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Services.UserAccounts
 {
@@ -47,7 +50,22 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             var actual = await userAccountsService.GetUserAccounts(userId, email);
 
             // Assert
-            actual.Should().BeEquivalentTo((EmployerUser)userAccountsResponse);
+            actual.Should().BeEquivalentTo(new
+            {
+                EmployerAccounts = userAccountsResponse.UserAccounts != null
+                    ? userAccountsResponse.UserAccounts.Select(c => new EmployerUserAccountItem
+                    {
+                        Role = c.Role,
+                        AccountId = c.AccountId,
+                        ApprenticeshipEmployerType = Enum.Parse<ApprenticeshipEmployerType>(c.ApprenticeshipEmployerType.ToString()),
+                        EmployerName = c.EmployerName,
+                    }).ToList()
+                    : [],
+                FirstName = userAccountsResponse.FirstName,
+                IsSuspended = userAccountsResponse.IsSuspended,
+                LastName = userAccountsResponse.LastName,
+                EmployerUserId = userAccountsResponse.EmployerUserId,
+            });
         }
 
         [Test, MoqAutoData]
@@ -67,7 +85,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.UnitTests.Ser
             var actual = await userAccountsService.GetUserAccounts(userId, email);
 
             // Assert
-            actual.Should().BeEquivalentTo((EmployerUser)userAccountsResponse);
+            actual.Should().BeEquivalentTo(new EmployerUserAccounts());
         }
     }
 }

@@ -19,6 +19,7 @@ using SFA.DAS.GovUK.Auth.Authentication;
 using SFA.DAS.GovUK.Auth.Services;
 using SFA.DAS.Http.Configuration;
 using System.Diagnostics.CodeAnalysis;
+using SFA.DAS.GovUK.Auth.Employer;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
@@ -36,11 +37,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
             services.AddSingleton<IAuthorizationHandler, AccountActiveAuthorizationHandler>();
 
             services.AddTransient<IEmployerRoleAuthorizationService, EmployerRoleAuthorizationService>();
-            services.AddTransient<IUserAccountsService, UserAccountsService>();
+            services.AddTransient<IGovAuthEmployerAccountService, UserAccountsService>();
 
             services.AddTransient<ISessionStorageService, SessionStorageService>();
             services.AddTransient<ICacheStorageService, CacheStorageService>();
-            services.AddTransient<ICustomClaims, PostAuthenticationClaimsHandler>();
 
             services.AddTransient(sp => new EmployerRequestOrchestratorValidators
             {

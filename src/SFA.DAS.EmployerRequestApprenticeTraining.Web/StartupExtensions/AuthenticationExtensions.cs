@@ -4,6 +4,8 @@ using SFA.DAS.GovUK.Auth.AppStart;
 using SFA.DAS.GovUK.Auth.Configuration;
 using SFA.DAS.GovUK.Auth.Services;
 using System.Diagnostics.CodeAnalysis;
+using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Services.UserAccounts;
+using SFA.DAS.GovUK.Auth.Models;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
 {
@@ -14,7 +16,15 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
         {
             services.AddTransient<IStubAuthenticationService, StubAuthenticationService>(); // TODO can be removed once gov login enabled
             services.Configure<GovUkOidcConfiguration>(configuration.GetSection("GovUkOidcConfiguration"));
-            services.AddAndConfigureGovUkAuthentication(configuration, typeof(PostAuthenticationClaimsHandler), "", "/SignIn-Stub");
+            services.AddAndConfigureGovUkAuthentication(configuration, 
+                new AuthRedirects
+                {
+                  LocalStubLoginPath  = "/SignIn-Stub",
+                  SignedOutRedirectUrl = ""
+                },
+                null,
+                typeof(UserAccountsService)
+                );
 
             return services;
         }
