@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.Employer.Shared.UI;
@@ -51,6 +50,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
 
         public IActionResult Index()
         {
+            _logger.LogInformation("Index called");
             if (_config.IsRunningLocally() || _config.IsRunningInDev())
             {
                 return View();
