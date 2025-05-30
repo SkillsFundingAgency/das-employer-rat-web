@@ -1,5 +1,4 @@
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -9,8 +8,6 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.ApplicationInsights;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.EmployerRequestApprenticeTraining.Application.Queries.GetExistingEmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Configuration;
@@ -21,7 +18,6 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Web.ModelBinders;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions;
 using SFA.DAS.Validation.Mvc.Extensions;
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Policy;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
@@ -40,13 +36,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddLogging(builder =>
-            {
-                builder.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, LogLevel.Information);
-                builder.AddFilter<ApplicationInsightsLoggerProvider>("Microsoft", LogLevel.Information);
-            });
-
+            services.AddHttpContextAccessor();
             services.AddConfigurationOptions(_configuration);
+
+            services.AddOpenTelemetryRegistration(_configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]!);
 
             var configurationWeb = _configuration.GetSection<EmployerRequestApprenticeTrainingWebConfiguration>();
             var configurationOuterApi = _configuration.GetSection<EmployerRequestApprenticeTrainingOuterApiConfiguration>();
@@ -88,8 +81,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
                 .AddServiceRegistrations()
                 .AddOuterApi(configurationOuterApi)
                 .AddEmployerSharedUi(_configuration)
-                .AddSingleton<IActionContextAccessor, ActionContextAccessor>()
-                .AddApplicationInsightsTelemetry();
+                .AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
 #if DEBUG
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
@@ -119,7 +111,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
                         await Task.CompletedTask;
                     });
                 });
-                
+
                 // The default HSTS value is 30 days.
                 app.UseHsts();
             }
