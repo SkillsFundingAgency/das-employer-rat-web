@@ -9,8 +9,6 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators;
 using System;
-using System.Reflection.Metadata;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
@@ -107,12 +105,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [ServiceFilter(typeof(ValidateRequiredQueryParametersAttribute))]
         public async Task<IActionResult> Overview(OverviewParameters parameters)
         {
-            if (!string.IsNullOrEmpty(parameters.Location) &&
-                !Regex.IsMatch(parameters.Location, "^[a-zA-Z0-9\\s,\\.\\-'/&()!]+$", RegexOptions.None, TimeSpan.FromSeconds(1)))
-            {
-                parameters.Location = null;
-            }
-
             var standard = await _orchestrator.GetStandardAndStartSession(parameters);
 
             if (await _orchestrator.HasExistingEmployerRequest(parameters.AccountId, standard.StandardReference))

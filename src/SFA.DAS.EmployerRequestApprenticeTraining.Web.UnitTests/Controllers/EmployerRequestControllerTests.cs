@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Moq;
@@ -260,46 +259,6 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Controllers
             result.Should().NotBeNull();
             result.RouteName.Should().Be(EmployerRequestController.ExistingEmployerRequestRouteGet);
             result.RouteValues["hashedAccountId"].Should().Be(parameters.HashedAccountId);
-        }
-
-        [Test]
-        public async Task Overview_ShouldSetLocationToNull_WhenLocationIsInvalidByRegex()
-        {
-            var parameters = new OverviewParameters
-            {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardId = "123",
-                Location = "Invalid@Location"
-            };
-
-            var standardModel = new Standard
-            {
-                StandardLevel = 1,
-                StandardReference = "ST0123",
-                StandardSector = "Sector A",
-                StandardTitle = "Standard A",
-            };
-
-            var viewModel = new OverviewEmployerRequestViewModel
-            {
-                HashedAccountId = "ABC123",
-                RequestType = RequestType.Shortlist,
-                StandardReference = "ST0123",
-                Location = null,
-                StandardTitle = standardModel.StandardTitle,
-                StandardLevel = standardModel.StandardLevel,
-                StandardLarsCode = 123,
-                FindApprenticeshipTrainingBaseUrl = "http:///www.thsite.com"
-            };
-
-            _orchestratorMock.Setup(o => o.GetStandardAndStartSession(It.Is<OverviewParameters>(p => p.Location == null))).ReturnsAsync(standardModel);
-            _orchestratorMock.Setup(o => o.GetOverviewEmployerRequestViewModel(It.Is<OverviewParameters>(p => p.Location == null))).Returns(viewModel);
-
-            var result = await _sut.Overview(parameters) as ViewResult;
-
-            result.Should().NotBeNull();
-            result.Model.Should().BeEquivalentTo(viewModel);
         }
 
         [Test]

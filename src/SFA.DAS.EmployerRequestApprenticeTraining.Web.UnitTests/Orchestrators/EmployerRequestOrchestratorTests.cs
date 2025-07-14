@@ -1303,5 +1303,35 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.UnitTests.Orchestrators
             // Assert
             ex.Message.Should().Be($"The standard {standardId} was not found");
         }
+
+        [Test]
+        public async Task GetStandardAndStartSession_ShouldNotChangeLocation_WhenLocationIsValid()
+        {
+            var validLocation = "London";
+            var overviewParameters = new OverviewParameters { StandardId = "123", Location = validLocation, RequestType = RequestType.Providers };
+            var standard = new Standard { StandardReference = "ST0002", StandardLevel = 1, StandardSector = "Sector A", StandardTitle = "Standard Title" };
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<CacheStandardCommand>(), default)).ReturnsAsync(standard);
+
+            var result = await _sut.GetStandardAndStartSession(overviewParameters);
+
+            overviewParameters.Location.Should().Be(validLocation);
+            result.Should().BeEquivalentTo(standard);
+        }
+
+        [Test]
+        public async Task GetStandardAndStartSession_ShouldSetLocationToNull_WhenLocationIsInvalidSpecialCharacters()
+        {
+            var invalidLocation = "London@2024!"; 
+            var overviewParameters = new OverviewParameters { StandardId = "123", Location = invalidLocation, RequestType = RequestType.Providers };
+            var standard = new Standard { StandardReference = "ST0002", StandardLevel = 1, StandardSector = "Sector A", StandardTitle = "Standard Title" };
+
+            _mediatorMock.Setup(m => m.Send(It.IsAny<CacheStandardCommand>(), default)).ReturnsAsync(standard);
+
+            var result = await _sut.GetStandardAndStartSession(overviewParameters);
+
+            overviewParameters.Location.Should().BeNull();
+            result.Should().BeEquivalentTo(standard);
+        }
     }
 }
