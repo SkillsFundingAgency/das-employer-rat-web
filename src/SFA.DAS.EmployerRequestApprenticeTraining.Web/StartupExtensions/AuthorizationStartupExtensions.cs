@@ -12,19 +12,19 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
         {
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(PolicyNames.TransactorRole, policy =>
+                options.AddPolicy(Authorization.PolicyNames.TransactorRole, policy =>
                 {
                     policy.Requirements.Add(new TransactorRoleRequirement());
                     policy.Requirements.Add(new AccountActiveRequirement());
                 });
 
-                options.AddPolicy(PolicyNames.ViewerRole, policy =>
+                options.AddPolicy(Authorization.PolicyNames.ViewerRole, policy =>
                 {
                     policy.Requirements.Add(new ViewerRoleRequirement());
                     policy.Requirements.Add(new AccountActiveRequirement());
                 });
 
-                options.AddPolicy(PolicyNames.NoneRole, policy =>
+                options.AddPolicy(Authorization.PolicyNames.NoneRole, policy =>
                 {
                     policy.Requirements.Add(new NoneRoleRequirement());
                     policy.Requirements.Add(new AccountActiveRequirement());
