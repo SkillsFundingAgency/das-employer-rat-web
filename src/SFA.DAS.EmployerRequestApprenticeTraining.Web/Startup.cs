@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
@@ -41,6 +42,11 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
 
             services.AddOpenTelemetryRegistration(_configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]!);
 
+            services.AddAntiforgery(options =>
+            {
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
+
             var configurationWeb = _configuration.GetSection<EmployerRequestApprenticeTrainingWebConfiguration>();
             var configurationOuterApi = _configuration.GetSection<EmployerRequestApprenticeTrainingOuterApiConfiguration>();
 
@@ -72,6 +78,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
                 .AddEmployerAuthentication(_configuration)
                 .AddAuthorizationPolicies()
                 .AddSession()
+                .AddSessionOptions()
                 .AddCache(_environment, configurationWeb)
                 .AddMemoryCache()
                 .AddCookieTempDataProvider()

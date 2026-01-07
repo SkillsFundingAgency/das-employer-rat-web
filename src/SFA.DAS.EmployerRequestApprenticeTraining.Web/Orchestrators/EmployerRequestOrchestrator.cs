@@ -28,6 +28,7 @@ using SFA.DAS.EmployerRequestApprenticeTraining.Web.Models.EmployerRequest;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using SFA.DAS.EmployerRequestApprenticeTraining.Infrastructure.Api.Types;
 
@@ -42,7 +43,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         private readonly EmployerRequestApprenticeTrainingWebConfiguration _config;
         private readonly UrlBuilder _urlBuilder;
 
-        public EmployerRequestOrchestrator(IMediator mediator, ISessionStorageService sessionStorage, 
+        public EmployerRequestOrchestrator(IMediator mediator, ISessionStorageService sessionStorage,
             ILocationService locationService, IUserService userService,
             EmployerRequestOrchestratorValidators employerRequestOrchestratorValidators,
             IOptions<EmployerRequestApprenticeTrainingWebConfiguration> options, UrlBuilder urlBuilder)
@@ -59,8 +60,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         public async Task<DashboardViewModel> GetDashboardViewModel(long accountId, string hashedAccountId)
         {
             var dashboard = await _mediator.Send(new GetDashboardQuery { AccountId = accountId });
-            return new DashboardViewModel 
-            { 
+            return new DashboardViewModel
+            {
                 Dashboard = dashboard,
                 HashedAccountId = hashedAccountId,
                 FindApprenticeshipTrainingCoursesUrl = $"{_config.FindApprenticeshipTrainingBaseUrl}courses",
@@ -70,10 +71,10 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
         public async Task AcknowledgeProviderResponses(Guid employerRequestId)
         {
-            await _mediator.Send(new AcknowledgeProviderResponsesCommand 
-            { 
-                EmployerRequestId = employerRequestId, 
-                AcknowledgedBy = GetCurrentUserId 
+            await _mediator.Send(new AcknowledgeProviderResponsesCommand
+            {
+                EmployerRequestId = employerRequestId,
+                AcknowledgedBy = GetCurrentUserId
             });
         }
 
@@ -184,11 +185,16 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
         public async Task<Standard> GetStandardAndStartSession(OverviewParameters parameters)
         {
+            if (!string.IsNullOrEmpty(parameters.Location) &&
+                !Regex.IsMatch(parameters.Location, "^[a-zA-Z0-9\\s,\\.\\-'/&()!]+$", RegexOptions.None, TimeSpan.FromSeconds(1)))
+            {
+                parameters.Location = null;
+            }
             if (string.IsNullOrEmpty(parameters.StandardId))
             {
                 parameters.StandardId = SessionEmployerRequest.StandardLarsCode.ToString();
                 parameters.Location = SessionEmployerRequest.Location;
-                parameters.RequestType = SessionEmployerRequest.RequestType;  
+                parameters.RequestType = SessionEmployerRequest.RequestType;
             }
 
             var standard = await _mediator.Send(new CacheStandardCommand(parameters.StandardId));
@@ -225,8 +231,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
                 StandardLarsCode = SessionEmployerRequest.StandardLarsCode,
                 Location = SessionEmployerRequest.Location,
                 BackToCheckAnswers = parameters.BackToCheckAnswers,
-                NumberOfApprentices = SessionEmployerRequest.NumberOfApprentices != 0 
-                    ? SessionEmployerRequest.NumberOfApprentices.ToString() 
+                NumberOfApprentices = SessionEmployerRequest.NumberOfApprentices != 0
+                    ? SessionEmployerRequest.NumberOfApprentices.ToString()
                     : string.Empty
             };
         }
@@ -238,7 +244,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
         public void UpdateNumberOfApprenticesForEmployerRequest(EnterApprenticesEmployerRequestViewModel viewModel)
         {
-            UpdateSessionEmployerRequest((employerRequest) => 
+            UpdateSessionEmployerRequest((employerRequest) =>
             {
                 var newNumberOfApprentices = int.Parse(viewModel.NumberOfApprentices);
 
@@ -280,8 +286,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
 
         public void UpdateSameLocationForEmployerRequest(EnterSameLocationEmployerRequestViewModel viewModel)
         {
-            UpdateSessionEmployerRequest((employerRequest) => 
-            { 
+            UpdateSessionEmployerRequest((employerRequest) =>
+            {
                 var newSameLocation = viewModel.SameLocation;
 
                 if (employerRequest.SameLocation != newSameLocation)
@@ -335,9 +341,9 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         {
             var regions = await _mediator.Send(new GetRegionsQuery());
 
-            if(!string.IsNullOrEmpty(SessionEmployerRequest.Location) && !(SessionEmployerRequest.Regions?.Any() ?? false)) 
+            if (!string.IsNullOrEmpty(SessionEmployerRequest.Location) && !(SessionEmployerRequest.Regions?.Any() ?? false))
             {
-                var closestRegion = await _mediator.Send(new GetClosestRegionQuery {  Location = SessionEmployerRequest.Location });
+                var closestRegion = await _mediator.Send(new GetClosestRegionQuery { Location = SessionEmployerRequest.Location });
                 if (closestRegion != null)
                 {
                     UpdateSessionEmployerRequest((employerRequest) =>
@@ -451,7 +457,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         }
 
         public async Task<Guid> SubmitEmployerRequest(CheckYourAnswersEmployerRequestViewModel viewModel)
-        { 
+        {
             var employerRequestId = await _mediator.Send(new SubmitEmployerRequestCommand
             {
                 OriginalLocation = SessionEmployerRequest.Location,
@@ -501,7 +507,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Orchestrators
         public async Task<SubmitConfirmationEmployerRequestViewModel> GetSubmitConfirmationEmployerRequestViewModel(string hashedAccountId, Guid employerRequestId)
         {
             var result = await _mediator.Send(new GetSubmitEmployerRequestConfirmationQuery { EmployerRequestId = employerRequestId });
-            if(result == null)
+            if (result == null)
             {
                 throw new ArgumentException($"The employer request {employerRequestId} was not found");
             }
