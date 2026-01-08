@@ -18,6 +18,7 @@ jobs:
         inputs:
           packageType: "sdk"
           version: "10.x"
+          installationPath: /usr/share/dotnet
 
       - script: dotnet --list-sdks
         displayName: "Verify .NET SDKs installed"
