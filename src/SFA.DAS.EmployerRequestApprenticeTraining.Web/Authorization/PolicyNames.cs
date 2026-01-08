@@ -9,6 +9,5 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Authorization
         public const string TransactorRole = nameof(TransactorRole);
         public const string ViewerRole = nameof(ViewerRole);
         public const string NoneRole = nameof(NoneRole);
-        public const string IsAuthenticated = nameof(IsAuthenticated);
     }
 }

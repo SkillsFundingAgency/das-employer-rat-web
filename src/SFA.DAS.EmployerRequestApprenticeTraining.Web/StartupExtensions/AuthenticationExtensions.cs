@@ -14,7 +14,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
     {
         public static IServiceCollection AddEmployerAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddTransient<IStubAuthenticationService, StubAuthenticationService>(); // TODO can be removed once gov login enabled
+            services.AddTransient<IStubAuthenticationService, StubAuthenticationService>();
             services.Configure<GovUkOidcConfiguration>(configuration.GetSection("GovUkOidcConfiguration"));
             services.AddAndConfigureGovUkAuthentication(configuration, 
                 new AuthRedirects
