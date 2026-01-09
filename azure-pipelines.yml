@@ -66,6 +66,7 @@ stages:
   - group: DevTest Management Resources
   - group: TEST DevTest Shared Resources
   - group: TEST das-employer-rat-web
+  - group: TEST group3
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
