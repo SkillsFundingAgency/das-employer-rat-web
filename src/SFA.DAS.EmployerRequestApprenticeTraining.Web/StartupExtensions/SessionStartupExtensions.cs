@@ -16,7 +16,8 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
                 opt.Cookie = new CookieBuilder()
                 {
                     Name = ".EmployerRequestApprenticeTraining.Session",
-                    HttpOnly = true
+                    HttpOnly = true,
+                    SecurePolicy = CookieSecurePolicy.Always
                 };
             });
 
