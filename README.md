@@ -36,7 +36,7 @@ In the web project, if not exist already, add `AppSettings.Development.json` fil
   },
   "AllowedHosts": "*",
   "ConfigurationStorageConnectionString": "UseDevelopmentStorage=true;",
-  "SFA.DAS.EmployerRequestApprenticeTraining.Web,SFA.DAS.Employer.Shared.UI,SFA.DAS.Encoding:EncodingConfig,SFA.DAS.Employer.GovSignIn",
+  "SFA.DAS.EmployerRequestApprenticeTraining.Web,SFA.DAS.Employer.Shared.UI,SFA.DAS.Encoding,SFA.DAS.Employer.GovSignIn",
   "EnvironmentName": "LOCAL",
   "ResourceEnvironmentName": "LOCAL",
   "cdn": {
@@ -49,7 +49,7 @@ In the web project, if not exist already, add `AppSettings.Development.json` fil
 ```
 
 ## Technologies
-* .NetCore 8.0
+* .NetCore 10.0
 * NUnit
 * Moq
 * FluentAssertions
