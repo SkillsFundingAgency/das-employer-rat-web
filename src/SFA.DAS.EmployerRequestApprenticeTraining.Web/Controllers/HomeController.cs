@@ -139,13 +139,13 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.Controllers
         [Route("SignIn-Stub")]
         public async Task<IActionResult> SigninStubPost(SignInStubViewModel model)
         {
-            var claims = await _stubAuthenticationService.GetStubSignInClaims(new StubAuthUserDetails
+            var result = await _stubAuthenticationService.GetStubSignInClaims(new StubAuthUserDetails
             {
                 Email = model.StubEmail,
                 Id = model.StubId
             });
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims,
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, result.Principal,
                 new AuthenticationProperties());
 
             return RedirectToRoute("SignedInStub", new { model.ReturnUrl});
