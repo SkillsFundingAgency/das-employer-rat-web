@@ -19,11 +19,25 @@ When running this locally, with stub sign-in enabled, the launch url should be `
 
 ### Pre-Requisites
 * A clone of this repository
+* A code editor that supports.NET 10.0 e.g. Visual Studio 2026
 * Optionally an Azure Active Directory account with the appropriate roles.
 * The Outer API [das-apim-endpoints](https://github.com/SkillsFundingAgency/das-apim-endpoints/tree/master/src/EmployerRequestApprenticeTraining) should be available either running locally or accessible in an Azure tenancy.
+* Azure Table Storage for config (Azurite and Azure Storage Explorer can be used locally)
 
 ### Config
-You can find the latest config file in [das-employer-config repository](https://github.com/SkillsFundingAgency/das-employer-config/blob/master/das-employer-request-apprentice-training/SFA.DAS.EmployerRequestApprenticeTraining.Web.json)
+
+You can find the latest config file in [das-employer-config repository](https://github.com/SkillsFundingAgency/das-employer-config/blob/master/das-employer-rat-web/SFA.DAS.EmployerRequestApprenticeTraining.Web.json)
+
+Add an entry to Azure Table Storage config
+
+1. Start Azurite and open it in Azure Storage Explorer
+2. Create a table called Configuration (if it does not already exist)
+3. Add a new entry with the following properties
+
+* PartitionKey : LOCAL
+* RowKey : SFA.DAS.EmployerRequestApprenticeTraining.Web_1.0
+* Data : the JSON for this service from the das-employer-config repository
+
 
 In the web project, if not exist already, add `AppSettings.Development.json` file with following content:
 ```json
