@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -87,8 +86,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web
                 .AddEncodingService()
                 .AddServiceRegistrations()
                 .AddOuterApi(configurationOuterApi)
-                .AddEmployerSharedUi(_configuration)
-                .AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+                .AddEmployerSharedUi(_configuration);
 
 #if DEBUG
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
