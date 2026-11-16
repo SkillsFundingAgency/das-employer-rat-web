@@ -19,7 +19,7 @@ namespace SFA.DAS.EmployerRequestApprenticeTraining.Web.StartupExtensions
             services.Configure<EmployerRequestApprenticeTrainingOuterApiConfiguration>(configuration.GetSection(nameof(EmployerRequestApprenticeTrainingOuterApiConfiguration)));
             services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerRequestApprenticeTrainingOuterApiConfiguration>>().Value);
 
-            services.Configure<EncodingConfig>(configuration.GetSection(nameof(EncodingConfig)));
+            services.Configure<EncodingConfig>(configuration);
             services.AddSingleton(cfg => cfg.GetService<IOptions<EncodingConfig>>().Value);
         }
     }
